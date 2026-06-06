@@ -20,7 +20,8 @@ public static class OrigamiFoldWorkbenchBuilder
         Step3_4,
         Step3_5,
         Step3_6,
-        Step4
+        Step4,
+        Step5
     }
 
     [MenuItem("Tools/PANINI/Origami Fold/Rebuild Workbench Step 1")]
@@ -83,6 +84,12 @@ public static class OrigamiFoldWorkbenchBuilder
         RebuildWorkbench(WorkbenchStep.Step4);
     }
 
+    [MenuItem("Tools/PANINI/Origami Fold/Rebuild Workbench Step 5 Puzzle Loop")]
+    public static void RebuildWorkbenchStep5()
+    {
+        RebuildWorkbench(WorkbenchStep.Step5);
+    }
+
     private static void RebuildWorkbench(WorkbenchStep step)
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
@@ -131,6 +138,7 @@ public static class OrigamiFoldWorkbenchBuilder
         DeleteIfExists("ORIGAMI_SQUEEZE_VERTICAL");
         DeleteIfExists("ORIGAMI_UNIFIED_MAP");
         DeleteIfExists("ORIGAMI_PLAYER");
+        DeleteIfExists("ORIGAMI_GAMEPLAY");
 
         GameObject systemRoot = new GameObject("ORIGAMI_FOLD_SYSTEM");
         GameObject pointsRoot = new GameObject("ORIGAMI_FOLD_POINTS");
@@ -143,6 +151,18 @@ public static class OrigamiFoldWorkbenchBuilder
 
         GameObject executeIndicator = CreateExecuteIndicator(debugRoot.transform);
         CreateInstructionText(debugRoot.transform, step);
+
+        if (step == WorkbenchStep.Step5)
+        {
+            RebuildPuzzleLoopOrigamiObjects(
+                systemRoot,
+                pointsRoot,
+                linksRoot,
+                camera,
+                executeIndicator);
+
+            return;
+        }
 
         if (step == WorkbenchStep.Step4)
         {
@@ -472,6 +492,216 @@ public static class OrigamiFoldWorkbenchBuilder
         }
     }
 
+    private static void RebuildPuzzleLoopOrigamiObjects(
+        GameObject systemRoot,
+        GameObject pointsRoot,
+        GameObject linksRoot,
+        Camera camera,
+        GameObject executeIndicator)
+    {
+        GameObject actionsRoot = new GameObject("ORIGAMI_ACTIONS");
+        GameObject guidesRoot = new GameObject("ORIGAMI_GRID_GUIDES");
+        GameObject mapRoot = new GameObject("ORIGAMI_UNIFIED_MAP");
+        GameObject cellsRoot = new GameObject("Cells");
+        cellsRoot.transform.SetParent(mapRoot.transform);
+        cellsRoot.transform.localPosition = Vector3.zero;
+
+        OrigamiFoldActionCoordinator coordinator = systemRoot.AddComponent<OrigamiFoldActionCoordinator>();
+        GameObject[,] cells = CreatePuzzleLoopMapCells(
+            cellsRoot.transform,
+            out OrigamiFoldTransformStack[,] stacks,
+            out bool[,] walkableCells);
+        LayerMask walkableMask = CreateSelectiveWalkableAreas(
+            cells,
+            stacks,
+            walkableCells,
+            1.08f,
+            out int playerLayer);
+
+        OrigamiFoldLink[] rowLinks = CreateWholeStripRowZone(
+            stacks,
+            actionsRoot.transform,
+            pointsRoot.transform,
+            linksRoot.transform,
+            camera,
+            executeIndicator,
+            coordinator);
+
+        OrigamiFoldLink[] columnLinks = CreateWholeStripColumnZone(
+            stacks,
+            actionsRoot.transform,
+            pointsRoot.transform,
+            linksRoot.transform,
+            camera,
+            executeIndicator,
+            coordinator);
+
+        CreateWholeStripGuides(guidesRoot.transform);
+
+        GameObject player = CreateOrigamiPlayer(
+            cells[0, 0],
+            stacks[0, 0],
+            walkableMask,
+            playerLayer);
+
+        GameObject gameplayRoot = new GameObject("ORIGAMI_GAMEPLAY");
+        Transform respawnPoint = CreateRespawnPoint(gameplayRoot.transform, cells[0, 0].transform.position);
+        GameObject fireCollectedIndicator = CreateFireCollectedIndicator(gameplayRoot.transform);
+        GameObject completeIndicator = CreateCompleteIndicator(gameplayRoot.transform);
+
+        GameObject puzzleStateObject = new GameObject("PuzzleState");
+        puzzleStateObject.transform.SetParent(gameplayRoot.transform);
+        OrigamiFoldPuzzleState puzzleState = puzzleStateObject.AddComponent<OrigamiFoldPuzzleState>();
+        puzzleState.player = player.transform;
+        puzzleState.respawnPoint = respawnPoint;
+        puzzleState.fireCollectedIndicator = fireCollectedIndicator;
+        puzzleState.completeIndicator = completeIndicator;
+
+        CreateFireShard(cells[2, 2].transform, puzzleState);
+        CreateExit(cells[4, 2].transform, puzzleState);
+
+        OrigamiFoldDragController controller = systemRoot.AddComponent<OrigamiFoldDragController>();
+        controller.targetCamera = camera;
+        controller.snapDistance = 0.5f;
+        controller.autoFindLinks = true;
+        controller.links = new[]
+        {
+            rowLinks[0],
+            rowLinks[1],
+            rowLinks[2],
+            rowLinks[3],
+            columnLinks[0],
+            columnLinks[1],
+            columnLinks[2],
+            columnLinks[3]
+        };
+    }
+
+    private static GameObject[,] CreatePuzzleLoopMapCells(
+        Transform parent,
+        out OrigamiFoldTransformStack[,] stacks,
+        out bool[,] walkableCells)
+    {
+        GameObject[,] cells = new GameObject[5, 4];
+        stacks = new OrigamiFoldTransformStack[5, 4];
+        walkableCells = new bool[5, 4];
+        float cellVisualSize = 0.92f;
+
+        SetWalkable(walkableCells, 0, 0);
+        SetWalkable(walkableCells, 1, 0);
+        SetWalkable(walkableCells, 2, 0);
+        SetWalkable(walkableCells, 0, 2);
+        SetWalkable(walkableCells, 1, 2);
+        SetWalkable(walkableCells, 2, 2);
+        SetWalkable(walkableCells, 4, 2);
+        SetWalkable(walkableCells, 4, 3);
+
+        for (int y = 0; y < 4; y++)
+        {
+            for (int x = 0; x < 5; x++)
+            {
+                bool isWalkable = walkableCells[x, y];
+                bool isBarrier = y == 1 || x == 3;
+                Color color = new Color(0.16f, 0.18f, 0.20f);
+
+                if (isWalkable)
+                {
+                    color = new Color(0.24f, 0.44f, 0.34f);
+                }
+
+                if (isBarrier)
+                {
+                    color = new Color(0.34f, 0.18f, 0.18f);
+                }
+
+                if (x == 3 && y == 1)
+                {
+                    color = new Color(0.46f, 0.22f, 0.18f);
+                }
+
+                Vector3 position = new Vector3((x - 2) * 1f, (y - 1.5f) * 1f, 0f);
+                GameObject cell = CreateSqueezeCell(
+                    $"MapCell_{x}_{y}",
+                    position,
+                    color,
+                    cellVisualSize,
+                    parent,
+                    $"{x},{y}");
+
+                OrigamiFoldTransformStack stack = cell.AddComponent<OrigamiFoldTransformStack>();
+                stack.CaptureBaseTransform();
+
+                cells[x, y] = cell;
+                stacks[x, y] = stack;
+            }
+        }
+
+        return cells;
+    }
+
+    private static void SetWalkable(bool[,] walkableCells, int x, int y)
+    {
+        walkableCells[x, y] = true;
+    }
+
+    private static LayerMask CreateSelectiveWalkableAreas(
+        GameObject[,] cells,
+        OrigamiFoldTransformStack[,] stacks,
+        bool[,] walkableCells,
+        float colliderSize,
+        out int playerLayer)
+    {
+        int walkableLayer = LayerMask.NameToLayer("Walkable");
+
+        if (walkableLayer < 0)
+        {
+            Debug.LogWarning("Walkable layer was not found. Using Default layer for origami walkable areas.");
+            walkableLayer = 0;
+            playerLayer = LayerMask.NameToLayer("Ignore Raycast");
+
+            if (playerLayer < 0)
+            {
+                playerLayer = 2;
+            }
+        }
+        else
+        {
+            playerLayer = 0;
+        }
+
+        LayerMask walkableMask = new LayerMask
+        {
+            value = 1 << walkableLayer
+        };
+
+        for (int y = 0; y < 4; y++)
+        {
+            for (int x = 0; x < 5; x++)
+            {
+                if (!walkableCells[x, y])
+                {
+                    continue;
+                }
+
+                GameObject areaObject = new GameObject("WalkableArea");
+                areaObject.transform.SetParent(cells[x, y].transform);
+                areaObject.transform.localPosition = Vector3.zero;
+                areaObject.transform.localScale = Vector3.one;
+                areaObject.layer = walkableLayer;
+
+                BoxCollider2D collider = areaObject.AddComponent<BoxCollider2D>();
+                collider.isTrigger = true;
+                collider.size = new Vector2(colliderSize, colliderSize);
+
+                OrigamiFoldWalkableArea area = areaObject.AddComponent<OrigamiFoldWalkableArea>();
+                area.ownerStack = stacks[x, y];
+                area.isWalkable = true;
+            }
+        }
+
+        return walkableMask;
+    }
+
     private static void RebuildPlayerWalkableOrigamiObjects(
         GameObject systemRoot,
         GameObject pointsRoot,
@@ -581,7 +811,7 @@ public static class OrigamiFoldWorkbenchBuilder
         return walkableMask;
     }
 
-    private static void CreateOrigamiPlayer(
+    private static GameObject CreateOrigamiPlayer(
         GameObject startCell,
         OrigamiFoldTransformStack startStack,
         LayerMask walkableMask,
@@ -627,6 +857,154 @@ public static class OrigamiFoldWorkbenchBuilder
         passenger.probeRadius = 0.18f;
         passenger.currentStack = startStack;
         passenger.disableWhileCarried = new Behaviour[] { mover };
+
+        return player;
+    }
+
+    private static Transform CreateRespawnPoint(Transform parent, Vector3 position)
+    {
+        GameObject respawn = new GameObject("RespawnPoint");
+        respawn.transform.SetParent(parent);
+        respawn.transform.position = position;
+        return respawn.transform;
+    }
+
+    private static GameObject CreateFireCollectedIndicator(Transform parent)
+    {
+        GameObject indicator = GameObject.CreatePrimitive(PrimitiveType.Quad);
+        indicator.name = "FireCollectedIndicator";
+        indicator.transform.SetParent(parent);
+        indicator.transform.position = new Vector3(2.95f, 3.15f, 0f);
+        indicator.transform.localScale = new Vector3(0.25f, 0.25f, 1f);
+
+        Collider collider = indicator.GetComponent<Collider>();
+
+        if (collider != null)
+        {
+            Object.DestroyImmediate(collider);
+        }
+
+        Renderer renderer = indicator.GetComponent<Renderer>();
+        renderer.sharedMaterial = CreateMaterial(new Color(1f, 0.72f, 0.12f));
+        renderer.sortingOrder = 80;
+        indicator.SetActive(false);
+
+        return indicator;
+    }
+
+    private static GameObject CreateCompleteIndicator(Transform parent)
+    {
+        GameObject indicator = new GameObject("CompleteIndicator");
+        indicator.transform.SetParent(parent);
+        indicator.transform.position = new Vector3(-0.8f, 3.35f, 0f);
+
+        TextMesh text = indicator.AddComponent<TextMesh>();
+        text.text = "COMPLETE";
+        text.characterSize = 0.22f;
+        text.fontSize = 36;
+        text.anchor = TextAnchor.MiddleCenter;
+        text.alignment = TextAlignment.Center;
+        text.color = Color.green;
+
+        Renderer renderer = indicator.GetComponent<Renderer>();
+
+        if (renderer != null)
+        {
+            renderer.sortingOrder = 90;
+        }
+
+        indicator.SetActive(false);
+
+        return indicator;
+    }
+
+    private static void CreateFireShard(Transform parent, OrigamiFoldPuzzleState puzzleState)
+    {
+        GameObject shard = new GameObject("FireShard");
+        shard.transform.SetParent(parent);
+        shard.transform.localPosition = Vector3.zero;
+        shard.transform.localScale = Vector3.one;
+
+        CircleCollider2D collider = shard.AddComponent<CircleCollider2D>();
+        collider.isTrigger = true;
+        collider.radius = 0.18f;
+
+        GameObject visual = GameObject.CreatePrimitive(PrimitiveType.Quad);
+        visual.name = "Visual";
+        visual.transform.SetParent(shard.transform);
+        visual.transform.localPosition = Vector3.zero;
+        visual.transform.localScale = new Vector3(0.28f, 0.28f, 1f);
+
+        Collider visualCollider = visual.GetComponent<Collider>();
+
+        if (visualCollider != null)
+        {
+            Object.DestroyImmediate(visualCollider);
+        }
+
+        Renderer renderer = visual.GetComponent<Renderer>();
+        renderer.sharedMaterial = CreateMaterial(new Color(1f, 0.58f, 0.08f));
+        renderer.sortingOrder = 75;
+
+        OrigamiFoldFireShard fireShard = shard.AddComponent<OrigamiFoldFireShard>();
+        fireShard.puzzleState = puzzleState;
+        fireShard.visualRoot = visual;
+    }
+
+    private static void CreateExit(Transform parent, OrigamiFoldPuzzleState puzzleState)
+    {
+        GameObject exit = new GameObject("Exit");
+        exit.transform.SetParent(parent);
+        exit.transform.localPosition = Vector3.zero;
+        exit.transform.localScale = Vector3.one;
+
+        BoxCollider2D collider = exit.AddComponent<BoxCollider2D>();
+        collider.isTrigger = true;
+        collider.size = new Vector2(0.46f, 0.46f);
+
+        GameObject lockedVisual = CreateExitVisual(
+            "LockedVisual",
+            exit.transform,
+            new Color(0.55f, 0.16f, 0.16f),
+            76);
+        GameObject openVisual = CreateExitVisual(
+            "OpenVisual",
+            exit.transform,
+            new Color(0.20f, 0.85f, 0.36f),
+            77);
+
+        openVisual.SetActive(false);
+
+        OrigamiFoldExit foldExit = exit.AddComponent<OrigamiFoldExit>();
+        foldExit.puzzleState = puzzleState;
+        foldExit.lockedVisual = lockedVisual;
+        foldExit.openVisual = openVisual;
+    }
+
+    private static GameObject CreateExitVisual(
+        string objectName,
+        Transform parent,
+        Color color,
+        int sortingOrder)
+    {
+        GameObject visual = GameObject.CreatePrimitive(PrimitiveType.Quad);
+        visual.name = objectName;
+        visual.transform.SetParent(parent);
+        visual.transform.localPosition = Vector3.zero;
+        visual.transform.localScale = new Vector3(0.42f, 0.42f, 1f);
+
+        Collider collider = visual.GetComponent<Collider>();
+
+        if (collider != null)
+        {
+            Object.DestroyImmediate(collider);
+        }
+
+        Renderer renderer = visual.GetComponent<Renderer>();
+        renderer.sharedMaterial = CreateMaterial(color);
+        renderer.sortingOrder = sortingOrder;
+
+        return visual;
     }
 
     private static void CreatePlayerFallbackVisual(Transform parent)
@@ -2954,7 +3332,12 @@ public static class OrigamiFoldWorkbenchBuilder
 
     private static void ConfigureCamera(Camera camera, WorkbenchStep step)
     {
-        if (step == WorkbenchStep.Step4)
+        if (step == WorkbenchStep.Step5)
+        {
+            camera.transform.position = new Vector3(0f, 0.1f, -10f);
+            camera.orthographicSize = 4.5f;
+        }
+        else if (step == WorkbenchStep.Step4)
         {
             camera.transform.position = new Vector3(0f, 0.1f, -10f);
             camera.orthographicSize = 4.4f;
@@ -3026,6 +3409,18 @@ public static class OrigamiFoldWorkbenchBuilder
                 new Vector3(0.5f, -0.5f, 0.2f),
                 new Color(0.36f, 0.24f, 0.40f),
                 new Vector3(0.95f, 0.95f, 1f),
+                parent);
+
+            return;
+        }
+
+        if (step == WorkbenchStep.Step5)
+        {
+            CreateWorkbenchTile(
+                "WorkbenchPlate_PuzzleLoop",
+                new Vector3(0f, 0f, 0.35f),
+                new Color(0.10f, 0.12f, 0.14f),
+                new Vector3(5.35f, 4.35f, 1f),
                 parent);
 
             return;
@@ -3233,7 +3628,9 @@ public static class OrigamiFoldWorkbenchBuilder
     {
         GameObject textObject = new GameObject("InstructionText");
         textObject.transform.SetParent(parent);
-        textObject.transform.position = step == WorkbenchStep.Step4
+        textObject.transform.position = step == WorkbenchStep.Step5
+            ? new Vector3(-3.95f, 4.18f, 0f)
+            : step == WorkbenchStep.Step4
             ? new Vector3(-3.75f, 4.12f, 0f)
             : step == WorkbenchStep.Step3_6
             ? new Vector3(-4f, 4.12f, 0f)
@@ -3249,7 +3646,11 @@ public static class OrigamiFoldWorkbenchBuilder
 
         TextMesh text = textObject.AddComponent<TextMesh>();
 
-        if (step == WorkbenchStep.Step4)
+        if (step == WorkbenchStep.Step5)
+        {
+            text.text = "WASD move. Fold row to reach fire. Fold column to reach exit.";
+        }
+        else if (step == WorkbenchStep.Step4)
         {
             text.text = "WASD move. Drag fold handles. Cyan points unfold.";
         }
@@ -3290,7 +3691,9 @@ public static class OrigamiFoldWorkbenchBuilder
             text.text = "Drag neighboring points. Diagonals do not work.";
         }
 
-        text.characterSize = step == WorkbenchStep.Step4
+        text.characterSize = step == WorkbenchStep.Step5
+            ? 0.105f
+            : step == WorkbenchStep.Step4
             ? 0.11f
             : step == WorkbenchStep.Step3_6
             ? 0.10f
@@ -3301,7 +3704,9 @@ public static class OrigamiFoldWorkbenchBuilder
             : step == WorkbenchStep.Step3_3
             ? 0.095f
             : step == WorkbenchStep.Step3_1 || step == WorkbenchStep.Step3_2 ? 0.11f : 0.13f;
-        text.fontSize = step == WorkbenchStep.Step4
+        text.fontSize = step == WorkbenchStep.Step5
+            ? 23
+            : step == WorkbenchStep.Step4
             ? 24
             : step == WorkbenchStep.Step3_6
             ? 22
