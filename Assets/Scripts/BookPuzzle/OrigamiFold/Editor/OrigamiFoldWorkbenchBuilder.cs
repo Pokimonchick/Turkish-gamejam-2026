@@ -22,7 +22,8 @@ public static class OrigamiFoldWorkbenchBuilder
         Step3_6,
         Step4,
         Step5,
-        Step5_1
+        Step5_1,
+        Step5_2
     }
 
     [MenuItem("Tools/PANINI/Origami Fold/Rebuild Workbench Step 1")]
@@ -97,6 +98,12 @@ public static class OrigamiFoldWorkbenchBuilder
         RebuildWorkbench(WorkbenchStep.Step5_1);
     }
 
+    [MenuItem("Tools/PANINI/Origami Fold/Rebuild Workbench Step 5.2 Hazards")]
+    public static void RebuildWorkbenchStep5_2()
+    {
+        RebuildWorkbench(WorkbenchStep.Step5_2);
+    }
+
     private static void RebuildWorkbench(WorkbenchStep step)
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
@@ -159,7 +166,9 @@ public static class OrigamiFoldWorkbenchBuilder
         GameObject executeIndicator = CreateExecuteIndicator(debugRoot.transform);
         CreateInstructionText(debugRoot.transform, step);
 
-        if (step == WorkbenchStep.Step5 || step == WorkbenchStep.Step5_1)
+        if (step == WorkbenchStep.Step5
+            || step == WorkbenchStep.Step5_1
+            || step == WorkbenchStep.Step5_2)
         {
             RebuildPuzzleLoopOrigamiObjects(
                 systemRoot,
@@ -167,7 +176,8 @@ public static class OrigamiFoldWorkbenchBuilder
                 linksRoot,
                 camera,
                 executeIndicator,
-                step == WorkbenchStep.Step5_1);
+                step == WorkbenchStep.Step5_1 || step == WorkbenchStep.Step5_2,
+                step == WorkbenchStep.Step5_2);
 
             return;
         }
@@ -506,7 +516,8 @@ public static class OrigamiFoldWorkbenchBuilder
         GameObject linksRoot,
         Camera camera,
         GameObject executeIndicator,
-        bool useTightPlayerBounds)
+        bool useTightPlayerBounds,
+        bool includeHazards)
     {
         GameObject actionsRoot = new GameObject("ORIGAMI_ACTIONS");
         GameObject guidesRoot = new GameObject("ORIGAMI_GRID_GUIDES");
@@ -569,6 +580,11 @@ public static class OrigamiFoldWorkbenchBuilder
 
         CreateFireShard(cells[2, 2].transform, puzzleState);
         CreateExit(cells[4, 2].transform, puzzleState);
+
+        if (includeHazards)
+        {
+            CreatePuzzleLoopHazards(cells, actionsRoot.transform, puzzleState);
+        }
 
         OrigamiFoldDragController controller = systemRoot.AddComponent<OrigamiFoldDragController>();
         controller.targetCamera = camera;
@@ -1035,6 +1051,246 @@ public static class OrigamiFoldWorkbenchBuilder
         renderer.sortingOrder = sortingOrder;
 
         return visual;
+    }
+
+    private static void CreatePuzzleLoopHazards(
+        GameObject[,] cells,
+        Transform actionsRoot,
+        OrigamiFoldPuzzleState puzzleState)
+    {
+        CreateHazardObject(
+            "UpperStaticHazard",
+            cells[1, 2].transform,
+            new Vector3(0.25f, 0.25f, 0f),
+            0.13f,
+            new Color(1f, 0.1f, 0.55f),
+            puzzleState,
+            "UpperStaticHazard",
+            true);
+
+        CreateTrapHazard(
+            "RowTrapHazard",
+            cells[2, 1].transform,
+            puzzleState,
+            "RowTrapHazard",
+            out GameObject rowActiveHazard,
+            out GameObject rowTrappedVisual);
+
+        CreateTrapHazard(
+            "ColumnTrapHazard",
+            cells[3, 2].transform,
+            puzzleState,
+            "ColumnTrapHazard",
+            out GameObject columnActiveHazard,
+            out GameObject columnTrappedVisual);
+
+        AppendTrapObjectsToStripAction(
+            FindStripAction(actionsRoot, "Row_StripSqueezeAction"),
+            rowActiveHazard,
+            rowTrappedVisual);
+        AppendTrapObjectsToStripAction(
+            FindStripAction(actionsRoot, "Column_StripSqueezeAction"),
+            columnActiveHazard,
+            columnTrappedVisual);
+    }
+
+    private static void CreateTrapHazard(
+        string objectName,
+        Transform parent,
+        OrigamiFoldPuzzleState puzzleState,
+        string debugName,
+        out GameObject activeHazard,
+        out GameObject trappedVisual)
+    {
+        GameObject root = new GameObject(objectName);
+        root.transform.SetParent(parent);
+        root.transform.localPosition = Vector3.zero;
+        root.transform.localScale = Vector3.one;
+
+        activeHazard = CreateHazardObject(
+            "ActiveHazard",
+            root.transform,
+            Vector3.zero,
+            0.16f,
+            new Color(1f, 0.08f, 0.08f),
+            puzzleState,
+            debugName,
+            true);
+
+        trappedVisual = CreateHazardVisualObject(
+            "TrappedVisual",
+            root.transform,
+            Vector3.zero,
+            new Vector3(0.34f, 0.34f, 1f),
+            new Color(0.1f, 0.85f, 1f),
+            78);
+        trappedVisual.SetActive(false);
+    }
+
+    private static GameObject CreateHazardObject(
+        string objectName,
+        Transform parent,
+        Vector3 localPosition,
+        float colliderRadius,
+        Color color,
+        OrigamiFoldPuzzleState puzzleState,
+        string debugName,
+        bool respawnOnTouch)
+    {
+        GameObject hazard = CreateHazardVisualObject(
+            objectName,
+            parent,
+            localPosition,
+            new Vector3(colliderRadius * 2f, colliderRadius * 2f, 1f),
+            color,
+            78);
+
+        CircleCollider2D collider = hazard.AddComponent<CircleCollider2D>();
+        collider.isTrigger = true;
+        collider.radius = colliderRadius;
+
+        OrigamiFoldHazard hazardComponent = hazard.AddComponent<OrigamiFoldHazard>();
+        hazardComponent.puzzleState = puzzleState;
+        hazardComponent.respawnOnTouch = respawnOnTouch;
+        hazardComponent.disableAfterTouch = false;
+        hazardComponent.visualRoot = hazard;
+        hazardComponent.debugName = debugName;
+
+        return hazard;
+    }
+
+    private static GameObject CreateHazardVisualObject(
+        string objectName,
+        Transform parent,
+        Vector3 localPosition,
+        Vector3 visualScale,
+        Color color,
+        int sortingOrder)
+    {
+        GameObject hazard = new GameObject(objectName);
+        hazard.transform.SetParent(parent);
+        hazard.transform.localPosition = localPosition;
+        hazard.transform.localScale = Vector3.one;
+
+        GameObject visual = new GameObject("Visual");
+        visual.transform.SetParent(hazard.transform);
+        visual.transform.localPosition = Vector3.zero;
+        visual.transform.localScale = visualScale;
+
+        SpriteRenderer spriteRenderer = visual.AddComponent<SpriteRenderer>();
+        spriteRenderer.sprite = FindBuiltinPlayerSprite();
+        spriteRenderer.color = color;
+        spriteRenderer.sortingOrder = sortingOrder;
+
+        if (spriteRenderer.sprite == null)
+        {
+            Object.DestroyImmediate(visual);
+            CreateColoredQuadVisual(hazard.transform, visualScale, color, sortingOrder);
+        }
+
+        return hazard;
+    }
+
+    private static void CreateColoredQuadVisual(
+        Transform parent,
+        Vector3 visualScale,
+        Color color,
+        int sortingOrder)
+    {
+        GameObject visual = GameObject.CreatePrimitive(PrimitiveType.Quad);
+        visual.name = "Visual";
+        visual.transform.SetParent(parent);
+        visual.transform.localPosition = Vector3.zero;
+        visual.transform.localScale = visualScale;
+
+        Collider collider = visual.GetComponent<Collider>();
+
+        if (collider != null)
+        {
+            Object.DestroyImmediate(collider);
+        }
+
+        Renderer renderer = visual.GetComponent<Renderer>();
+        renderer.sharedMaterial = CreateMaterial(color);
+        renderer.sortingOrder = sortingOrder;
+    }
+
+    private static OrigamiFoldStripSqueezeAction FindStripAction(
+        Transform actionsRoot,
+        string actionName)
+    {
+        if (actionsRoot == null)
+        {
+            return null;
+        }
+
+        Transform actionTransform = actionsRoot.Find(actionName);
+
+        if (actionTransform == null)
+        {
+            Debug.LogWarning($"Could not find strip action: {actionName}");
+            return null;
+        }
+
+        return actionTransform.GetComponent<OrigamiFoldStripSqueezeAction>();
+    }
+
+    private static void AppendTrapObjectsToStripAction(
+        OrigamiFoldStripSqueezeAction action,
+        GameObject activeHazard,
+        GameObject trappedVisual)
+    {
+        if (action == null)
+        {
+            return;
+        }
+
+        action.disableAfterActive = AppendGameObjects(action.disableAfterActive, activeHazard);
+        action.enableAfterActive = AppendGameObjects(action.enableAfterActive, trappedVisual);
+        action.enableAfterInactive = AppendGameObjects(action.enableAfterInactive, activeHazard);
+        action.disableAfterInactive = AppendGameObjects(action.disableAfterInactive, trappedVisual);
+    }
+
+    private static GameObject[] AppendGameObjects(GameObject[] existing, params GameObject[] additions)
+    {
+        int existingLength = existing == null ? 0 : existing.Length;
+        int additionCount = 0;
+
+        if (additions != null)
+        {
+            for (int i = 0; i < additions.Length; i++)
+            {
+                if (additions[i] != null)
+                {
+                    additionCount++;
+                }
+            }
+        }
+
+        GameObject[] result = new GameObject[existingLength + additionCount];
+        int index = 0;
+
+        for (int i = 0; i < existingLength; i++)
+        {
+            result[index] = existing[i];
+            index++;
+        }
+
+        if (additions != null)
+        {
+            for (int i = 0; i < additions.Length; i++)
+            {
+                if (additions[i] == null)
+                {
+                    continue;
+                }
+
+                result[index] = additions[i];
+                index++;
+            }
+        }
+
+        return result;
     }
 
     private static void CreatePlayerFallbackVisual(Transform parent, Vector3 visualScale)
@@ -3362,7 +3618,9 @@ public static class OrigamiFoldWorkbenchBuilder
 
     private static void ConfigureCamera(Camera camera, WorkbenchStep step)
     {
-        if (step == WorkbenchStep.Step5 || step == WorkbenchStep.Step5_1)
+        if (step == WorkbenchStep.Step5
+            || step == WorkbenchStep.Step5_1
+            || step == WorkbenchStep.Step5_2)
         {
             camera.transform.position = new Vector3(0f, 0.1f, -10f);
             camera.orthographicSize = 4.5f;
@@ -3444,10 +3702,16 @@ public static class OrigamiFoldWorkbenchBuilder
             return;
         }
 
-        if (step == WorkbenchStep.Step5 || step == WorkbenchStep.Step5_1)
+        if (step == WorkbenchStep.Step5
+            || step == WorkbenchStep.Step5_1
+            || step == WorkbenchStep.Step5_2)
         {
             CreateWorkbenchTile(
-                step == WorkbenchStep.Step5_1 ? "WorkbenchPlate_TightPuzzleLoop" : "WorkbenchPlate_PuzzleLoop",
+                step == WorkbenchStep.Step5_2
+                    ? "WorkbenchPlate_HazardPuzzleLoop"
+                    : step == WorkbenchStep.Step5_1
+                    ? "WorkbenchPlate_TightPuzzleLoop"
+                    : "WorkbenchPlate_PuzzleLoop",
                 new Vector3(0f, 0f, 0.35f),
                 new Color(0.10f, 0.12f, 0.14f),
                 new Vector3(5.35f, 4.35f, 1f),
@@ -3658,7 +3922,9 @@ public static class OrigamiFoldWorkbenchBuilder
     {
         GameObject textObject = new GameObject("InstructionText");
         textObject.transform.SetParent(parent);
-        textObject.transform.position = step == WorkbenchStep.Step5 || step == WorkbenchStep.Step5_1
+        textObject.transform.position = step == WorkbenchStep.Step5
+            || step == WorkbenchStep.Step5_1
+            || step == WorkbenchStep.Step5_2
             ? new Vector3(-3.95f, 4.18f, 0f)
             : step == WorkbenchStep.Step4
             ? new Vector3(-3.75f, 4.12f, 0f)
@@ -3676,7 +3942,11 @@ public static class OrigamiFoldWorkbenchBuilder
 
         TextMesh text = textObject.AddComponent<TextMesh>();
 
-        if (step == WorkbenchStep.Step5_1)
+        if (step == WorkbenchStep.Step5_2)
+        {
+            text.text = "WASD move. Red hazards respawn. Fold strips to trap some hazards.";
+        }
+        else if (step == WorkbenchStep.Step5_1)
         {
             text.text = "WASD move. Tight bounds. Fold row/fire, column/exit.";
         }
@@ -3725,7 +3995,9 @@ public static class OrigamiFoldWorkbenchBuilder
             text.text = "Drag neighboring points. Diagonals do not work.";
         }
 
-        text.characterSize = step == WorkbenchStep.Step5 || step == WorkbenchStep.Step5_1
+        text.characterSize = step == WorkbenchStep.Step5
+            || step == WorkbenchStep.Step5_1
+            || step == WorkbenchStep.Step5_2
             ? 0.105f
             : step == WorkbenchStep.Step4
             ? 0.11f
@@ -3738,7 +4010,9 @@ public static class OrigamiFoldWorkbenchBuilder
             : step == WorkbenchStep.Step3_3
             ? 0.095f
             : step == WorkbenchStep.Step3_1 || step == WorkbenchStep.Step3_2 ? 0.11f : 0.13f;
-        text.fontSize = step == WorkbenchStep.Step5 || step == WorkbenchStep.Step5_1
+        text.fontSize = step == WorkbenchStep.Step5
+            || step == WorkbenchStep.Step5_1
+            || step == WorkbenchStep.Step5_2
             ? 23
             : step == WorkbenchStep.Step4
             ? 24
