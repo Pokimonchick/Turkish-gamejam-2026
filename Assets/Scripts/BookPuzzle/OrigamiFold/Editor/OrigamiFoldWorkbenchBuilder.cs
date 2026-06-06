@@ -21,7 +21,8 @@ public static class OrigamiFoldWorkbenchBuilder
         Step3_5,
         Step3_6,
         Step4,
-        Step5
+        Step5,
+        Step5_1
     }
 
     [MenuItem("Tools/PANINI/Origami Fold/Rebuild Workbench Step 1")]
@@ -90,6 +91,12 @@ public static class OrigamiFoldWorkbenchBuilder
         RebuildWorkbench(WorkbenchStep.Step5);
     }
 
+    [MenuItem("Tools/PANINI/Origami Fold/Rebuild Workbench Step 5.1 Tight Player Bounds")]
+    public static void RebuildWorkbenchStep5_1()
+    {
+        RebuildWorkbench(WorkbenchStep.Step5_1);
+    }
+
     private static void RebuildWorkbench(WorkbenchStep step)
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
@@ -152,14 +159,15 @@ public static class OrigamiFoldWorkbenchBuilder
         GameObject executeIndicator = CreateExecuteIndicator(debugRoot.transform);
         CreateInstructionText(debugRoot.transform, step);
 
-        if (step == WorkbenchStep.Step5)
+        if (step == WorkbenchStep.Step5 || step == WorkbenchStep.Step5_1)
         {
             RebuildPuzzleLoopOrigamiObjects(
                 systemRoot,
                 pointsRoot,
                 linksRoot,
                 camera,
-                executeIndicator);
+                executeIndicator,
+                step == WorkbenchStep.Step5_1);
 
             return;
         }
@@ -497,7 +505,8 @@ public static class OrigamiFoldWorkbenchBuilder
         GameObject pointsRoot,
         GameObject linksRoot,
         Camera camera,
-        GameObject executeIndicator)
+        GameObject executeIndicator,
+        bool useTightPlayerBounds)
     {
         GameObject actionsRoot = new GameObject("ORIGAMI_ACTIONS");
         GameObject guidesRoot = new GameObject("ORIGAMI_GRID_GUIDES");
@@ -515,7 +524,7 @@ public static class OrigamiFoldWorkbenchBuilder
             cells,
             stacks,
             walkableCells,
-            1.08f,
+            useTightPlayerBounds ? 1f : 1.08f,
             out int playerLayer);
 
         OrigamiFoldLink[] rowLinks = CreateWholeStripRowZone(
@@ -542,7 +551,8 @@ public static class OrigamiFoldWorkbenchBuilder
             cells[0, 0],
             stacks[0, 0],
             walkableMask,
-            playerLayer);
+            playerLayer,
+            useTightPlayerBounds);
 
         GameObject gameplayRoot = new GameObject("ORIGAMI_GAMEPLAY");
         Transform respawnPoint = CreateRespawnPoint(gameplayRoot.transform, cells[0, 0].transform.position);
@@ -815,7 +825,8 @@ public static class OrigamiFoldWorkbenchBuilder
         GameObject startCell,
         OrigamiFoldTransformStack startStack,
         LayerMask walkableMask,
-        int playerLayer)
+        int playerLayer,
+        bool useTightMover = false)
     {
         GameObject playerRoot = new GameObject("ORIGAMI_PLAYER");
         GameObject player = new GameObject("Player");
@@ -829,14 +840,16 @@ public static class OrigamiFoldWorkbenchBuilder
         }
 
         SpriteRenderer spriteRenderer = player.AddComponent<SpriteRenderer>();
-        spriteRenderer.sprite = FindBuiltinPlayerSprite();
+        spriteRenderer.sprite = useTightMover ? null : FindBuiltinPlayerSprite();
         spriteRenderer.color = new Color(1f, 0.72f, 0.22f);
         spriteRenderer.sortingOrder = 70;
 
         if (spriteRenderer.sprite == null)
         {
             spriteRenderer.enabled = false;
-            CreatePlayerFallbackVisual(player.transform);
+            CreatePlayerFallbackVisual(
+                player.transform,
+                useTightMover ? new Vector3(0.36f, 0.36f, 1f) : new Vector3(0.28f, 0.28f, 1f));
         }
 
         Rigidbody2D body = player.AddComponent<Rigidbody2D>();
@@ -845,18 +858,35 @@ public static class OrigamiFoldWorkbenchBuilder
         body.constraints = RigidbodyConstraints2D.FreezeRotation;
 
         CircleCollider2D collider = player.AddComponent<CircleCollider2D>();
-        collider.radius = 0.16f;
+        collider.radius = useTightMover ? 0.18f : 0.16f;
 
-        PlayerFreeRoadMover mover = player.AddComponent<PlayerFreeRoadMover>();
-        mover.moveSpeed = 3.5f;
-        mover.probeRadius = 0.14f;
-        mover.walkableMask = walkableMask;
+        Behaviour movementBehaviour;
+
+        if (useTightMover)
+        {
+            OrigamiFoldPlayerMover mover = player.AddComponent<OrigamiFoldPlayerMover>();
+            mover.moveSpeed = 3.5f;
+            mover.bodyRadius = 0.18f;
+            mover.sampleProbeRadius = 0.025f;
+            mover.walkableMask = walkableMask;
+            mover.requireAllSamplesInsideWalkable = true;
+            mover.debugDrawSamples = true;
+            movementBehaviour = mover;
+        }
+        else
+        {
+            PlayerFreeRoadMover mover = player.AddComponent<PlayerFreeRoadMover>();
+            mover.moveSpeed = 3.5f;
+            mover.probeRadius = 0.14f;
+            mover.walkableMask = walkableMask;
+            movementBehaviour = mover;
+        }
 
         OrigamiFoldPassenger passenger = player.AddComponent<OrigamiFoldPassenger>();
         passenger.walkableMask = walkableMask;
         passenger.probeRadius = 0.18f;
         passenger.currentStack = startStack;
-        passenger.disableWhileCarried = new Behaviour[] { mover };
+        passenger.disableWhileCarried = new[] { movementBehaviour };
 
         return player;
     }
@@ -1007,13 +1037,13 @@ public static class OrigamiFoldWorkbenchBuilder
         return visual;
     }
 
-    private static void CreatePlayerFallbackVisual(Transform parent)
+    private static void CreatePlayerFallbackVisual(Transform parent, Vector3 visualScale)
     {
         GameObject visual = GameObject.CreatePrimitive(PrimitiveType.Quad);
         visual.name = "Visual";
         visual.transform.SetParent(parent);
         visual.transform.localPosition = Vector3.zero;
-        visual.transform.localScale = new Vector3(0.28f, 0.28f, 1f);
+        visual.transform.localScale = visualScale;
 
         Collider collider = visual.GetComponent<Collider>();
 
@@ -3332,7 +3362,7 @@ public static class OrigamiFoldWorkbenchBuilder
 
     private static void ConfigureCamera(Camera camera, WorkbenchStep step)
     {
-        if (step == WorkbenchStep.Step5)
+        if (step == WorkbenchStep.Step5 || step == WorkbenchStep.Step5_1)
         {
             camera.transform.position = new Vector3(0f, 0.1f, -10f);
             camera.orthographicSize = 4.5f;
@@ -3414,10 +3444,10 @@ public static class OrigamiFoldWorkbenchBuilder
             return;
         }
 
-        if (step == WorkbenchStep.Step5)
+        if (step == WorkbenchStep.Step5 || step == WorkbenchStep.Step5_1)
         {
             CreateWorkbenchTile(
-                "WorkbenchPlate_PuzzleLoop",
+                step == WorkbenchStep.Step5_1 ? "WorkbenchPlate_TightPuzzleLoop" : "WorkbenchPlate_PuzzleLoop",
                 new Vector3(0f, 0f, 0.35f),
                 new Color(0.10f, 0.12f, 0.14f),
                 new Vector3(5.35f, 4.35f, 1f),
@@ -3628,7 +3658,7 @@ public static class OrigamiFoldWorkbenchBuilder
     {
         GameObject textObject = new GameObject("InstructionText");
         textObject.transform.SetParent(parent);
-        textObject.transform.position = step == WorkbenchStep.Step5
+        textObject.transform.position = step == WorkbenchStep.Step5 || step == WorkbenchStep.Step5_1
             ? new Vector3(-3.95f, 4.18f, 0f)
             : step == WorkbenchStep.Step4
             ? new Vector3(-3.75f, 4.12f, 0f)
@@ -3646,7 +3676,11 @@ public static class OrigamiFoldWorkbenchBuilder
 
         TextMesh text = textObject.AddComponent<TextMesh>();
 
-        if (step == WorkbenchStep.Step5)
+        if (step == WorkbenchStep.Step5_1)
+        {
+            text.text = "WASD move. Tight bounds. Fold row/fire, column/exit.";
+        }
+        else if (step == WorkbenchStep.Step5)
         {
             text.text = "WASD move. Fold row to reach fire. Fold column to reach exit.";
         }
@@ -3691,7 +3725,7 @@ public static class OrigamiFoldWorkbenchBuilder
             text.text = "Drag neighboring points. Diagonals do not work.";
         }
 
-        text.characterSize = step == WorkbenchStep.Step5
+        text.characterSize = step == WorkbenchStep.Step5 || step == WorkbenchStep.Step5_1
             ? 0.105f
             : step == WorkbenchStep.Step4
             ? 0.11f
@@ -3704,7 +3738,7 @@ public static class OrigamiFoldWorkbenchBuilder
             : step == WorkbenchStep.Step3_3
             ? 0.095f
             : step == WorkbenchStep.Step3_1 || step == WorkbenchStep.Step3_2 ? 0.11f : 0.13f;
-        text.fontSize = step == WorkbenchStep.Step5
+        text.fontSize = step == WorkbenchStep.Step5 || step == WorkbenchStep.Step5_1
             ? 23
             : step == WorkbenchStep.Step4
             ? 24
