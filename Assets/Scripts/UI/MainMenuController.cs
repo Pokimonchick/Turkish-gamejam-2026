@@ -16,7 +16,9 @@ public sealed class MainMenuSceneReference
 #if UNITY_EDITOR
     [SerializeField] private SceneAsset sceneAsset;
 #endif
+    [HideInInspector]
     [SerializeField] private string scenePath;
+    [HideInInspector]
     [SerializeField] private string sceneName;
 
     public string RuntimeSceneKey
@@ -169,7 +171,7 @@ public sealed class MainMenuController : MonoBehaviour
             return;
         }
 
-        SceneManager.LoadScene(sceneKey);
+        SceneTransition.Load(sceneKey);
     }
 
     private void ShowSettings(bool isOpen)
