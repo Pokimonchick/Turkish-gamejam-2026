@@ -30,6 +30,12 @@ public class OrigamiFoldStripSqueezeAction : MonoBehaviour
 
     public bool IsAnimating { get; private set; }
 
+    private struct PassengerCarry
+    {
+        public OrigamiFoldPassenger passenger;
+        public Vector3 worldOffset;
+    }
+
     private void Awake()
     {
         if (useCoordinator && coordinator == null)
@@ -52,6 +58,7 @@ public class OrigamiFoldStripSqueezeAction : MonoBehaviour
             return;
         }
 
+        PassengerCarry[] passengerCarries = CollectPassengerCarries(active);
         isActive = active;
 
         if (active)
@@ -67,7 +74,7 @@ public class OrigamiFoldStripSqueezeAction : MonoBehaviour
             ClearContributions();
         }
 
-        StartCoroutine(AnimateRoutine(active, activeCoordinator));
+        StartCoroutine(AnimateRoutine(active, activeCoordinator, passengerCarries));
     }
 
     public void Toggle()
@@ -75,21 +82,43 @@ public class OrigamiFoldStripSqueezeAction : MonoBehaviour
         SetActive(!isActive);
     }
 
-    private IEnumerator AnimateRoutine(bool active, OrigamiFoldActionCoordinator activeCoordinator)
+    private IEnumerator AnimateRoutine(
+        bool active,
+        OrigamiFoldActionCoordinator activeCoordinator,
+        PassengerCarry[] passengerCarries)
     {
         IsAnimating = true;
 
         List<OrigamiFoldTransformStack> stacks = CollectUniqueStacks();
-        Coroutine[] animations = new Coroutine[stacks.Count];
+        int carryCount = passengerCarries == null ? 0 : passengerCarries.Length;
+        Coroutine[] animations = new Coroutine[stacks.Count + carryCount];
+        int animationIndex = 0;
 
         for (int i = 0; i < stacks.Count; i++)
         {
-            animations[i] = StartCoroutine(stacks[i].AnimateToResolved(animationDuration));
+            animations[animationIndex] = StartCoroutine(stacks[i].AnimateToResolved(animationDuration));
+            animationIndex++;
+        }
+
+        for (int i = 0; i < carryCount; i++)
+        {
+            PassengerCarry carry = passengerCarries[i];
+
+            if (carry.passenger != null)
+            {
+                animations[animationIndex] = carry.passenger.CarryBy(
+                    carry.worldOffset,
+                    animationDuration);
+                animationIndex++;
+            }
         }
 
         for (int i = 0; i < animations.Length; i++)
         {
-            yield return animations[i];
+            if (animations[i] != null)
+            {
+                yield return animations[i];
+            }
         }
 
         if (active)
@@ -109,6 +138,75 @@ public class OrigamiFoldStripSqueezeAction : MonoBehaviour
         {
             activeCoordinator.End(this);
         }
+    }
+
+    private PassengerCarry[] CollectPassengerCarries(bool active)
+    {
+        OrigamiFoldPassenger[] passengers = FindObjectsByType<OrigamiFoldPassenger>(
+            FindObjectsSortMode.None);
+
+        if (passengers == null || passengers.Length == 0 || targets == null)
+        {
+            return new PassengerCarry[0];
+        }
+
+        List<PassengerCarry> carries = new List<PassengerCarry>();
+
+        for (int i = 0; i < passengers.Length; i++)
+        {
+            OrigamiFoldPassenger passenger = passengers[i];
+
+            if (passenger == null)
+            {
+                continue;
+            }
+
+            if (passenger.refreshStackBeforeCarry)
+            {
+                passenger.RefreshCurrentStack();
+            }
+
+            if (!passenger.TryGetCurrentStack(out OrigamiFoldTransformStack passengerStack))
+            {
+                continue;
+            }
+
+            for (int targetIndex = 0; targetIndex < targets.Length; targetIndex++)
+            {
+                OrigamiStripContributionTarget target = targets[targetIndex];
+
+                if (target == null || target.stack != passengerStack)
+                {
+                    continue;
+                }
+
+                Vector3 localOffset = active
+                    ? target.activeLocalPositionOffset
+                    : -target.activeLocalPositionOffset;
+                Vector3 worldOffset = LocalOffsetToWorldOffset(target.stack, localOffset);
+
+                carries.Add(new PassengerCarry
+                {
+                    passenger = passenger,
+                    worldOffset = worldOffset
+                });
+                break;
+            }
+        }
+
+        return carries.ToArray();
+    }
+
+    private Vector3 LocalOffsetToWorldOffset(
+        OrigamiFoldTransformStack stack,
+        Vector3 localOffset)
+    {
+        if (stack == null || stack.transform.parent == null)
+        {
+            return localOffset;
+        }
+
+        return stack.transform.parent.TransformVector(localOffset);
     }
 
     private void ApplyActiveContributions()
