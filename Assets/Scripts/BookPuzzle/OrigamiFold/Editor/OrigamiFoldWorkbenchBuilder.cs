@@ -14,7 +14,8 @@ public static class OrigamiFoldWorkbenchBuilder
         Step1,
         Step2,
         Step3,
-        Step3_1
+        Step3_1,
+        Step3_2
     }
 
     [MenuItem("Tools/PANINI/Origami Fold/Rebuild Workbench Step 1")]
@@ -39,6 +40,12 @@ public static class OrigamiFoldWorkbenchBuilder
     public static void RebuildWorkbenchStep3_1()
     {
         RebuildWorkbench(WorkbenchStep.Step3_1);
+    }
+
+    [MenuItem("Tools/PANINI/Origami Fold/Rebuild Workbench Step 3.2 Horizontal Controls")]
+    public static void RebuildWorkbenchStep3_2()
+    {
+        RebuildWorkbench(WorkbenchStep.Step3_2);
     }
 
     private static void RebuildWorkbench(WorkbenchStep step)
@@ -99,8 +106,11 @@ public static class OrigamiFoldWorkbenchBuilder
         CreateInstructionText(debugRoot.transform, step);
 
         bool hasGrid = step != WorkbenchStep.Step1;
-        bool hasMergedPoints = step == WorkbenchStep.Step3 || step == WorkbenchStep.Step3_1;
-        bool isGridAligned = step == WorkbenchStep.Step3_1;
+        bool hasMergedPoints = step == WorkbenchStep.Step3
+            || step == WorkbenchStep.Step3_1
+            || step == WorkbenchStep.Step3_2;
+        bool isGridAligned = step == WorkbenchStep.Step3_1
+            || step == WorkbenchStep.Step3_2;
 
         Vector2 boardOrigin = isGridAligned ? new Vector2(-1.5f, 0f) : new Vector2(-1.5f, -0.4f);
         float cellSize = 1f;
@@ -239,24 +249,64 @@ public static class OrigamiFoldWorkbenchBuilder
             CreateGridGuides(boardOrigin, cellSize);
         }
 
-        OrigamiFoldLink top = CreateFoldLink(
-            "OrigamiLink_Top",
-            topLeft,
-            topRight,
-            executeIndicator,
-            linksRoot.transform);
-
-        if (hasGrid)
-        {
-            top.bidirectional = false;
-            top.targetMoveAction = compressHorizontalAction;
-            top.activeStateOnExecute = true;
-        }
-
+        OrigamiFoldLink top = null;
         OrigamiFoldLink bottom = null;
         OrigamiFoldLink left = null;
         OrigamiFoldLink right = null;
         OrigamiFoldLink topUnfold = null;
+        OrigamiFoldLink topRightToLeft = null;
+        OrigamiFoldLink bottomLeftToRight = null;
+        OrigamiFoldLink bottomRightToLeft = null;
+
+        if (step == WorkbenchStep.Step3_2)
+        {
+            top = CreateFoldLink(
+                "OrigamiLink_Top_LTR",
+                topLeft,
+                topRight,
+                executeIndicator,
+                linksRoot.transform);
+
+            topRightToLeft = CreateFoldLink(
+                "OrigamiLink_Top_RTL",
+                topRight,
+                topLeft,
+                executeIndicator,
+                linksRoot.transform);
+
+            bottomLeftToRight = CreateFoldLink(
+                "OrigamiLink_Bottom_LTR",
+                bottomLeft,
+                bottomRight,
+                executeIndicator,
+                linksRoot.transform);
+
+            bottomRightToLeft = CreateFoldLink(
+                "OrigamiLink_Bottom_RTL",
+                bottomRight,
+                bottomLeft,
+                executeIndicator,
+                linksRoot.transform);
+
+            ConfigureFoldMoveLink(top, compressHorizontalAction, true);
+            ConfigureFoldMoveLink(topRightToLeft, compressHorizontalAction, true);
+            ConfigureFoldMoveLink(bottomLeftToRight, compressHorizontalAction, true);
+            ConfigureFoldMoveLink(bottomRightToLeft, compressHorizontalAction, true);
+        }
+        else
+        {
+            top = CreateFoldLink(
+                "OrigamiLink_Top",
+                topLeft,
+                topRight,
+                executeIndicator,
+                linksRoot.transform);
+
+            if (hasGrid)
+            {
+                ConfigureFoldMoveLink(top, compressHorizontalAction, true);
+            }
+        }
 
         if (step == WorkbenchStep.Step1 || step == WorkbenchStep.Step2)
         {
@@ -291,9 +341,7 @@ public static class OrigamiFoldWorkbenchBuilder
                 executeIndicator,
                 linksRoot.transform);
 
-            topUnfold.bidirectional = false;
-            topUnfold.targetMoveAction = compressHorizontalAction;
-            topUnfold.activeStateOnExecute = false;
+            ConfigureFoldMoveLink(topUnfold, compressHorizontalAction, false);
         }
 
         OrigamiFoldDragController controller = systemRoot.AddComponent<OrigamiFoldDragController>();
@@ -301,7 +349,17 @@ public static class OrigamiFoldWorkbenchBuilder
         controller.snapDistance = 0.45f;
         controller.autoFindLinks = true;
 
-        if (hasMergedPoints)
+        if (step == WorkbenchStep.Step3_2)
+        {
+            controller.links = new[]
+            {
+                top,
+                topRightToLeft,
+                bottomLeftToRight,
+                bottomRightToLeft
+            };
+        }
+        else if (hasMergedPoints)
         {
             controller.links = new[] { top };
         }
@@ -400,7 +458,9 @@ public static class OrigamiFoldWorkbenchBuilder
             }
         };
 
-        if (step == WorkbenchStep.Step3 || step == WorkbenchStep.Step3_1)
+        if (step == WorkbenchStep.Step3
+            || step == WorkbenchStep.Step3_1
+            || step == WorkbenchStep.Step3_2)
         {
             action.enableWhenActive = ToGameObjects(mergedPoints);
             action.disableWhenActive = Combine(cell1.gameObject, ToGameObjects(sourcePoints));
@@ -727,7 +787,8 @@ public static class OrigamiFoldWorkbenchBuilder
 
     private static void ConfigureCamera(Camera camera, WorkbenchStep step)
     {
-        if (step == WorkbenchStep.Step3_1)
+        if (step == WorkbenchStep.Step3_1
+            || step == WorkbenchStep.Step3_2)
         {
             camera.transform.position = new Vector3(0f, 0.2f, -10f);
             camera.orthographicSize = 3.1f;
@@ -780,9 +841,13 @@ public static class OrigamiFoldWorkbenchBuilder
 
         CreateWorkbenchTile(
             "WorkbenchPlate",
-            step == WorkbenchStep.Step3_1 ? new Vector3(0f, 0f, 0.35f) : new Vector3(0f, -0.4f, 0.35f),
+            step == WorkbenchStep.Step3_1 || step == WorkbenchStep.Step3_2
+                ? new Vector3(0f, 0f, 0.35f)
+                : new Vector3(0f, -0.4f, 0.35f),
             new Color(0.12f, 0.14f, 0.16f),
-            step == WorkbenchStep.Step3_1 ? new Vector3(4.25f, 1.15f, 1f) : new Vector3(4.3f, 1.25f, 1f),
+            step == WorkbenchStep.Step3_1 || step == WorkbenchStep.Step3_2
+                ? new Vector3(4.25f, 1.15f, 1f)
+                : new Vector3(4.3f, 1.25f, 1f),
             parent);
     }
 
@@ -875,6 +940,21 @@ public static class OrigamiFoldWorkbenchBuilder
         return link;
     }
 
+    private static void ConfigureFoldMoveLink(
+        OrigamiFoldLink link,
+        OrigamiFoldMoveAction action,
+        bool activeStateOnExecute)
+    {
+        if (link == null)
+        {
+            return;
+        }
+
+        link.bidirectional = false;
+        link.targetMoveAction = action;
+        link.activeStateOnExecute = activeStateOnExecute;
+    }
+
     private static GameObject CreateExecuteIndicator(Transform parent)
     {
         GameObject indicator = GameObject.CreatePrimitive(PrimitiveType.Quad);
@@ -902,13 +982,17 @@ public static class OrigamiFoldWorkbenchBuilder
     {
         GameObject textObject = new GameObject("InstructionText");
         textObject.transform.SetParent(parent);
-        textObject.transform.position = step == WorkbenchStep.Step3_1
+        textObject.transform.position = step == WorkbenchStep.Step3_1 || step == WorkbenchStep.Step3_2
             ? new Vector3(-2.65f, 2.65f, 0f)
             : new Vector3(-2.8f, 2.85f, 0f);
 
         TextMesh text = textObject.AddComponent<TextMesh>();
 
-        if (step == WorkbenchStep.Step3_1)
+        if (step == WorkbenchStep.Step3_2)
+        {
+            text.text = "Drag top or bottom edge to fold. Click cyan point to unfold.";
+        }
+        else if (step == WorkbenchStep.Step3_1)
         {
             text.text = "Drag TL -> TR to fold. Click cyan point to unfold.";
         }
@@ -925,8 +1009,8 @@ public static class OrigamiFoldWorkbenchBuilder
             text.text = "Drag neighboring points. Diagonals do not work.";
         }
 
-        text.characterSize = step == WorkbenchStep.Step3_1 ? 0.11f : 0.13f;
-        text.fontSize = step == WorkbenchStep.Step3_1 ? 24 : 28;
+        text.characterSize = step == WorkbenchStep.Step3_1 || step == WorkbenchStep.Step3_2 ? 0.11f : 0.13f;
+        text.fontSize = step == WorkbenchStep.Step3_1 || step == WorkbenchStep.Step3_2 ? 24 : 28;
         text.anchor = TextAnchor.UpperLeft;
         text.color = Color.white;
 
