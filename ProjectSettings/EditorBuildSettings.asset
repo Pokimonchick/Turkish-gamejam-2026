@@ -6,8 +6,17 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
-    guid: 8c9cfa26abfee488c85f1582747f6a02
+    path: Assets/Scenes/MainMenu.unity
+    guid: c62056b517b54102964663f015ff2722
+  - enabled: 1
+    path: Assets/Scenes/Loading.unity
+    guid: 8263ba51a7540df4cba9992df3719cfa
+  - enabled: 1
+    path: Assets/Scenes/Prototype_BookPuzzle.unity
+    guid: 90ee537e5c287ec47b2a6eebe455d3ff
+  - enabled: 1
+    path: Assets/Scenes/Village_Prototype.unity
+    guid: 52f2292a2ba220a4986b46c1139a79c2
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0
