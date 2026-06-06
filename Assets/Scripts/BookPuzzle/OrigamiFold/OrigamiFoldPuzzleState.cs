@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class OrigamiFoldPuzzleState : MonoBehaviour
@@ -8,6 +9,11 @@ public class OrigamiFoldPuzzleState : MonoBehaviour
     public Transform respawnPoint;
     public GameObject fireCollectedIndicator;
     public GameObject completeIndicator;
+    public OrigamiFoldMapResetter mapResetter;
+    public bool resetFoldsOnRespawn = true;
+    public Behaviour[] disableWhileRespawning;
+
+    public bool IsRespawning { get; private set; }
 
     private void Awake()
     {
@@ -57,6 +63,65 @@ public class OrigamiFoldPuzzleState : MonoBehaviour
 
     public void RespawnPlayer()
     {
+        if (IsRespawning)
+        {
+            return;
+        }
+
+        if (!resetFoldsOnRespawn)
+        {
+            TeleportPlayerToRespawn();
+            return;
+        }
+
+        StartCoroutine(RespawnRoutine());
+    }
+
+    public IEnumerator RespawnRoutine()
+    {
+        IsRespawning = true;
+        SetRespawnBehavioursEnabled(false);
+        OrigamiFoldPassenger respawnPassenger = player == null
+            ? null
+            : player.GetComponent<OrigamiFoldPassenger>();
+        Behaviour[] previousCarryBehaviours = null;
+
+        if (respawnPassenger != null)
+        {
+            previousCarryBehaviours = respawnPassenger.disableWhileCarried;
+            respawnPassenger.disableWhileCarried = new Behaviour[0];
+        }
+
+        if (resetFoldsOnRespawn)
+        {
+            if (mapResetter == null)
+            {
+                mapResetter = FindFirstObjectByType<OrigamiFoldMapResetter>();
+            }
+
+            if (mapResetter != null)
+            {
+                yield return mapResetter.ResetAllFoldsRoutine();
+            }
+            else
+            {
+                Debug.LogWarning($"{name}: mapResetter is not assigned.", this);
+            }
+        }
+
+        TeleportPlayerToRespawn();
+
+        if (respawnPassenger != null)
+        {
+            respawnPassenger.disableWhileCarried = previousCarryBehaviours;
+        }
+
+        SetRespawnBehavioursEnabled(true);
+        IsRespawning = false;
+    }
+
+    private void TeleportPlayerToRespawn()
+    {
         if (player == null || respawnPoint == null)
         {
             Debug.LogWarning($"{name}: player or respawnPoint is not assigned.", this);
@@ -77,6 +142,24 @@ public class OrigamiFoldPuzzleState : MonoBehaviour
         if (passenger != null)
         {
             passenger.RefreshCurrentStack();
+        }
+    }
+
+    private void SetRespawnBehavioursEnabled(bool enabled)
+    {
+        if (disableWhileRespawning == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < disableWhileRespawning.Length; i++)
+        {
+            Behaviour item = disableWhileRespawning[i];
+
+            if (item != null)
+            {
+                item.enabled = enabled;
+            }
         }
     }
 }

@@ -23,7 +23,8 @@ public static class OrigamiFoldWorkbenchBuilder
         Step4,
         Step5,
         Step5_1,
-        Step5_2
+        Step5_2,
+        Step5_3
     }
 
     [MenuItem("Tools/PANINI/Origami Fold/Rebuild Workbench Step 1")]
@@ -104,6 +105,12 @@ public static class OrigamiFoldWorkbenchBuilder
         RebuildWorkbench(WorkbenchStep.Step5_2);
     }
 
+    [MenuItem("Tools/PANINI/Origami Fold/Rebuild Workbench Step 5.3 Respawn Resets Folds")]
+    public static void RebuildWorkbenchStep5_3()
+    {
+        RebuildWorkbench(WorkbenchStep.Step5_3);
+    }
+
     private static void RebuildWorkbench(WorkbenchStep step)
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
@@ -168,7 +175,8 @@ public static class OrigamiFoldWorkbenchBuilder
 
         if (step == WorkbenchStep.Step5
             || step == WorkbenchStep.Step5_1
-            || step == WorkbenchStep.Step5_2)
+            || step == WorkbenchStep.Step5_2
+            || step == WorkbenchStep.Step5_3)
         {
             RebuildPuzzleLoopOrigamiObjects(
                 systemRoot,
@@ -176,8 +184,11 @@ public static class OrigamiFoldWorkbenchBuilder
                 linksRoot,
                 camera,
                 executeIndicator,
-                step == WorkbenchStep.Step5_1 || step == WorkbenchStep.Step5_2,
-                step == WorkbenchStep.Step5_2);
+                step == WorkbenchStep.Step5_1
+                    || step == WorkbenchStep.Step5_2
+                    || step == WorkbenchStep.Step5_3,
+                step == WorkbenchStep.Step5_2 || step == WorkbenchStep.Step5_3,
+                step == WorkbenchStep.Step5_3);
 
             return;
         }
@@ -517,7 +528,8 @@ public static class OrigamiFoldWorkbenchBuilder
         Camera camera,
         GameObject executeIndicator,
         bool useTightPlayerBounds,
-        bool includeHazards)
+        bool includeHazards,
+        bool resetFoldsOnRespawn)
     {
         GameObject actionsRoot = new GameObject("ORIGAMI_ACTIONS");
         GameObject guidesRoot = new GameObject("ORIGAMI_GRID_GUIDES");
@@ -555,6 +567,12 @@ public static class OrigamiFoldWorkbenchBuilder
             camera,
             executeIndicator,
             coordinator);
+        OrigamiFoldStripSqueezeAction rowAction = FindStripAction(
+            actionsRoot.transform,
+            "Row_StripSqueezeAction");
+        OrigamiFoldStripSqueezeAction columnAction = FindStripAction(
+            actionsRoot.transform,
+            "Column_StripSqueezeAction");
 
         CreateWholeStripGuides(guidesRoot.transform);
 
@@ -569,6 +587,9 @@ public static class OrigamiFoldWorkbenchBuilder
         Transform respawnPoint = CreateRespawnPoint(gameplayRoot.transform, cells[0, 0].transform.position);
         GameObject fireCollectedIndicator = CreateFireCollectedIndicator(gameplayRoot.transform);
         GameObject completeIndicator = CreateCompleteIndicator(gameplayRoot.transform);
+        OrigamiFoldMapResetter mapResetter = resetFoldsOnRespawn
+            ? CreateMapResetter(gameplayRoot.transform, coordinator, rowAction, columnAction)
+            : null;
 
         GameObject puzzleStateObject = new GameObject("PuzzleState");
         puzzleStateObject.transform.SetParent(gameplayRoot.transform);
@@ -577,6 +598,9 @@ public static class OrigamiFoldWorkbenchBuilder
         puzzleState.respawnPoint = respawnPoint;
         puzzleState.fireCollectedIndicator = fireCollectedIndicator;
         puzzleState.completeIndicator = completeIndicator;
+        puzzleState.mapResetter = mapResetter;
+        puzzleState.resetFoldsOnRespawn = resetFoldsOnRespawn;
+        puzzleState.disableWhileRespawning = GetPlayerMovementBehaviours(player);
 
         CreateFireShard(cells[2, 2].transform, puzzleState);
         CreateExit(cells[4, 2].transform, puzzleState);
@@ -913,6 +937,62 @@ public static class OrigamiFoldWorkbenchBuilder
         respawn.transform.SetParent(parent);
         respawn.transform.position = position;
         return respawn.transform;
+    }
+
+    private static OrigamiFoldMapResetter CreateMapResetter(
+        Transform parent,
+        OrigamiFoldActionCoordinator coordinator,
+        OrigamiFoldStripSqueezeAction rowAction,
+        OrigamiFoldStripSqueezeAction columnAction)
+    {
+        GameObject resetterObject = new GameObject("MapResetter");
+        resetterObject.transform.SetParent(parent);
+
+        OrigamiFoldMapResetter resetter = resetterObject.AddComponent<OrigamiFoldMapResetter>();
+        resetter.autoFindActions = false;
+        resetter.coordinator = coordinator;
+        resetter.resetTimeoutSeconds = 5f;
+        resetter.stripActions = new[] { rowAction, columnAction };
+
+        return resetter;
+    }
+
+    private static Behaviour[] GetPlayerMovementBehaviours(GameObject player)
+    {
+        if (player == null)
+        {
+            return new Behaviour[0];
+        }
+
+        OrigamiFoldPlayerMover tightMover = player.GetComponent<OrigamiFoldPlayerMover>();
+        PlayerFreeRoadMover freeMover = player.GetComponent<PlayerFreeRoadMover>();
+        int count = 0;
+
+        if (tightMover != null)
+        {
+            count++;
+        }
+
+        if (freeMover != null)
+        {
+            count++;
+        }
+
+        Behaviour[] behaviours = new Behaviour[count];
+        int index = 0;
+
+        if (tightMover != null)
+        {
+            behaviours[index] = tightMover;
+            index++;
+        }
+
+        if (freeMover != null)
+        {
+            behaviours[index] = freeMover;
+        }
+
+        return behaviours;
     }
 
     private static GameObject CreateFireCollectedIndicator(Transform parent)
@@ -3620,7 +3700,8 @@ public static class OrigamiFoldWorkbenchBuilder
     {
         if (step == WorkbenchStep.Step5
             || step == WorkbenchStep.Step5_1
-            || step == WorkbenchStep.Step5_2)
+            || step == WorkbenchStep.Step5_2
+            || step == WorkbenchStep.Step5_3)
         {
             camera.transform.position = new Vector3(0f, 0.1f, -10f);
             camera.orthographicSize = 4.5f;
@@ -3704,10 +3785,13 @@ public static class OrigamiFoldWorkbenchBuilder
 
         if (step == WorkbenchStep.Step5
             || step == WorkbenchStep.Step5_1
-            || step == WorkbenchStep.Step5_2)
+            || step == WorkbenchStep.Step5_2
+            || step == WorkbenchStep.Step5_3)
         {
             CreateWorkbenchTile(
-                step == WorkbenchStep.Step5_2
+                step == WorkbenchStep.Step5_3
+                    ? "WorkbenchPlate_RespawnResetPuzzleLoop"
+                    : step == WorkbenchStep.Step5_2
                     ? "WorkbenchPlate_HazardPuzzleLoop"
                     : step == WorkbenchStep.Step5_1
                     ? "WorkbenchPlate_TightPuzzleLoop"
@@ -3925,6 +4009,7 @@ public static class OrigamiFoldWorkbenchBuilder
         textObject.transform.position = step == WorkbenchStep.Step5
             || step == WorkbenchStep.Step5_1
             || step == WorkbenchStep.Step5_2
+            || step == WorkbenchStep.Step5_3
             ? new Vector3(-3.95f, 4.18f, 0f)
             : step == WorkbenchStep.Step4
             ? new Vector3(-3.75f, 4.12f, 0f)
@@ -3942,7 +4027,11 @@ public static class OrigamiFoldWorkbenchBuilder
 
         TextMesh text = textObject.AddComponent<TextMesh>();
 
-        if (step == WorkbenchStep.Step5_2)
+        if (step == WorkbenchStep.Step5_3)
+        {
+            text.text = "WASD move. Hazards reset folds and respawn player.";
+        }
+        else if (step == WorkbenchStep.Step5_2)
         {
             text.text = "WASD move. Red hazards respawn. Fold strips to trap some hazards.";
         }
@@ -3998,6 +4087,7 @@ public static class OrigamiFoldWorkbenchBuilder
         text.characterSize = step == WorkbenchStep.Step5
             || step == WorkbenchStep.Step5_1
             || step == WorkbenchStep.Step5_2
+            || step == WorkbenchStep.Step5_3
             ? 0.105f
             : step == WorkbenchStep.Step4
             ? 0.11f
@@ -4013,6 +4103,7 @@ public static class OrigamiFoldWorkbenchBuilder
         text.fontSize = step == WorkbenchStep.Step5
             || step == WorkbenchStep.Step5_1
             || step == WorkbenchStep.Step5_2
+            || step == WorkbenchStep.Step5_3
             ? 23
             : step == WorkbenchStep.Step4
             ? 24
