@@ -18,7 +18,8 @@ public static class OrigamiFoldWorkbenchBuilder
         Step3_2,
         Step3_3,
         Step3_4,
-        Step3_5
+        Step3_5,
+        Step3_6
     }
 
     [MenuItem("Tools/PANINI/Origami Fold/Rebuild Workbench Step 1")]
@@ -67,6 +68,12 @@ public static class OrigamiFoldWorkbenchBuilder
     public static void RebuildWorkbenchStep3_5()
     {
         RebuildWorkbench(WorkbenchStep.Step3_5);
+    }
+
+    [MenuItem("Tools/PANINI/Origami Fold/Rebuild Workbench Step 3.6 Whole Strip Fold")]
+    public static void RebuildWorkbenchStep3_6()
+    {
+        RebuildWorkbench(WorkbenchStep.Step3_6);
     }
 
     private static void RebuildWorkbench(WorkbenchStep step)
@@ -128,6 +135,18 @@ public static class OrigamiFoldWorkbenchBuilder
 
         GameObject executeIndicator = CreateExecuteIndicator(debugRoot.transform);
         CreateInstructionText(debugRoot.transform, step);
+
+        if (step == WorkbenchStep.Step3_6)
+        {
+            RebuildWholeStripOrigamiObjects(
+                systemRoot,
+                pointsRoot,
+                linksRoot,
+                camera,
+                executeIndicator);
+
+            return;
+        }
 
         if (step == WorkbenchStep.Step3_5)
         {
@@ -431,6 +450,579 @@ public static class OrigamiFoldWorkbenchBuilder
         {
             controller.links = new[] { top, bottom, left, right };
         }
+    }
+
+    private static void RebuildWholeStripOrigamiObjects(
+        GameObject systemRoot,
+        GameObject pointsRoot,
+        GameObject linksRoot,
+        Camera camera,
+        GameObject executeIndicator)
+    {
+        GameObject actionsRoot = new GameObject("ORIGAMI_ACTIONS");
+        GameObject guidesRoot = new GameObject("ORIGAMI_GRID_GUIDES");
+        GameObject mapRoot = new GameObject("ORIGAMI_UNIFIED_MAP");
+        GameObject cellsRoot = new GameObject("Cells");
+        cellsRoot.transform.SetParent(mapRoot.transform);
+        cellsRoot.transform.localPosition = Vector3.zero;
+
+        OrigamiFoldActionCoordinator coordinator = systemRoot.AddComponent<OrigamiFoldActionCoordinator>();
+        CreateWholeStripMapCells(
+            cellsRoot.transform,
+            out OrigamiFoldTransformStack[,] stacks);
+
+        OrigamiFoldLink[] rowLinks = CreateWholeStripRowZone(
+            stacks,
+            actionsRoot.transform,
+            pointsRoot.transform,
+            linksRoot.transform,
+            camera,
+            executeIndicator,
+            coordinator);
+
+        OrigamiFoldLink[] columnLinks = CreateWholeStripColumnZone(
+            stacks,
+            actionsRoot.transform,
+            pointsRoot.transform,
+            linksRoot.transform,
+            camera,
+            executeIndicator,
+            coordinator);
+
+        CreateWholeStripGuides(guidesRoot.transform);
+
+        OrigamiFoldDragController controller = systemRoot.AddComponent<OrigamiFoldDragController>();
+        controller.targetCamera = camera;
+        controller.snapDistance = 0.5f;
+        controller.autoFindLinks = true;
+        controller.links = new[]
+        {
+            rowLinks[0],
+            rowLinks[1],
+            rowLinks[2],
+            rowLinks[3],
+            columnLinks[0],
+            columnLinks[1],
+            columnLinks[2],
+            columnLinks[3]
+        };
+
+    }
+
+    private static GameObject[,] CreateWholeStripMapCells(
+        Transform parent,
+        out OrigamiFoldTransformStack[,] stacks)
+    {
+        GameObject[,] cells = new GameObject[5, 4];
+        stacks = new OrigamiFoldTransformStack[5, 4];
+        float cellVisualSize = 0.92f;
+
+        for (int y = 0; y < 4; y++)
+        {
+            for (int x = 0; x < 5; x++)
+            {
+                Color color = new Color(0.18f, 0.24f, 0.30f);
+
+                if (x == 3 && y == 1)
+                {
+                    color = new Color(0.95f, 0.76f, 0.26f);
+                }
+                else if (y == 1)
+                {
+                    color = new Color(0.84f, 0.56f, 0.20f);
+                }
+                else if (x == 3)
+                {
+                    color = new Color(0.44f, 0.32f, 0.68f);
+                }
+
+                Vector3 position = new Vector3((x - 2) * 1f, (y - 1.5f) * 1f, 0f);
+                GameObject cell = CreateSqueezeCell(
+                    $"MapCell_{x}_{y}",
+                    position,
+                    color,
+                    cellVisualSize,
+                    parent,
+                    $"{x},{y}");
+
+                OrigamiFoldTransformStack stack = cell.AddComponent<OrigamiFoldTransformStack>();
+                stack.CaptureBaseTransform();
+
+                cells[x, y] = cell;
+                stacks[x, y] = stack;
+            }
+        }
+
+        return cells;
+    }
+
+    private static OrigamiFoldLink[] CreateWholeStripRowZone(
+        OrigamiFoldTransformStack[,] stacks,
+        Transform actionsRoot,
+        Transform pointsRoot,
+        Transform linksRoot,
+        Camera camera,
+        GameObject executeIndicator,
+        OrigamiFoldActionCoordinator coordinator)
+    {
+        float mapLeftX = -2.5f;
+        float mapRightX = 2.5f;
+        float rowCenterY = -0.5f;
+        float rowTopY = rowCenterY + 0.5f;
+        float rowBottomY = rowCenterY - 0.5f;
+        float pointSize = 0.22f;
+        float mergedPointSize = 0.30f;
+
+        OrigamiFoldPoint topLeft = CreateFoldPoint(
+            "Row_Point_TopLeft",
+            new Vector3(mapLeftX, rowTopY, 0f),
+            Color.white,
+            new Vector3(pointSize, pointSize, 1f),
+            pointSize * 0.5f,
+            30,
+            pointsRoot);
+
+        OrigamiFoldPoint bottomLeft = CreateFoldPoint(
+            "Row_Point_BottomLeft",
+            new Vector3(mapLeftX, rowBottomY, 0f),
+            Color.white,
+            new Vector3(pointSize, pointSize, 1f),
+            pointSize * 0.5f,
+            30,
+            pointsRoot);
+
+        OrigamiFoldPoint topRight = CreateFoldPoint(
+            "Row_Point_TopRight",
+            new Vector3(mapRightX, rowTopY, 0f),
+            Color.white,
+            new Vector3(pointSize, pointSize, 1f),
+            pointSize * 0.5f,
+            30,
+            pointsRoot);
+
+        OrigamiFoldPoint bottomRight = CreateFoldPoint(
+            "Row_Point_BottomRight",
+            new Vector3(mapRightX, rowBottomY, 0f),
+            Color.white,
+            new Vector3(pointSize, pointSize, 1f),
+            pointSize * 0.5f,
+            30,
+            pointsRoot);
+
+        OrigamiFoldPoint mergedLeft = CreateFoldPoint(
+            "Row_Point_MergedLeft",
+            new Vector3(mapLeftX, rowCenterY, 0f),
+            Color.cyan,
+            new Vector3(mergedPointSize, mergedPointSize, 1f),
+            mergedPointSize * 0.5f,
+            35,
+            pointsRoot);
+
+        OrigamiFoldPoint mergedRight = CreateFoldPoint(
+            "Row_Point_MergedRight",
+            new Vector3(mapRightX, rowCenterY, 0f),
+            Color.cyan,
+            new Vector3(mergedPointSize, mergedPointSize, 1f),
+            mergedPointSize * 0.5f,
+            35,
+            pointsRoot);
+
+        OrigamiFoldStripSqueezeAction action = CreateStripSqueezeAction(
+            "Row_StripSqueezeAction",
+            actionsRoot,
+            CreateRowStripTargets(stacks, 1),
+            new[] { topLeft, bottomLeft, topRight, bottomRight },
+            new[] { mergedLeft, mergedRight },
+            coordinator);
+
+        ConfigureMergedStripClickAction(mergedLeft, action, camera);
+        ConfigureMergedStripClickAction(mergedRight, action, camera);
+        mergedLeft.gameObject.SetActive(false);
+        mergedRight.gameObject.SetActive(false);
+
+        OrigamiFoldLink leftTopToBottom = CreateFoldLink(
+            "Row_Link_Left_TTB",
+            topLeft,
+            bottomLeft,
+            executeIndicator,
+            linksRoot);
+
+        OrigamiFoldLink leftBottomToTop = CreateFoldLink(
+            "Row_Link_Left_BTT",
+            bottomLeft,
+            topLeft,
+            executeIndicator,
+            linksRoot);
+
+        OrigamiFoldLink rightTopToBottom = CreateFoldLink(
+            "Row_Link_Right_TTB",
+            topRight,
+            bottomRight,
+            executeIndicator,
+            linksRoot);
+
+        OrigamiFoldLink rightBottomToTop = CreateFoldLink(
+            "Row_Link_Right_BTT",
+            bottomRight,
+            topRight,
+            executeIndicator,
+            linksRoot);
+
+        ConfigureFoldStripSqueezeLink(leftTopToBottom, action, true);
+        ConfigureFoldStripSqueezeLink(leftBottomToTop, action, true);
+        ConfigureFoldStripSqueezeLink(rightTopToBottom, action, true);
+        ConfigureFoldStripSqueezeLink(rightBottomToTop, action, true);
+
+        return new[]
+        {
+            leftTopToBottom,
+            leftBottomToTop,
+            rightTopToBottom,
+            rightBottomToTop
+        };
+    }
+
+    private static OrigamiFoldLink[] CreateWholeStripColumnZone(
+        OrigamiFoldTransformStack[,] stacks,
+        Transform actionsRoot,
+        Transform pointsRoot,
+        Transform linksRoot,
+        Camera camera,
+        GameObject executeIndicator,
+        OrigamiFoldActionCoordinator coordinator)
+    {
+        float mapBottomY = -2f;
+        float mapTopY = 2f;
+        float columnCenterX = 1f;
+        float columnLeftX = columnCenterX - 0.5f;
+        float columnRightX = columnCenterX + 0.5f;
+        float pointSize = 0.22f;
+        float mergedPointSize = 0.30f;
+
+        OrigamiFoldPoint topLeft = CreateFoldPoint(
+            "Column_Point_TopLeft",
+            new Vector3(columnLeftX, mapTopY, 0f),
+            Color.white,
+            new Vector3(pointSize, pointSize, 1f),
+            pointSize * 0.5f,
+            30,
+            pointsRoot);
+
+        OrigamiFoldPoint topRight = CreateFoldPoint(
+            "Column_Point_TopRight",
+            new Vector3(columnRightX, mapTopY, 0f),
+            Color.white,
+            new Vector3(pointSize, pointSize, 1f),
+            pointSize * 0.5f,
+            30,
+            pointsRoot);
+
+        OrigamiFoldPoint bottomLeft = CreateFoldPoint(
+            "Column_Point_BottomLeft",
+            new Vector3(columnLeftX, mapBottomY, 0f),
+            Color.white,
+            new Vector3(pointSize, pointSize, 1f),
+            pointSize * 0.5f,
+            30,
+            pointsRoot);
+
+        OrigamiFoldPoint bottomRight = CreateFoldPoint(
+            "Column_Point_BottomRight",
+            new Vector3(columnRightX, mapBottomY, 0f),
+            Color.white,
+            new Vector3(pointSize, pointSize, 1f),
+            pointSize * 0.5f,
+            30,
+            pointsRoot);
+
+        OrigamiFoldPoint mergedTop = CreateFoldPoint(
+            "Column_Point_MergedTop",
+            new Vector3(columnCenterX, mapTopY, 0f),
+            Color.cyan,
+            new Vector3(mergedPointSize, mergedPointSize, 1f),
+            mergedPointSize * 0.5f,
+            35,
+            pointsRoot);
+
+        OrigamiFoldPoint mergedBottom = CreateFoldPoint(
+            "Column_Point_MergedBottom",
+            new Vector3(columnCenterX, mapBottomY, 0f),
+            Color.cyan,
+            new Vector3(mergedPointSize, mergedPointSize, 1f),
+            mergedPointSize * 0.5f,
+            35,
+            pointsRoot);
+
+        OrigamiFoldStripSqueezeAction action = CreateStripSqueezeAction(
+            "Column_StripSqueezeAction",
+            actionsRoot,
+            CreateColumnStripTargets(stacks, 3),
+            new[] { topLeft, topRight, bottomLeft, bottomRight },
+            new[] { mergedTop, mergedBottom },
+            coordinator);
+
+        ConfigureMergedStripClickAction(mergedTop, action, camera);
+        ConfigureMergedStripClickAction(mergedBottom, action, camera);
+        mergedTop.gameObject.SetActive(false);
+        mergedBottom.gameObject.SetActive(false);
+
+        OrigamiFoldLink topLeftToRight = CreateFoldLink(
+            "Column_Link_Top_LTR",
+            topLeft,
+            topRight,
+            executeIndicator,
+            linksRoot);
+
+        OrigamiFoldLink topRightToLeft = CreateFoldLink(
+            "Column_Link_Top_RTL",
+            topRight,
+            topLeft,
+            executeIndicator,
+            linksRoot);
+
+        OrigamiFoldLink bottomLeftToRight = CreateFoldLink(
+            "Column_Link_Bottom_LTR",
+            bottomLeft,
+            bottomRight,
+            executeIndicator,
+            linksRoot);
+
+        OrigamiFoldLink bottomRightToLeft = CreateFoldLink(
+            "Column_Link_Bottom_RTL",
+            bottomRight,
+            bottomLeft,
+            executeIndicator,
+            linksRoot);
+
+        ConfigureFoldStripSqueezeLink(topLeftToRight, action, true);
+        ConfigureFoldStripSqueezeLink(topRightToLeft, action, true);
+        ConfigureFoldStripSqueezeLink(bottomLeftToRight, action, true);
+        ConfigureFoldStripSqueezeLink(bottomRightToLeft, action, true);
+
+        return new[]
+        {
+            topLeftToRight,
+            topRightToLeft,
+            bottomLeftToRight,
+            bottomRightToLeft
+        };
+    }
+
+    private static OrigamiStripContributionTarget[] CreateRowStripTargets(
+        OrigamiFoldTransformStack[,] stacks,
+        int foldRow)
+    {
+        OrigamiStripContributionTarget[] targets = new OrigamiStripContributionTarget[20];
+        int index = 0;
+
+        for (int y = 0; y < 4; y++)
+        {
+            for (int x = 0; x < 5; x++)
+            {
+                Vector3 offset = Vector3.zero;
+                Vector3 scaleMultiplier = Vector3.one;
+
+                if (y < foldRow)
+                {
+                    offset = new Vector3(0f, 0.5f, 0f);
+                }
+                else if (y == foldRow)
+                {
+                    scaleMultiplier = new Vector3(1f, 0.02f, 1f);
+                }
+                else
+                {
+                    offset = new Vector3(0f, -0.5f, 0f);
+                }
+
+                targets[index] = new OrigamiStripContributionTarget
+                {
+                    stack = stacks[x, y],
+                    activeLocalPositionOffset = offset,
+                    activeLocalScaleMultiplier = scaleMultiplier
+                };
+                index++;
+            }
+        }
+
+        return targets;
+    }
+
+    private static OrigamiStripContributionTarget[] CreateColumnStripTargets(
+        OrigamiFoldTransformStack[,] stacks,
+        int foldColumn)
+    {
+        OrigamiStripContributionTarget[] targets = new OrigamiStripContributionTarget[20];
+        int index = 0;
+
+        for (int y = 0; y < 4; y++)
+        {
+            for (int x = 0; x < 5; x++)
+            {
+                Vector3 offset = Vector3.zero;
+                Vector3 scaleMultiplier = Vector3.one;
+
+                if (x < foldColumn)
+                {
+                    offset = new Vector3(0.5f, 0f, 0f);
+                }
+                else if (x == foldColumn)
+                {
+                    scaleMultiplier = new Vector3(0.02f, 1f, 1f);
+                }
+                else
+                {
+                    offset = new Vector3(-0.5f, 0f, 0f);
+                }
+
+                targets[index] = new OrigamiStripContributionTarget
+                {
+                    stack = stacks[x, y],
+                    activeLocalPositionOffset = offset,
+                    activeLocalScaleMultiplier = scaleMultiplier
+                };
+                index++;
+            }
+        }
+
+        return targets;
+    }
+
+    private static OrigamiFoldStripSqueezeAction CreateStripSqueezeAction(
+        string objectName,
+        Transform parent,
+        OrigamiStripContributionTarget[] targets,
+        OrigamiFoldPoint[] sourcePoints,
+        OrigamiFoldPoint[] mergedPoints,
+        OrigamiFoldActionCoordinator coordinator)
+    {
+        GameObject actionObject = new GameObject(objectName);
+        actionObject.transform.SetParent(parent);
+
+        OrigamiFoldStripSqueezeAction action =
+            actionObject.AddComponent<OrigamiFoldStripSqueezeAction>();
+        action.animationDuration = 0.3f;
+        action.isActive = false;
+        action.coordinator = coordinator;
+        action.useCoordinator = true;
+        action.targets = targets;
+        action.enableAfterActive = ToGameObjects(mergedPoints);
+        action.disableAfterActive = ToGameObjects(sourcePoints);
+        action.enableAfterInactive = ToGameObjects(sourcePoints);
+        action.disableAfterInactive = ToGameObjects(mergedPoints);
+
+        return action;
+    }
+
+    private static void ConfigureMergedStripClickAction(
+        OrigamiFoldPoint mergedPoint,
+        OrigamiFoldStripSqueezeAction action,
+        Camera camera)
+    {
+        if (mergedPoint == null)
+        {
+            return;
+        }
+
+        OrigamiFoldClickAction clickAction = mergedPoint.gameObject
+            .AddComponent<OrigamiFoldClickAction>();
+
+        clickAction.targetCamera = camera;
+        clickAction.targetStripSqueezeAction = action;
+        clickAction.activeStateOnClick = false;
+        clickAction.ignoreWhileActionAnimating = true;
+        clickAction.debugName = mergedPoint.pointId;
+    }
+
+    private static void ConfigureFoldStripSqueezeLink(
+        OrigamiFoldLink link,
+        OrigamiFoldStripSqueezeAction action,
+        bool activeStateOnExecute)
+    {
+        if (link == null)
+        {
+            return;
+        }
+
+        link.bidirectional = false;
+        link.targetStripSqueezeAction = action;
+        link.activeStateOnExecute = activeStateOnExecute;
+    }
+
+    private static void CreateWholeStripGuides(Transform parent)
+    {
+        Color gridColor = new Color(1f, 1f, 1f, 0.22f);
+
+        for (int x = 0; x <= 5; x++)
+        {
+            CreateGuideLine(
+                $"WholeStripGuide_Vertical_{x}",
+                new Vector3(-2.5f + x, 0f, 0.1f),
+                new Vector3(0.02f, 4.05f, 1f),
+                gridColor,
+                parent);
+        }
+
+        for (int y = 0; y <= 4; y++)
+        {
+            CreateGuideLine(
+                $"WholeStripGuide_Horizontal_{y}",
+                new Vector3(0f, -2f + y, 0.1f),
+                new Vector3(5.05f, 0.02f, 1f),
+                gridColor,
+                parent);
+        }
+
+        CreateStripFrameGuide(
+            "Row_FoldStripGuide",
+            new Vector3(0f, -0.5f, 0f),
+            new Vector2(5f, 1f),
+            parent);
+
+        CreateStripFrameGuide(
+            "Column_FoldStripGuide",
+            new Vector3(1f, 0f, 0f),
+            new Vector2(1f, 4f),
+            parent);
+    }
+
+    private static void CreateStripFrameGuide(
+        string objectName,
+        Vector3 center,
+        Vector2 size,
+        Transform parent)
+    {
+        Color regionColor = new Color(1f, 0.9f, 0.18f, 0.48f);
+        float halfWidth = size.x * 0.5f;
+        float halfHeight = size.y * 0.5f;
+
+        CreateGuideLine(
+            $"{objectName}_Left",
+            new Vector3(center.x - halfWidth, center.y, 0.08f),
+            new Vector3(0.035f, size.y + 0.08f, 1f),
+            regionColor,
+            parent);
+
+        CreateGuideLine(
+            $"{objectName}_Right",
+            new Vector3(center.x + halfWidth, center.y, 0.08f),
+            new Vector3(0.035f, size.y + 0.08f, 1f),
+            regionColor,
+            parent);
+
+        CreateGuideLine(
+            $"{objectName}_Top",
+            new Vector3(center.x, center.y + halfHeight, 0.08f),
+            new Vector3(size.x + 0.08f, 0.035f, 1f),
+            regionColor,
+            parent);
+
+        CreateGuideLine(
+            $"{objectName}_Bottom",
+            new Vector3(center.x, center.y - halfHeight, 0.08f),
+            new Vector3(size.x + 0.08f, 0.035f, 1f),
+            regionColor,
+            parent);
     }
 
     private static void RebuildUnifiedMapOrigamiObjects(
@@ -2138,7 +2730,12 @@ public static class OrigamiFoldWorkbenchBuilder
 
     private static void ConfigureCamera(Camera camera, WorkbenchStep step)
     {
-        if (step == WorkbenchStep.Step3_5)
+        if (step == WorkbenchStep.Step3_6)
+        {
+            camera.transform.position = new Vector3(0f, 0.1f, -10f);
+            camera.orthographicSize = 4.4f;
+        }
+        else if (step == WorkbenchStep.Step3_5)
         {
             camera.transform.position = new Vector3(0f, 0.15f, -10f);
             camera.orthographicSize = 4.3f;
@@ -2200,6 +2797,18 @@ public static class OrigamiFoldWorkbenchBuilder
                 new Vector3(0.5f, -0.5f, 0.2f),
                 new Color(0.36f, 0.24f, 0.40f),
                 new Vector3(0.95f, 0.95f, 1f),
+                parent);
+
+            return;
+        }
+
+        if (step == WorkbenchStep.Step3_6)
+        {
+            CreateWorkbenchTile(
+                "WorkbenchPlate_WholeStripMap",
+                new Vector3(0f, 0f, 0.35f),
+                new Color(0.12f, 0.14f, 0.16f),
+                new Vector3(5.35f, 4.35f, 1f),
                 parent);
 
             return;
@@ -2383,7 +2992,9 @@ public static class OrigamiFoldWorkbenchBuilder
     {
         GameObject textObject = new GameObject("InstructionText");
         textObject.transform.SetParent(parent);
-        textObject.transform.position = step == WorkbenchStep.Step3_5
+        textObject.transform.position = step == WorkbenchStep.Step3_6
+            ? new Vector3(-4f, 4.12f, 0f)
+            : step == WorkbenchStep.Step3_5
             ? new Vector3(-3.55f, 4.05f, 0f)
             : step == WorkbenchStep.Step3_4
             ? new Vector3(-5.55f, 3.9f, 0f)
@@ -2395,7 +3006,11 @@ public static class OrigamiFoldWorkbenchBuilder
 
         TextMesh text = textObject.AddComponent<TextMesh>();
 
-        if (step == WorkbenchStep.Step3_5)
+        if (step == WorkbenchStep.Step3_6)
+        {
+            text.text = "Whole-strip fold: vertical drag collapses row, horizontal drag collapses column.";
+        }
+        else if (step == WorkbenchStep.Step3_5)
         {
             text.text = "Unified map: fold H and V zones independently. Cyan points unfold.";
         }
@@ -2428,14 +3043,18 @@ public static class OrigamiFoldWorkbenchBuilder
             text.text = "Drag neighboring points. Diagonals do not work.";
         }
 
-        text.characterSize = step == WorkbenchStep.Step3_5
+        text.characterSize = step == WorkbenchStep.Step3_6
+            ? 0.10f
+            : step == WorkbenchStep.Step3_5
             ? 0.105f
             : step == WorkbenchStep.Step3_4
             ? 0.105f
             : step == WorkbenchStep.Step3_3
             ? 0.095f
             : step == WorkbenchStep.Step3_1 || step == WorkbenchStep.Step3_2 ? 0.11f : 0.13f;
-        text.fontSize = step == WorkbenchStep.Step3_5
+        text.fontSize = step == WorkbenchStep.Step3_6
+            ? 22
+            : step == WorkbenchStep.Step3_5
             ? 23
             : step == WorkbenchStep.Step3_4
             ? 23

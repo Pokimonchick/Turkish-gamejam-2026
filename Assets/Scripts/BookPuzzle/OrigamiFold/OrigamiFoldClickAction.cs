@@ -10,6 +10,7 @@ public class OrigamiFoldClickAction : MonoBehaviour
     public Camera targetCamera;
     public OrigamiFoldMoveAction targetMoveAction;
     public OrigamiFoldSqueezeAction targetSqueezeAction;
+    public OrigamiFoldStripSqueezeAction targetStripSqueezeAction;
     public bool activeStateOnClick = false;
     public bool ignoreWhileActionAnimating = true;
     public string debugName;
@@ -61,7 +62,9 @@ public class OrigamiFoldClickAction : MonoBehaviour
 
     private void ExecuteClick()
     {
-        if (targetMoveAction == null && targetSqueezeAction == null)
+        if (targetMoveAction == null
+            && targetSqueezeAction == null
+            && targetStripSqueezeAction == null)
         {
             Debug.LogWarning($"{GetDebugName()}: no fold action is assigned.", this);
             return;
@@ -82,6 +85,13 @@ public class OrigamiFoldClickAction : MonoBehaviour
             return;
         }
 
+        if (ignoreWhileActionAnimating
+            && targetStripSqueezeAction != null
+            && targetStripSqueezeAction.IsAnimating)
+        {
+            return;
+        }
+
         if (targetMoveAction != null)
         {
             targetMoveAction.SetActive(activeStateOnClick);
@@ -90,6 +100,11 @@ public class OrigamiFoldClickAction : MonoBehaviour
         if (targetSqueezeAction != null)
         {
             targetSqueezeAction.SetActive(activeStateOnClick);
+        }
+
+        if (targetStripSqueezeAction != null)
+        {
+            targetStripSqueezeAction.SetActive(activeStateOnClick);
         }
 
         Debug.Log($"{GetDebugName()}: clicked, setting fold action active={activeStateOnClick}.", this);

@@ -10,6 +10,7 @@ public class OrigamiFoldLink : MonoBehaviour
     public bool executed;
     public OrigamiFoldMoveAction targetMoveAction;
     public OrigamiFoldSqueezeAction targetSqueezeAction;
+    public OrigamiFoldStripSqueezeAction targetStripSqueezeAction;
     public bool activeStateOnExecute = true;
 
     private bool warnedMissingPoints;
@@ -77,6 +78,11 @@ public class OrigamiFoldLink : MonoBehaviour
         if (targetSqueezeAction != null)
         {
             targetSqueezeAction.SetActive(activeStateOnExecute);
+        }
+
+        if (targetStripSqueezeAction != null)
+        {
+            targetStripSqueezeAction.SetActive(activeStateOnExecute);
         }
 
         Debug.Log($"{name}: executed origami fold link {GetPointName(start)} -> {GetPointName(end)}.", this);
