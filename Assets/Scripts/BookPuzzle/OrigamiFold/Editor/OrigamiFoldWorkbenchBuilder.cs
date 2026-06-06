@@ -15,7 +15,8 @@ public static class OrigamiFoldWorkbenchBuilder
         Step2,
         Step3,
         Step3_1,
-        Step3_2
+        Step3_2,
+        Step3_3
     }
 
     [MenuItem("Tools/PANINI/Origami Fold/Rebuild Workbench Step 1")]
@@ -46,6 +47,12 @@ public static class OrigamiFoldWorkbenchBuilder
     public static void RebuildWorkbenchStep3_2()
     {
         RebuildWorkbench(WorkbenchStep.Step3_2);
+    }
+
+    [MenuItem("Tools/PANINI/Origami Fold/Rebuild Workbench Step 3.3 Vertical Controls")]
+    public static void RebuildWorkbenchStep3_3()
+    {
+        RebuildWorkbench(WorkbenchStep.Step3_3);
     }
 
     private static void RebuildWorkbench(WorkbenchStep step)
@@ -104,6 +111,18 @@ public static class OrigamiFoldWorkbenchBuilder
 
         GameObject executeIndicator = CreateExecuteIndicator(debugRoot.transform);
         CreateInstructionText(debugRoot.transform, step);
+
+        if (step == WorkbenchStep.Step3_3)
+        {
+            RebuildVerticalOrigamiObjects(
+                systemRoot,
+                pointsRoot,
+                linksRoot,
+                camera,
+                executeIndicator);
+
+            return;
+        }
 
         bool hasGrid = step != WorkbenchStep.Step1;
         bool hasMergedPoints = step == WorkbenchStep.Step3
@@ -373,6 +392,242 @@ public static class OrigamiFoldWorkbenchBuilder
         }
     }
 
+    private static void RebuildVerticalOrigamiObjects(
+        GameObject systemRoot,
+        GameObject pointsRoot,
+        GameObject linksRoot,
+        Camera camera,
+        GameObject executeIndicator)
+    {
+        Vector2 boardOrigin = new Vector2(0f, -1.5f);
+        float cellSize = 1f;
+        float cellVisualSize = 0.92f;
+        float pointSize = 0.22f;
+        float sourcePointColliderRadius = pointSize * 0.5f;
+        float mergedPointSize = 0.30f;
+        float mergedPointColliderRadius = mergedPointSize * 0.5f;
+
+        Vector3 collapsibleCenter = GridToLocalPosition(boardOrigin, cellSize, new Vector2Int(0, 1));
+        float leftX = collapsibleCenter.x - cellSize * 0.5f;
+        float rightX = collapsibleCenter.x + cellSize * 0.5f;
+        float topY = collapsibleCenter.y + cellSize * 0.5f;
+        float bottomY = collapsibleCenter.y - cellSize * 0.5f;
+
+        Vector3 topLeftPosition = new Vector3(leftX, topY, 0f);
+        Vector3 topRightPosition = new Vector3(rightX, topY, 0f);
+        Vector3 bottomLeftPosition = new Vector3(leftX, bottomY, 0f);
+        Vector3 bottomRightPosition = new Vector3(rightX, bottomY, 0f);
+
+        OrigamiFoldPoint topLeft = CreateFoldPoint(
+            "OrigamiPoint_TopLeft",
+            topLeftPosition,
+            Color.white,
+            new Vector3(pointSize, pointSize, 1f),
+            sourcePointColliderRadius,
+            30,
+            pointsRoot.transform);
+
+        OrigamiFoldPoint topRight = CreateFoldPoint(
+            "OrigamiPoint_TopRight",
+            topRightPosition,
+            Color.white,
+            new Vector3(pointSize, pointSize, 1f),
+            sourcePointColliderRadius,
+            30,
+            pointsRoot.transform);
+
+        OrigamiFoldPoint bottomLeft = CreateFoldPoint(
+            "OrigamiPoint_BottomLeft",
+            bottomLeftPosition,
+            Color.white,
+            new Vector3(pointSize, pointSize, 1f),
+            sourcePointColliderRadius,
+            30,
+            pointsRoot.transform);
+
+        OrigamiFoldPoint bottomRight = CreateFoldPoint(
+            "OrigamiPoint_BottomRight",
+            bottomRightPosition,
+            Color.white,
+            new Vector3(pointSize, pointSize, 1f),
+            sourcePointColliderRadius,
+            30,
+            pointsRoot.transform);
+
+        OrigamiFoldPoint mergedLeft = CreateFoldPoint(
+            "OrigamiPoint_MergedLeft",
+            bottomLeftPosition,
+            Color.cyan,
+            new Vector3(mergedPointSize, mergedPointSize, 1f),
+            mergedPointColliderRadius,
+            35,
+            pointsRoot.transform);
+
+        OrigamiFoldPoint mergedRight = CreateFoldPoint(
+            "OrigamiPoint_MergedRight",
+            bottomRightPosition,
+            Color.cyan,
+            new Vector3(mergedPointSize, mergedPointSize, 1f),
+            mergedPointColliderRadius,
+            35,
+            pointsRoot.transform);
+
+        OrigamiFoldMoveAction compressVerticalAction = CreateVerticalGridAndAction(
+            boardOrigin,
+            cellSize,
+            cellVisualSize,
+            new[] { topLeft, topRight, bottomLeft, bottomRight },
+            new[] { mergedLeft, mergedRight });
+
+        ConfigureMergedClickAction(mergedLeft, compressVerticalAction, camera);
+        ConfigureMergedClickAction(mergedRight, compressVerticalAction, camera);
+        mergedLeft.gameObject.SetActive(false);
+        mergedRight.gameObject.SetActive(false);
+
+        CreateVerticalGridGuides(boardOrigin, cellSize);
+
+        OrigamiFoldLink leftTopToBottom = CreateFoldLink(
+            "OrigamiLink_Left_TTB",
+            topLeft,
+            bottomLeft,
+            executeIndicator,
+            linksRoot.transform);
+
+        OrigamiFoldLink leftBottomToTop = CreateFoldLink(
+            "OrigamiLink_Left_BTT",
+            bottomLeft,
+            topLeft,
+            executeIndicator,
+            linksRoot.transform);
+
+        OrigamiFoldLink rightTopToBottom = CreateFoldLink(
+            "OrigamiLink_Right_TTB",
+            topRight,
+            bottomRight,
+            executeIndicator,
+            linksRoot.transform);
+
+        OrigamiFoldLink rightBottomToTop = CreateFoldLink(
+            "OrigamiLink_Right_BTT",
+            bottomRight,
+            topRight,
+            executeIndicator,
+            linksRoot.transform);
+
+        ConfigureFoldMoveLink(leftTopToBottom, compressVerticalAction, true);
+        ConfigureFoldMoveLink(leftBottomToTop, compressVerticalAction, true);
+        ConfigureFoldMoveLink(rightTopToBottom, compressVerticalAction, true);
+        ConfigureFoldMoveLink(rightBottomToTop, compressVerticalAction, true);
+
+        OrigamiFoldDragController controller = systemRoot.AddComponent<OrigamiFoldDragController>();
+        controller.targetCamera = camera;
+        controller.snapDistance = 0.45f;
+        controller.autoFindLinks = true;
+        controller.links = new[]
+        {
+            leftTopToBottom,
+            leftBottomToTop,
+            rightTopToBottom,
+            rightBottomToTop
+        };
+    }
+
+    private static OrigamiFoldMoveAction CreateVerticalGridAndAction(
+        Vector2 boardOrigin,
+        float cellSize,
+        float cellVisualSize,
+        OrigamiFoldPoint[] sourcePoints,
+        OrigamiFoldPoint[] mergedPoints)
+    {
+        GameObject gridRoot = new GameObject("ORIGAMI_GRID");
+        GameObject cellsRoot = new GameObject("Cells");
+        cellsRoot.transform.SetParent(gridRoot.transform);
+        cellsRoot.transform.localPosition = Vector3.zero;
+
+        GameObject actionsRoot = new GameObject("ORIGAMI_ACTIONS");
+
+        OrigamiFoldBoard board = gridRoot.AddComponent<OrigamiFoldBoard>();
+        board.cellSize = cellSize;
+        board.originLocalPosition = boardOrigin;
+        board.foldAnimationDuration = 0.25f;
+
+        OrigamiFoldCell cell0 = CreateCell(
+            "Cell_0_0",
+            new Vector2Int(0, 0),
+            new Color(0.16f, 0.46f, 0.78f),
+            cellVisualSize,
+            board,
+            cellsRoot.transform);
+
+        OrigamiFoldCell cell1 = CreateCell(
+            "Cell_0_1",
+            new Vector2Int(0, 1),
+            new Color(0.90f, 0.58f, 0.20f),
+            cellVisualSize,
+            board,
+            cellsRoot.transform);
+
+        OrigamiFoldCell cell2 = CreateCell(
+            "Cell_0_2",
+            new Vector2Int(0, 2),
+            new Color(0.28f, 0.68f, 0.38f),
+            cellVisualSize,
+            board,
+            cellsRoot.transform);
+
+        OrigamiFoldCell buffer = CreateCell(
+            "Cell_0_3_Buffer",
+            new Vector2Int(0, 3),
+            new Color(0.36f, 0.22f, 0.42f),
+            cellVisualSize,
+            board,
+            cellsRoot.transform);
+
+        GameObject actionObject = new GameObject("OrigamiFoldMoveAction_CompressVertical");
+        actionObject.transform.SetParent(actionsRoot.transform);
+
+        OrigamiFoldMoveAction action = actionObject.AddComponent<OrigamiFoldMoveAction>();
+        action.board = board;
+        action.isActive = false;
+        action.movesWhenActive = new[]
+        {
+            new OrigamiCellMove
+            {
+                cell = cell2,
+                targetGridPosition = new Vector2Int(0, 1)
+            },
+            new OrigamiCellMove
+            {
+                cell = buffer,
+                targetGridPosition = new Vector2Int(0, 2)
+            }
+        };
+        action.movesWhenInactive = new[]
+        {
+            new OrigamiCellMove
+            {
+                cell = cell2,
+                targetGridPosition = new Vector2Int(0, 2)
+            },
+            new OrigamiCellMove
+            {
+                cell = buffer,
+                targetGridPosition = new Vector2Int(0, 3)
+            }
+        };
+        action.enableWhenActive = ToGameObjects(mergedPoints);
+        action.disableWhenActive = Combine(cell1.gameObject, ToGameObjects(sourcePoints));
+        action.enableWhenInactive = Combine(cell1.gameObject, ToGameObjects(sourcePoints));
+        action.disableWhenInactive = ToGameObjects(mergedPoints);
+
+        board.SnapCellToGrid(cell0);
+        board.SnapCellToGrid(cell1);
+        board.SnapCellToGrid(cell2);
+        board.SnapCellToGrid(buffer);
+
+        return action;
+    }
+
     private static OrigamiFoldMoveAction CreateGridAndAction(
         WorkbenchStep step,
         Vector2 boardOrigin,
@@ -561,6 +816,71 @@ public static class OrigamiFoldWorkbenchBuilder
         }
 
         Vector3 collapsibleCenter = GridToLocalPosition(boardOrigin, cellSize, new Vector2Int(1, 0));
+        CreateGuideLine(
+            "Guide_Collapsible_Left",
+            new Vector3(collapsibleCenter.x - 0.5f, collapsibleCenter.y, 0.08f),
+            new Vector3(0.035f, 1.08f, 1f),
+            regionColor,
+            guidesRoot.transform);
+
+        CreateGuideLine(
+            "Guide_Collapsible_Right",
+            new Vector3(collapsibleCenter.x + 0.5f, collapsibleCenter.y, 0.08f),
+            new Vector3(0.035f, 1.08f, 1f),
+            regionColor,
+            guidesRoot.transform);
+
+        CreateGuideLine(
+            "Guide_Collapsible_Top",
+            new Vector3(collapsibleCenter.x, collapsibleCenter.y + 0.5f, 0.08f),
+            new Vector3(1.08f, 0.035f, 1f),
+            regionColor,
+            guidesRoot.transform);
+
+        CreateGuideLine(
+            "Guide_Collapsible_Bottom",
+            new Vector3(collapsibleCenter.x, collapsibleCenter.y - 0.5f, 0.08f),
+            new Vector3(1.08f, 0.035f, 1f),
+            regionColor,
+            guidesRoot.transform);
+    }
+
+    private static void CreateVerticalGridGuides(Vector2 boardOrigin, float cellSize)
+    {
+        GameObject guidesRoot = new GameObject("ORIGAMI_GRID_GUIDES");
+        Color gridColor = new Color(1f, 1f, 1f, 0.28f);
+        Color regionColor = new Color(1f, 0.9f, 0.18f, 0.45f);
+
+        float leftX = boardOrigin.x - cellSize * 0.5f;
+        float rightX = boardOrigin.x + cellSize * 0.5f;
+        float columnCenterY = boardOrigin.y + cellSize * 1.5f;
+
+        CreateGuideLine(
+            "Guide_Column_Left",
+            new Vector3(leftX, columnCenterY, 0.1f),
+            new Vector3(0.025f, 4.18f, 1f),
+            gridColor,
+            guidesRoot.transform);
+
+        CreateGuideLine(
+            "Guide_Column_Right",
+            new Vector3(rightX, columnCenterY, 0.1f),
+            new Vector3(0.025f, 4.18f, 1f),
+            gridColor,
+            guidesRoot.transform);
+
+        for (int i = 0; i <= 4; i++)
+        {
+            float y = boardOrigin.y + (i * cellSize) - (cellSize * 0.5f);
+            CreateGuideLine(
+                $"Guide_Horizontal_{i}",
+                new Vector3(boardOrigin.x, y, 0.1f),
+                new Vector3(1.18f, 0.025f, 1f),
+                gridColor,
+                guidesRoot.transform);
+        }
+
+        Vector3 collapsibleCenter = GridToLocalPosition(boardOrigin, cellSize, new Vector2Int(0, 1));
         CreateGuideLine(
             "Guide_Collapsible_Left",
             new Vector3(collapsibleCenter.x - 0.5f, collapsibleCenter.y, 0.08f),
@@ -787,7 +1107,12 @@ public static class OrigamiFoldWorkbenchBuilder
 
     private static void ConfigureCamera(Camera camera, WorkbenchStep step)
     {
-        if (step == WorkbenchStep.Step3_1
+        if (step == WorkbenchStep.Step3_3)
+        {
+            camera.transform.position = new Vector3(0f, 0.15f, -10f);
+            camera.orthographicSize = 3.7f;
+        }
+        else if (step == WorkbenchStep.Step3_1
             || step == WorkbenchStep.Step3_2)
         {
             camera.transform.position = new Vector3(0f, 0.2f, -10f);
@@ -841,11 +1166,15 @@ public static class OrigamiFoldWorkbenchBuilder
 
         CreateWorkbenchTile(
             "WorkbenchPlate",
-            step == WorkbenchStep.Step3_1 || step == WorkbenchStep.Step3_2
+            step == WorkbenchStep.Step3_3
+                ? new Vector3(0f, 0f, 0.35f)
+                : step == WorkbenchStep.Step3_1 || step == WorkbenchStep.Step3_2
                 ? new Vector3(0f, 0f, 0.35f)
                 : new Vector3(0f, -0.4f, 0.35f),
             new Color(0.12f, 0.14f, 0.16f),
-            step == WorkbenchStep.Step3_1 || step == WorkbenchStep.Step3_2
+            step == WorkbenchStep.Step3_3
+                ? new Vector3(1.15f, 4.25f, 1f)
+                : step == WorkbenchStep.Step3_1 || step == WorkbenchStep.Step3_2
                 ? new Vector3(4.25f, 1.15f, 1f)
                 : new Vector3(4.3f, 1.25f, 1f),
             parent);
@@ -982,13 +1311,19 @@ public static class OrigamiFoldWorkbenchBuilder
     {
         GameObject textObject = new GameObject("InstructionText");
         textObject.transform.SetParent(parent);
-        textObject.transform.position = step == WorkbenchStep.Step3_1 || step == WorkbenchStep.Step3_2
+        textObject.transform.position = step == WorkbenchStep.Step3_3
+            ? new Vector3(-3.3f, 3.35f, 0f)
+            : step == WorkbenchStep.Step3_1 || step == WorkbenchStep.Step3_2
             ? new Vector3(-2.65f, 2.65f, 0f)
             : new Vector3(-2.8f, 2.85f, 0f);
 
         TextMesh text = textObject.AddComponent<TextMesh>();
 
-        if (step == WorkbenchStep.Step3_2)
+        if (step == WorkbenchStep.Step3_3)
+        {
+            text.text = "Drag left or right edge vertically to fold. Click cyan point to unfold.";
+        }
+        else if (step == WorkbenchStep.Step3_2)
         {
             text.text = "Drag top or bottom edge to fold. Click cyan point to unfold.";
         }
@@ -1009,8 +1344,12 @@ public static class OrigamiFoldWorkbenchBuilder
             text.text = "Drag neighboring points. Diagonals do not work.";
         }
 
-        text.characterSize = step == WorkbenchStep.Step3_1 || step == WorkbenchStep.Step3_2 ? 0.11f : 0.13f;
-        text.fontSize = step == WorkbenchStep.Step3_1 || step == WorkbenchStep.Step3_2 ? 24 : 28;
+        text.characterSize = step == WorkbenchStep.Step3_3
+            ? 0.095f
+            : step == WorkbenchStep.Step3_1 || step == WorkbenchStep.Step3_2 ? 0.11f : 0.13f;
+        text.fontSize = step == WorkbenchStep.Step3_3
+            ? 22
+            : step == WorkbenchStep.Step3_1 || step == WorkbenchStep.Step3_2 ? 24 : 28;
         text.anchor = TextAnchor.UpperLeft;
         text.color = Color.white;
 
