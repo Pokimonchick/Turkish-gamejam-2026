@@ -17,7 +17,8 @@ public static class OrigamiFoldWorkbenchBuilder
         Step3_1,
         Step3_2,
         Step3_3,
-        Step3_4
+        Step3_4,
+        Step3_5
     }
 
     [MenuItem("Tools/PANINI/Origami Fold/Rebuild Workbench Step 1")]
@@ -60,6 +61,12 @@ public static class OrigamiFoldWorkbenchBuilder
     public static void RebuildWorkbenchStep3_4()
     {
         RebuildWorkbench(WorkbenchStep.Step3_4);
+    }
+
+    [MenuItem("Tools/PANINI/Origami Fold/Rebuild Workbench Step 3.5 Unified Map")]
+    public static void RebuildWorkbenchStep3_5()
+    {
+        RebuildWorkbench(WorkbenchStep.Step3_5);
     }
 
     private static void RebuildWorkbench(WorkbenchStep step)
@@ -108,6 +115,7 @@ public static class OrigamiFoldWorkbenchBuilder
         DeleteIfExists("ORIGAMI_ACTIONS");
         DeleteIfExists("ORIGAMI_SQUEEZE_HORIZONTAL");
         DeleteIfExists("ORIGAMI_SQUEEZE_VERTICAL");
+        DeleteIfExists("ORIGAMI_UNIFIED_MAP");
 
         GameObject systemRoot = new GameObject("ORIGAMI_FOLD_SYSTEM");
         GameObject pointsRoot = new GameObject("ORIGAMI_FOLD_POINTS");
@@ -120,6 +128,18 @@ public static class OrigamiFoldWorkbenchBuilder
 
         GameObject executeIndicator = CreateExecuteIndicator(debugRoot.transform);
         CreateInstructionText(debugRoot.transform, step);
+
+        if (step == WorkbenchStep.Step3_5)
+        {
+            RebuildUnifiedMapOrigamiObjects(
+                systemRoot,
+                pointsRoot,
+                linksRoot,
+                camera,
+                executeIndicator);
+
+            return;
+        }
 
         if (step == WorkbenchStep.Step3_4)
         {
@@ -411,6 +431,448 @@ public static class OrigamiFoldWorkbenchBuilder
         {
             controller.links = new[] { top, bottom, left, right };
         }
+    }
+
+    private static void RebuildUnifiedMapOrigamiObjects(
+        GameObject systemRoot,
+        GameObject pointsRoot,
+        GameObject linksRoot,
+        Camera camera,
+        GameObject executeIndicator)
+    {
+        GameObject actionsRoot = new GameObject("ORIGAMI_ACTIONS");
+        GameObject guidesRoot = new GameObject("ORIGAMI_GRID_GUIDES");
+        GameObject mapRoot = new GameObject("ORIGAMI_UNIFIED_MAP");
+        GameObject cellsRoot = new GameObject("Cells");
+        cellsRoot.transform.SetParent(mapRoot.transform);
+        cellsRoot.transform.localPosition = Vector3.zero;
+
+        OrigamiFoldActionCoordinator coordinator = systemRoot.AddComponent<OrigamiFoldActionCoordinator>();
+        GameObject[,] cells = CreateUnifiedMapCells(cellsRoot.transform);
+
+        OrigamiFoldLink[] horizontalLinks = CreateUnifiedHorizontalZone(
+            cells,
+            actionsRoot.transform,
+            pointsRoot.transform,
+            linksRoot.transform,
+            camera,
+            executeIndicator,
+            coordinator);
+
+        OrigamiFoldLink[] verticalLinks = CreateUnifiedVerticalZone(
+            cells,
+            actionsRoot.transform,
+            pointsRoot.transform,
+            linksRoot.transform,
+            camera,
+            executeIndicator,
+            coordinator);
+
+        CreateUnifiedMapGuides(guidesRoot.transform);
+
+        OrigamiFoldDragController controller = systemRoot.AddComponent<OrigamiFoldDragController>();
+        controller.targetCamera = camera;
+        controller.snapDistance = 0.5f;
+        controller.autoFindLinks = true;
+        controller.links = new[]
+        {
+            horizontalLinks[0],
+            horizontalLinks[1],
+            horizontalLinks[2],
+            horizontalLinks[3],
+            verticalLinks[0],
+            verticalLinks[1],
+            verticalLinks[2],
+            verticalLinks[3]
+        };
+    }
+
+    private static GameObject[,] CreateUnifiedMapCells(Transform parent)
+    {
+        GameObject[,] cells = new GameObject[5, 4];
+        float cellVisualSize = 0.92f;
+
+        for (int y = 0; y < 4; y++)
+        {
+            for (int x = 0; x < 5; x++)
+            {
+                Color color = new Color(0.18f, 0.24f, 0.30f);
+
+                if (x == 1 && y == 1)
+                {
+                    color = new Color(0.90f, 0.58f, 0.20f);
+                }
+                else if (x == 4 && y == 1)
+                {
+                    color = new Color(0.72f, 0.38f, 0.72f);
+                }
+                else if (y == 1 && x <= 3)
+                {
+                    color = new Color(0.20f, 0.34f, 0.42f);
+                }
+                else if (x == 4)
+                {
+                    color = new Color(0.28f, 0.36f, 0.44f);
+                }
+
+                Vector3 position = new Vector3((x - 2) * 1f, (y - 1.5f) * 1f, 0f);
+                cells[x, y] = CreateSqueezeCell(
+                    $"MapCell_{x}_{y}",
+                    position,
+                    color,
+                    cellVisualSize,
+                    parent,
+                    $"{x},{y}");
+            }
+        }
+
+        return cells;
+    }
+
+    private static OrigamiFoldLink[] CreateUnifiedHorizontalZone(
+        GameObject[,] cells,
+        Transform actionsRoot,
+        Transform pointsRoot,
+        Transform linksRoot,
+        Camera camera,
+        GameObject executeIndicator,
+        OrigamiFoldActionCoordinator coordinator)
+    {
+        GameObject leftCell = cells[0, 1];
+        GameObject collapsibleCell = cells[1, 1];
+        GameObject rightCell = cells[2, 1];
+        GameObject bufferCell = cells[3, 1];
+        Vector3 collapsibleCenter = collapsibleCell.transform.localPosition;
+        float leftX = collapsibleCenter.x - 0.5f;
+        float rightX = collapsibleCenter.x + 0.5f;
+        float topY = collapsibleCenter.y + 0.5f;
+        float bottomY = collapsibleCenter.y - 0.5f;
+        float pointSize = 0.22f;
+        float mergedPointSize = 0.30f;
+
+        OrigamiFoldPoint topLeft = CreateFoldPoint(
+            "H_Point_TopLeft",
+            new Vector3(leftX, topY, 0f),
+            Color.white,
+            new Vector3(pointSize, pointSize, 1f),
+            pointSize * 0.5f,
+            30,
+            pointsRoot);
+
+        OrigamiFoldPoint topRight = CreateFoldPoint(
+            "H_Point_TopRight",
+            new Vector3(rightX, topY, 0f),
+            Color.white,
+            new Vector3(pointSize, pointSize, 1f),
+            pointSize * 0.5f,
+            30,
+            pointsRoot);
+
+        OrigamiFoldPoint bottomLeft = CreateFoldPoint(
+            "H_Point_BottomLeft",
+            new Vector3(leftX, bottomY, 0f),
+            Color.white,
+            new Vector3(pointSize, pointSize, 1f),
+            pointSize * 0.5f,
+            30,
+            pointsRoot);
+
+        OrigamiFoldPoint bottomRight = CreateFoldPoint(
+            "H_Point_BottomRight",
+            new Vector3(rightX, bottomY, 0f),
+            Color.white,
+            new Vector3(pointSize, pointSize, 1f),
+            pointSize * 0.5f,
+            30,
+            pointsRoot);
+
+        OrigamiFoldPoint mergedTop = CreateFoldPoint(
+            "H_Point_MergedTop",
+            new Vector3(collapsibleCenter.x, topY, 0f),
+            Color.cyan,
+            new Vector3(mergedPointSize, mergedPointSize, 1f),
+            mergedPointSize * 0.5f,
+            35,
+            pointsRoot);
+
+        OrigamiFoldPoint mergedBottom = CreateFoldPoint(
+            "H_Point_MergedBottom",
+            new Vector3(collapsibleCenter.x, bottomY, 0f),
+            Color.cyan,
+            new Vector3(mergedPointSize, mergedPointSize, 1f),
+            mergedPointSize * 0.5f,
+            35,
+            pointsRoot);
+
+        OrigamiFoldSqueezeAction action = CreateSqueezeAction(
+            "H_SqueezeAction",
+            actionsRoot,
+            new[]
+            {
+                new OrigamiSqueezeTarget
+                {
+                    target = leftCell.transform,
+                    activeLocalPositionOffset = new Vector3(0.5f, 0f, 0f),
+                    activeLocalScale = Vector3.one
+                },
+                new OrigamiSqueezeTarget
+                {
+                    target = rightCell.transform,
+                    activeLocalPositionOffset = new Vector3(-0.5f, 0f, 0f),
+                    activeLocalScale = Vector3.one
+                },
+                new OrigamiSqueezeTarget
+                {
+                    target = bufferCell.transform,
+                    activeLocalPositionOffset = new Vector3(-0.5f, 0f, 0f),
+                    activeLocalScale = Vector3.one
+                },
+                new OrigamiSqueezeTarget
+                {
+                    target = collapsibleCell.transform,
+                    activeLocalPositionOffset = Vector3.zero,
+                    activeLocalScale = new Vector3(0.02f, 1f, 1f)
+                }
+            },
+            collapsibleCell,
+            new[] { topLeft, topRight, bottomLeft, bottomRight },
+            new[] { mergedTop, mergedBottom });
+
+        action.coordinator = coordinator;
+        action.useCoordinator = true;
+
+        ConfigureMergedSqueezeClickAction(mergedTop, action, camera);
+        ConfigureMergedSqueezeClickAction(mergedBottom, action, camera);
+        mergedTop.gameObject.SetActive(false);
+        mergedBottom.gameObject.SetActive(false);
+
+        OrigamiFoldLink topLeftToRight = CreateFoldLink(
+            "H_Link_Top_LTR",
+            topLeft,
+            topRight,
+            executeIndicator,
+            linksRoot);
+
+        OrigamiFoldLink topRightToLeft = CreateFoldLink(
+            "H_Link_Top_RTL",
+            topRight,
+            topLeft,
+            executeIndicator,
+            linksRoot);
+
+        OrigamiFoldLink bottomLeftToRight = CreateFoldLink(
+            "H_Link_Bottom_LTR",
+            bottomLeft,
+            bottomRight,
+            executeIndicator,
+            linksRoot);
+
+        OrigamiFoldLink bottomRightToLeft = CreateFoldLink(
+            "H_Link_Bottom_RTL",
+            bottomRight,
+            bottomLeft,
+            executeIndicator,
+            linksRoot);
+
+        ConfigureFoldSqueezeLink(topLeftToRight, action, true);
+        ConfigureFoldSqueezeLink(topRightToLeft, action, true);
+        ConfigureFoldSqueezeLink(bottomLeftToRight, action, true);
+        ConfigureFoldSqueezeLink(bottomRightToLeft, action, true);
+
+        return new[]
+        {
+            topLeftToRight,
+            topRightToLeft,
+            bottomLeftToRight,
+            bottomRightToLeft
+        };
+    }
+
+    private static OrigamiFoldLink[] CreateUnifiedVerticalZone(
+        GameObject[,] cells,
+        Transform actionsRoot,
+        Transform pointsRoot,
+        Transform linksRoot,
+        Camera camera,
+        GameObject executeIndicator,
+        OrigamiFoldActionCoordinator coordinator)
+    {
+        GameObject bottomCell = cells[4, 0];
+        GameObject collapsibleCell = cells[4, 1];
+        GameObject topCell = cells[4, 2];
+        GameObject bufferCell = cells[4, 3];
+        Vector3 collapsibleCenter = collapsibleCell.transform.localPosition;
+        float leftX = collapsibleCenter.x - 0.5f;
+        float rightX = collapsibleCenter.x + 0.5f;
+        float topY = collapsibleCenter.y + 0.5f;
+        float bottomY = collapsibleCenter.y - 0.5f;
+        float pointSize = 0.22f;
+        float mergedPointSize = 0.30f;
+
+        OrigamiFoldPoint topLeft = CreateFoldPoint(
+            "V_Point_TopLeft",
+            new Vector3(leftX, topY, 0f),
+            Color.white,
+            new Vector3(pointSize, pointSize, 1f),
+            pointSize * 0.5f,
+            30,
+            pointsRoot);
+
+        OrigamiFoldPoint topRight = CreateFoldPoint(
+            "V_Point_TopRight",
+            new Vector3(rightX, topY, 0f),
+            Color.white,
+            new Vector3(pointSize, pointSize, 1f),
+            pointSize * 0.5f,
+            30,
+            pointsRoot);
+
+        OrigamiFoldPoint bottomLeft = CreateFoldPoint(
+            "V_Point_BottomLeft",
+            new Vector3(leftX, bottomY, 0f),
+            Color.white,
+            new Vector3(pointSize, pointSize, 1f),
+            pointSize * 0.5f,
+            30,
+            pointsRoot);
+
+        OrigamiFoldPoint bottomRight = CreateFoldPoint(
+            "V_Point_BottomRight",
+            new Vector3(rightX, bottomY, 0f),
+            Color.white,
+            new Vector3(pointSize, pointSize, 1f),
+            pointSize * 0.5f,
+            30,
+            pointsRoot);
+
+        OrigamiFoldPoint mergedLeft = CreateFoldPoint(
+            "V_Point_MergedLeft",
+            new Vector3(leftX, collapsibleCenter.y, 0f),
+            Color.cyan,
+            new Vector3(mergedPointSize, mergedPointSize, 1f),
+            mergedPointSize * 0.5f,
+            35,
+            pointsRoot);
+
+        OrigamiFoldPoint mergedRight = CreateFoldPoint(
+            "V_Point_MergedRight",
+            new Vector3(rightX, collapsibleCenter.y, 0f),
+            Color.cyan,
+            new Vector3(mergedPointSize, mergedPointSize, 1f),
+            mergedPointSize * 0.5f,
+            35,
+            pointsRoot);
+
+        OrigamiFoldSqueezeAction action = CreateSqueezeAction(
+            "V_SqueezeAction",
+            actionsRoot,
+            new[]
+            {
+                new OrigamiSqueezeTarget
+                {
+                    target = bottomCell.transform,
+                    activeLocalPositionOffset = new Vector3(0f, 0.5f, 0f),
+                    activeLocalScale = Vector3.one
+                },
+                new OrigamiSqueezeTarget
+                {
+                    target = topCell.transform,
+                    activeLocalPositionOffset = new Vector3(0f, -0.5f, 0f),
+                    activeLocalScale = Vector3.one
+                },
+                new OrigamiSqueezeTarget
+                {
+                    target = bufferCell.transform,
+                    activeLocalPositionOffset = new Vector3(0f, -0.5f, 0f),
+                    activeLocalScale = Vector3.one
+                },
+                new OrigamiSqueezeTarget
+                {
+                    target = collapsibleCell.transform,
+                    activeLocalPositionOffset = Vector3.zero,
+                    activeLocalScale = new Vector3(1f, 0.02f, 1f)
+                }
+            },
+            collapsibleCell,
+            new[] { topLeft, topRight, bottomLeft, bottomRight },
+            new[] { mergedLeft, mergedRight });
+
+        action.coordinator = coordinator;
+        action.useCoordinator = true;
+
+        ConfigureMergedSqueezeClickAction(mergedLeft, action, camera);
+        ConfigureMergedSqueezeClickAction(mergedRight, action, camera);
+        mergedLeft.gameObject.SetActive(false);
+        mergedRight.gameObject.SetActive(false);
+
+        OrigamiFoldLink leftTopToBottom = CreateFoldLink(
+            "V_Link_Left_TTB",
+            topLeft,
+            bottomLeft,
+            executeIndicator,
+            linksRoot);
+
+        OrigamiFoldLink leftBottomToTop = CreateFoldLink(
+            "V_Link_Left_BTT",
+            bottomLeft,
+            topLeft,
+            executeIndicator,
+            linksRoot);
+
+        OrigamiFoldLink rightTopToBottom = CreateFoldLink(
+            "V_Link_Right_TTB",
+            topRight,
+            bottomRight,
+            executeIndicator,
+            linksRoot);
+
+        OrigamiFoldLink rightBottomToTop = CreateFoldLink(
+            "V_Link_Right_BTT",
+            bottomRight,
+            topRight,
+            executeIndicator,
+            linksRoot);
+
+        ConfigureFoldSqueezeLink(leftTopToBottom, action, true);
+        ConfigureFoldSqueezeLink(leftBottomToTop, action, true);
+        ConfigureFoldSqueezeLink(rightTopToBottom, action, true);
+        ConfigureFoldSqueezeLink(rightBottomToTop, action, true);
+
+        return new[]
+        {
+            leftTopToBottom,
+            leftBottomToTop,
+            rightTopToBottom,
+            rightBottomToTop
+        };
+    }
+
+    private static void CreateUnifiedMapGuides(Transform parent)
+    {
+        Color gridColor = new Color(1f, 1f, 1f, 0.22f);
+
+        for (int x = 0; x <= 5; x++)
+        {
+            CreateGuideLine(
+                $"UnifiedGuide_Vertical_{x}",
+                new Vector3(-2.5f + x, 0f, 0.1f),
+                new Vector3(0.02f, 4.05f, 1f),
+                gridColor,
+                parent);
+        }
+
+        for (int y = 0; y <= 4; y++)
+        {
+            CreateGuideLine(
+                $"UnifiedGuide_Horizontal_{y}",
+                new Vector3(0f, -2f + y, 0.1f),
+                new Vector3(5.05f, 0.02f, 1f),
+                gridColor,
+                parent);
+        }
+
+        CreateSqueezeFrameGuide("H_UnifiedFoldZone", new Vector3(-1f, -0.5f, 0f), parent);
+        CreateSqueezeFrameGuide("V_UnifiedFoldZone", new Vector3(2f, -0.5f, 0f), parent);
     }
 
     private static void RebuildSqueezeOrigamiObjects(
@@ -835,7 +1297,8 @@ public static class OrigamiFoldWorkbenchBuilder
         Vector3 localPosition,
         Color color,
         float cellVisualSize,
-        Transform parent)
+        Transform parent,
+        string labelText = null)
     {
         GameObject cellObject = new GameObject(objectName);
         cellObject.transform.SetParent(parent);
@@ -858,7 +1321,7 @@ public static class OrigamiFoldWorkbenchBuilder
         renderer.sharedMaterial = CreateMaterial(color);
         renderer.sortingOrder = 10;
 
-        CreateCellLabel(objectName, cellObject.transform);
+        CreateCellLabel(string.IsNullOrEmpty(labelText) ? objectName : labelText, cellObject.transform);
 
         return cellObject;
     }
@@ -1675,7 +2138,12 @@ public static class OrigamiFoldWorkbenchBuilder
 
     private static void ConfigureCamera(Camera camera, WorkbenchStep step)
     {
-        if (step == WorkbenchStep.Step3_4)
+        if (step == WorkbenchStep.Step3_5)
+        {
+            camera.transform.position = new Vector3(0f, 0.15f, -10f);
+            camera.orthographicSize = 4.3f;
+        }
+        else if (step == WorkbenchStep.Step3_4)
         {
             camera.transform.position = new Vector3(-1f, 0.1f, -10f);
             camera.orthographicSize = 4.2f;
@@ -1732,6 +2200,18 @@ public static class OrigamiFoldWorkbenchBuilder
                 new Vector3(0.5f, -0.5f, 0.2f),
                 new Color(0.36f, 0.24f, 0.40f),
                 new Vector3(0.95f, 0.95f, 1f),
+                parent);
+
+            return;
+        }
+
+        if (step == WorkbenchStep.Step3_5)
+        {
+            CreateWorkbenchTile(
+                "WorkbenchPlate_UnifiedMap",
+                new Vector3(0f, 0f, 0.35f),
+                new Color(0.12f, 0.14f, 0.16f),
+                new Vector3(5.25f, 4.25f, 1f),
                 parent);
 
             return;
@@ -1903,7 +2383,9 @@ public static class OrigamiFoldWorkbenchBuilder
     {
         GameObject textObject = new GameObject("InstructionText");
         textObject.transform.SetParent(parent);
-        textObject.transform.position = step == WorkbenchStep.Step3_4
+        textObject.transform.position = step == WorkbenchStep.Step3_5
+            ? new Vector3(-3.55f, 4.05f, 0f)
+            : step == WorkbenchStep.Step3_4
             ? new Vector3(-5.55f, 3.9f, 0f)
             : step == WorkbenchStep.Step3_3
             ? new Vector3(-3.3f, 3.35f, 0f)
@@ -1913,7 +2395,11 @@ public static class OrigamiFoldWorkbenchBuilder
 
         TextMesh text = textObject.AddComponent<TextMesh>();
 
-        if (step == WorkbenchStep.Step3_4)
+        if (step == WorkbenchStep.Step3_5)
+        {
+            text.text = "Unified map: fold H and V zones independently. Cyan points unfold.";
+        }
+        else if (step == WorkbenchStep.Step3_4)
         {
             text.text = "Symmetric squeeze: drag white edge points. Click cyan points to unfold.";
         }
@@ -1942,12 +2428,16 @@ public static class OrigamiFoldWorkbenchBuilder
             text.text = "Drag neighboring points. Diagonals do not work.";
         }
 
-        text.characterSize = step == WorkbenchStep.Step3_4
+        text.characterSize = step == WorkbenchStep.Step3_5
+            ? 0.105f
+            : step == WorkbenchStep.Step3_4
             ? 0.105f
             : step == WorkbenchStep.Step3_3
             ? 0.095f
             : step == WorkbenchStep.Step3_1 || step == WorkbenchStep.Step3_2 ? 0.11f : 0.13f;
-        text.fontSize = step == WorkbenchStep.Step3_4
+        text.fontSize = step == WorkbenchStep.Step3_5
+            ? 23
+            : step == WorkbenchStep.Step3_4
             ? 23
             : step == WorkbenchStep.Step3_3
             ? 22

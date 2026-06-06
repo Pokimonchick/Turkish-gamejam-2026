@@ -14,6 +14,8 @@ public class OrigamiSqueezeTarget
 public class OrigamiFoldSqueezeAction : MonoBehaviour
 {
     public bool isActive;
+    public OrigamiFoldActionCoordinator coordinator;
+    public bool useCoordinator = true;
     public float animationDuration = 0.25f;
     public OrigamiSqueezeTarget[] targets;
 
@@ -35,11 +37,23 @@ public class OrigamiFoldSqueezeAction : MonoBehaviour
     private void Awake()
     {
         CaptureInitialTransforms();
+
+        if (useCoordinator && coordinator == null)
+        {
+            coordinator = FindFirstObjectByType<OrigamiFoldActionCoordinator>();
+        }
     }
 
     public void SetActive(bool active)
     {
         if (IsAnimating || active == isActive)
+        {
+            return;
+        }
+
+        OrigamiFoldActionCoordinator activeCoordinator = GetCoordinator();
+
+        if (activeCoordinator != null && !activeCoordinator.TryBegin(this))
         {
             return;
         }
@@ -57,7 +71,7 @@ public class OrigamiFoldSqueezeAction : MonoBehaviour
             SetObjectsActive(disableBeforeInactive, false, nameof(disableBeforeInactive));
         }
 
-        StartCoroutine(AnimateRoutine(active));
+        StartCoroutine(AnimateRoutine(active, activeCoordinator));
     }
 
     public void Toggle()
@@ -65,7 +79,7 @@ public class OrigamiFoldSqueezeAction : MonoBehaviour
         SetActive(!isActive);
     }
 
-    private IEnumerator AnimateRoutine(bool active)
+    private IEnumerator AnimateRoutine(bool active, OrigamiFoldActionCoordinator activeCoordinator)
     {
         IsAnimating = true;
 
@@ -96,6 +110,26 @@ public class OrigamiFoldSqueezeAction : MonoBehaviour
         }
 
         IsAnimating = false;
+
+        if (activeCoordinator != null)
+        {
+            activeCoordinator.End(this);
+        }
+    }
+
+    private OrigamiFoldActionCoordinator GetCoordinator()
+    {
+        if (!useCoordinator)
+        {
+            return null;
+        }
+
+        if (coordinator == null)
+        {
+            coordinator = FindFirstObjectByType<OrigamiFoldActionCoordinator>();
+        }
+
+        return coordinator;
     }
 
     private void ApplyInterpolatedState(bool active, float t)
