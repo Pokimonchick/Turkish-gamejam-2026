@@ -1,0 +1,164 @@
+using UnityEngine;
+
+public enum AudioCategory
+{
+    Music,
+    SFX
+}
+
+[DisallowMultipleComponent]
+[AddComponentMenu("Game Audio/Game Audio Manager")]
+public sealed class GameAudioManager : MonoBehaviour
+{
+    public const string MasterVolumePrefsKey = "MainMenu.MasterVolume";
+    public const string MusicVolumePrefsKey = "GameAudio.MusicVolume";
+    public const string SfxVolumePrefsKey = "GameAudio.SfxVolume";
+
+    private const float DefaultMasterVolume = 1f;
+    private const float DefaultCategoryVolume = 1f;
+
+    private static GameAudioManager instance;
+
+    [Header("Volume")]
+    [SerializeField, Range(0f, 1f)] private float masterVolume = DefaultMasterVolume;
+    [SerializeField, Range(0f, 1f)] private float musicVolume = DefaultCategoryVolume;
+    [SerializeField, Range(0f, 1f)] private float sfxVolume = DefaultCategoryVolume;
+    [Tooltip("Keeps this audio manager alive when another scene is loaded.")]
+    [SerializeField] private bool persistBetweenScenes = true;
+
+    private readonly System.Collections.Generic.HashSet<CategorizedAudioSource> sources =
+        new System.Collections.Generic.HashSet<CategorizedAudioSource>();
+
+    public static bool HasInstance => instance != null;
+
+    public static GameAudioManager Instance
+    {
+        get
+        {
+            if (instance != null)
+            {
+                return instance;
+            }
+
+            instance = FindFirstObjectByType<GameAudioManager>();
+            if (instance != null)
+            {
+                instance.Initialize();
+                return instance;
+            }
+
+            var audioManagerObject = new GameObject("Game Audio Manager");
+            instance = audioManagerObject.AddComponent<GameAudioManager>();
+            instance.Initialize();
+            return instance;
+        }
+    }
+
+    public float MasterVolume => masterVolume;
+    public float MusicVolume => musicVolume;
+    public float SfxVolume => sfxVolume;
+
+    private void Awake()
+    {
+        if (instance != null && instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        instance = this;
+        Initialize();
+    }
+
+    private void Initialize()
+    {
+        masterVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(MasterVolumePrefsKey, DefaultMasterVolume));
+        musicVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(MusicVolumePrefsKey, DefaultCategoryVolume));
+        sfxVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(SfxVolumePrefsKey, DefaultCategoryVolume));
+
+        if (persistBetweenScenes)
+        {
+            DontDestroyOnLoad(gameObject);
+        }
+
+        ApplyVolumes();
+    }
+
+    public void SetMasterVolume(float volume)
+    {
+        masterVolume = Mathf.Clamp01(volume);
+        PlayerPrefs.SetFloat(MasterVolumePrefsKey, masterVolume);
+        PlayerPrefs.Save();
+        ApplyVolumes();
+    }
+
+    public void SetMusicVolume(float volume)
+    {
+        SetCategoryVolume(AudioCategory.Music, volume);
+    }
+
+    public void SetSfxVolume(float volume)
+    {
+        SetCategoryVolume(AudioCategory.SFX, volume);
+    }
+
+    public float GetCategoryVolume(AudioCategory category)
+    {
+        return category == AudioCategory.Music ? musicVolume : sfxVolume;
+    }
+
+    public void Register(CategorizedAudioSource source)
+    {
+        if (source == null)
+        {
+            return;
+        }
+
+        sources.Add(source);
+        source.ApplyCategoryVolume(GetCategoryVolume(source.Category));
+    }
+
+    public void Unregister(CategorizedAudioSource source)
+    {
+        sources.Remove(source);
+    }
+
+    private void SetCategoryVolume(AudioCategory category, float volume)
+    {
+        volume = Mathf.Clamp01(volume);
+
+        if (category == AudioCategory.Music)
+        {
+            musicVolume = volume;
+            PlayerPrefs.SetFloat(MusicVolumePrefsKey, musicVolume);
+        }
+        else
+        {
+            sfxVolume = volume;
+            PlayerPrefs.SetFloat(SfxVolumePrefsKey, sfxVolume);
+        }
+
+        PlayerPrefs.Save();
+        ApplyVolumes();
+    }
+
+    private void ApplyVolumes()
+    {
+        AudioListener.volume = masterVolume;
+
+        foreach (var source in sources)
+        {
+            if (source != null)
+            {
+                source.ApplyCategoryVolume(GetCategoryVolume(source.Category));
+            }
+        }
+    }
+
+    private void OnValidate()
+    {
+        masterVolume = Mathf.Clamp01(masterVolume);
+        musicVolume = Mathf.Clamp01(musicVolume);
+        sfxVolume = Mathf.Clamp01(sfxVolume);
+    }
+}
