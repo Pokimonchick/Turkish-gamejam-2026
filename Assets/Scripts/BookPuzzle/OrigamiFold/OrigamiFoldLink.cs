@@ -8,6 +8,8 @@ public class OrigamiFoldLink : MonoBehaviour
     public GameObject[] enableOnExecute;
     public GameObject[] disableOnExecute;
     public bool executed;
+    public OrigamiFoldMoveAction targetMoveAction;
+    public bool activeStateOnExecute = true;
 
     private bool warnedMissingPoints;
 
@@ -65,6 +67,11 @@ public class OrigamiFoldLink : MonoBehaviour
         executed = true;
         SetObjectsActive(enableOnExecute, true, nameof(enableOnExecute));
         SetObjectsActive(disableOnExecute, false, nameof(disableOnExecute));
+
+        if (targetMoveAction != null)
+        {
+            targetMoveAction.SetActive(activeStateOnExecute);
+        }
 
         Debug.Log($"{name}: executed origami fold link {GetPointName(start)} -> {GetPointName(end)}.", this);
     }
