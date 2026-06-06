@@ -26,6 +26,7 @@ public class OrigamiFoldExit : MonoBehaviour
         }
 
         ResolvePuzzleState();
+        RefreshVisual();
 
         if (puzzleState == null)
         {
@@ -46,6 +47,8 @@ public class OrigamiFoldExit : MonoBehaviour
 
     public void RefreshVisual()
     {
+        ResolvePuzzleState();
+
         bool isOpen = puzzleState != null && puzzleState.HasFireShard;
 
         if (lockedVisual != null)
@@ -86,6 +89,7 @@ public class OrigamiFoldExit : MonoBehaviour
         }
 
         return other.GetComponentInParent<PlayerFreeRoadMover>() != null
+            || other.GetComponentInParent<OrigamiFoldPlayerMover>() != null
             || other.GetComponentInParent<OrigamiFoldPassenger>() != null;
     }
 }

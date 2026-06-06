@@ -24,7 +24,8 @@ public static class OrigamiFoldWorkbenchBuilder
         Step5,
         Step5_1,
         Step5_2,
-        Step5_3
+        Step5_3,
+        Step5_3_1
     }
 
     [MenuItem("Tools/PANINI/Origami Fold/Rebuild Workbench Step 1")]
@@ -111,6 +112,12 @@ public static class OrigamiFoldWorkbenchBuilder
         RebuildWorkbench(WorkbenchStep.Step5_3);
     }
 
+    [MenuItem("Tools/PANINI/Origami Fold/Rebuild Workbench Step 5.3.1 Reset Progress On Respawn")]
+    public static void RebuildWorkbenchStep5_3_1()
+    {
+        RebuildWorkbench(WorkbenchStep.Step5_3_1);
+    }
+
     private static void RebuildWorkbench(WorkbenchStep step)
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
@@ -176,7 +183,8 @@ public static class OrigamiFoldWorkbenchBuilder
         if (step == WorkbenchStep.Step5
             || step == WorkbenchStep.Step5_1
             || step == WorkbenchStep.Step5_2
-            || step == WorkbenchStep.Step5_3)
+            || step == WorkbenchStep.Step5_3
+            || step == WorkbenchStep.Step5_3_1)
         {
             RebuildPuzzleLoopOrigamiObjects(
                 systemRoot,
@@ -186,9 +194,13 @@ public static class OrigamiFoldWorkbenchBuilder
                 executeIndicator,
                 step == WorkbenchStep.Step5_1
                     || step == WorkbenchStep.Step5_2
-                    || step == WorkbenchStep.Step5_3,
-                step == WorkbenchStep.Step5_2 || step == WorkbenchStep.Step5_3,
-                step == WorkbenchStep.Step5_3);
+                    || step == WorkbenchStep.Step5_3
+                    || step == WorkbenchStep.Step5_3_1,
+                step == WorkbenchStep.Step5_2
+                    || step == WorkbenchStep.Step5_3
+                    || step == WorkbenchStep.Step5_3_1,
+                step == WorkbenchStep.Step5_3 || step == WorkbenchStep.Step5_3_1,
+                step == WorkbenchStep.Step5_3_1);
 
             return;
         }
@@ -529,7 +541,8 @@ public static class OrigamiFoldWorkbenchBuilder
         GameObject executeIndicator,
         bool useTightPlayerBounds,
         bool includeHazards,
-        bool resetFoldsOnRespawn)
+        bool resetFoldsOnRespawn,
+        bool resetProgressOnRespawn)
     {
         GameObject actionsRoot = new GameObject("ORIGAMI_ACTIONS");
         GameObject guidesRoot = new GameObject("ORIGAMI_GRID_GUIDES");
@@ -600,10 +613,14 @@ public static class OrigamiFoldWorkbenchBuilder
         puzzleState.completeIndicator = completeIndicator;
         puzzleState.mapResetter = mapResetter;
         puzzleState.resetFoldsOnRespawn = resetFoldsOnRespawn;
+        puzzleState.resetProgressOnRespawn = resetProgressOnRespawn;
         puzzleState.disableWhileRespawning = GetPlayerMovementBehaviours(player);
 
-        CreateFireShard(cells[2, 2].transform, puzzleState);
-        CreateExit(cells[4, 2].transform, puzzleState);
+        OrigamiFoldFireShard fireShard = CreateFireShard(cells[2, 2].transform, puzzleState);
+        OrigamiFoldExit exit = CreateExit(cells[4, 2].transform, puzzleState);
+        puzzleState.fireShards = new[] { fireShard };
+        puzzleState.exits = new[] { exit };
+        puzzleState.autoFindResetObjects = true;
 
         if (includeHazards)
         {
@@ -1044,7 +1061,9 @@ public static class OrigamiFoldWorkbenchBuilder
         return indicator;
     }
 
-    private static void CreateFireShard(Transform parent, OrigamiFoldPuzzleState puzzleState)
+    private static OrigamiFoldFireShard CreateFireShard(
+        Transform parent,
+        OrigamiFoldPuzzleState puzzleState)
     {
         GameObject shard = new GameObject("FireShard");
         shard.transform.SetParent(parent);
@@ -1075,9 +1094,15 @@ public static class OrigamiFoldWorkbenchBuilder
         OrigamiFoldFireShard fireShard = shard.AddComponent<OrigamiFoldFireShard>();
         fireShard.puzzleState = puzzleState;
         fireShard.visualRoot = visual;
+        fireShard.triggerColliders = new[] { collider };
+        fireShard.disableCollidersOnCollect = true;
+
+        return fireShard;
     }
 
-    private static void CreateExit(Transform parent, OrigamiFoldPuzzleState puzzleState)
+    private static OrigamiFoldExit CreateExit(
+        Transform parent,
+        OrigamiFoldPuzzleState puzzleState)
     {
         GameObject exit = new GameObject("Exit");
         exit.transform.SetParent(parent);
@@ -1105,6 +1130,9 @@ public static class OrigamiFoldWorkbenchBuilder
         foldExit.puzzleState = puzzleState;
         foldExit.lockedVisual = lockedVisual;
         foldExit.openVisual = openVisual;
+        foldExit.RefreshVisual();
+
+        return foldExit;
     }
 
     private static GameObject CreateExitVisual(
@@ -3701,7 +3729,8 @@ public static class OrigamiFoldWorkbenchBuilder
         if (step == WorkbenchStep.Step5
             || step == WorkbenchStep.Step5_1
             || step == WorkbenchStep.Step5_2
-            || step == WorkbenchStep.Step5_3)
+            || step == WorkbenchStep.Step5_3
+            || step == WorkbenchStep.Step5_3_1)
         {
             camera.transform.position = new Vector3(0f, 0.1f, -10f);
             camera.orthographicSize = 4.5f;
@@ -3786,10 +3815,13 @@ public static class OrigamiFoldWorkbenchBuilder
         if (step == WorkbenchStep.Step5
             || step == WorkbenchStep.Step5_1
             || step == WorkbenchStep.Step5_2
-            || step == WorkbenchStep.Step5_3)
+            || step == WorkbenchStep.Step5_3
+            || step == WorkbenchStep.Step5_3_1)
         {
             CreateWorkbenchTile(
-                step == WorkbenchStep.Step5_3
+                step == WorkbenchStep.Step5_3_1
+                    ? "WorkbenchPlate_ResetProgressPuzzleLoop"
+                    : step == WorkbenchStep.Step5_3
                     ? "WorkbenchPlate_RespawnResetPuzzleLoop"
                     : step == WorkbenchStep.Step5_2
                     ? "WorkbenchPlate_HazardPuzzleLoop"
@@ -4010,6 +4042,7 @@ public static class OrigamiFoldWorkbenchBuilder
             || step == WorkbenchStep.Step5_1
             || step == WorkbenchStep.Step5_2
             || step == WorkbenchStep.Step5_3
+            || step == WorkbenchStep.Step5_3_1
             ? new Vector3(-3.95f, 4.18f, 0f)
             : step == WorkbenchStep.Step4
             ? new Vector3(-3.75f, 4.12f, 0f)
@@ -4027,7 +4060,11 @@ public static class OrigamiFoldWorkbenchBuilder
 
         TextMesh text = textObject.AddComponent<TextMesh>();
 
-        if (step == WorkbenchStep.Step5_3)
+        if (step == WorkbenchStep.Step5_3_1)
+        {
+            text.text = "WASD move. Death resets folds and fire shard.";
+        }
+        else if (step == WorkbenchStep.Step5_3)
         {
             text.text = "WASD move. Hazards reset folds and respawn player.";
         }
@@ -4088,6 +4125,7 @@ public static class OrigamiFoldWorkbenchBuilder
             || step == WorkbenchStep.Step5_1
             || step == WorkbenchStep.Step5_2
             || step == WorkbenchStep.Step5_3
+            || step == WorkbenchStep.Step5_3_1
             ? 0.105f
             : step == WorkbenchStep.Step4
             ? 0.11f
@@ -4104,6 +4142,7 @@ public static class OrigamiFoldWorkbenchBuilder
             || step == WorkbenchStep.Step5_1
             || step == WorkbenchStep.Step5_2
             || step == WorkbenchStep.Step5_3
+            || step == WorkbenchStep.Step5_3_1
             ? 23
             : step == WorkbenchStep.Step4
             ? 24

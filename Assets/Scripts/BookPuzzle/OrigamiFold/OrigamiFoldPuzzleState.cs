@@ -12,6 +12,10 @@ public class OrigamiFoldPuzzleState : MonoBehaviour
     public OrigamiFoldMapResetter mapResetter;
     public bool resetFoldsOnRespawn = true;
     public Behaviour[] disableWhileRespawning;
+    public bool resetProgressOnRespawn = true;
+    public OrigamiFoldFireShard[] fireShards;
+    public OrigamiFoldExit[] exits;
+    public bool autoFindResetObjects = true;
 
     public bool IsRespawning { get; private set; }
 
@@ -68,7 +72,7 @@ public class OrigamiFoldPuzzleState : MonoBehaviour
             return;
         }
 
-        if (!resetFoldsOnRespawn)
+        if (!resetFoldsOnRespawn && !resetProgressOnRespawn)
         {
             TeleportPlayerToRespawn();
             return;
@@ -109,6 +113,11 @@ public class OrigamiFoldPuzzleState : MonoBehaviour
             }
         }
 
+        if (resetProgressOnRespawn)
+        {
+            ResetRunProgress();
+        }
+
         TeleportPlayerToRespawn();
 
         if (respawnPassenger != null)
@@ -118,6 +127,74 @@ public class OrigamiFoldPuzzleState : MonoBehaviour
 
         SetRespawnBehavioursEnabled(true);
         IsRespawning = false;
+    }
+
+    public void ResetRunProgress()
+    {
+        HasFireShard = false;
+        IsComplete = false;
+
+        if (fireCollectedIndicator != null)
+        {
+            fireCollectedIndicator.SetActive(false);
+        }
+
+        if (completeIndicator != null)
+        {
+            completeIndicator.SetActive(false);
+        }
+
+        FindResetObjectsIfNeeded();
+
+        if (fireShards != null)
+        {
+            for (int i = 0; i < fireShards.Length; i++)
+            {
+                OrigamiFoldFireShard shard = fireShards[i];
+
+                if (shard != null)
+                {
+                    shard.ResetShard();
+                }
+            }
+        }
+
+        if (exits != null)
+        {
+            for (int i = 0; i < exits.Length; i++)
+            {
+                OrigamiFoldExit exit = exits[i];
+
+                if (exit != null)
+                {
+                    exit.RefreshVisual();
+                }
+            }
+        }
+
+        Debug.Log("Origami puzzle run progress reset", this);
+    }
+
+    private void FindResetObjectsIfNeeded()
+    {
+        if (!autoFindResetObjects)
+        {
+            return;
+        }
+
+        if (fireShards == null || fireShards.Length == 0)
+        {
+            fireShards = FindObjectsByType<OrigamiFoldFireShard>(
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None);
+        }
+
+        if (exits == null || exits.Length == 0)
+        {
+            exits = FindObjectsByType<OrigamiFoldExit>(
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None);
+        }
     }
 
     private void TeleportPlayerToRespawn()
