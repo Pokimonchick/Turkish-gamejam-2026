@@ -12,6 +12,12 @@ public static class OrigamiFoldWorkbenchBuilder
     [MenuItem("Tools/PANINI/Origami Fold/Rebuild Workbench Step 1")]
     public static void RebuildWorkbenchStep1()
     {
+        if (EditorApplication.isPlayingOrWillChangePlaymode)
+        {
+            Debug.LogWarning("Origami fold workbench rebuild is disabled while Unity is in Play Mode.");
+            return;
+        }
+
         if (!File.Exists(SourceScenePath))
         {
             Debug.LogWarning($"Source scene not found: {SourceScenePath}");
@@ -30,6 +36,7 @@ public static class OrigamiFoldWorkbenchBuilder
 
         Scene workbenchScene = EditorSceneManager.OpenScene(WorkbenchScenePath, OpenSceneMode.Single);
 
+        SetLegacyContainersActive(false);
         RebuildOrigamiObjects();
         EditorSceneManager.SaveScene(workbenchScene);
         AssetDatabase.Refresh();
@@ -43,13 +50,16 @@ public static class OrigamiFoldWorkbenchBuilder
         DeleteIfExists("ORIGAMI_FOLD_POINTS");
         DeleteIfExists("ORIGAMI_FOLD_LINKS");
         DeleteIfExists("ORIGAMI_DEBUG");
+        DeleteIfExists("ORIGAMI_WORKBENCH_VISUALS");
 
         GameObject systemRoot = new GameObject("ORIGAMI_FOLD_SYSTEM");
         GameObject pointsRoot = new GameObject("ORIGAMI_FOLD_POINTS");
         GameObject linksRoot = new GameObject("ORIGAMI_FOLD_LINKS");
         GameObject debugRoot = new GameObject("ORIGAMI_DEBUG");
+        GameObject visualsRoot = new GameObject("ORIGAMI_WORKBENCH_VISUALS");
 
         Camera camera = FindMainCameraOrCreate();
+        CreateWorkbenchVisuals(visualsRoot.transform);
         GameObject executeIndicator = CreateExecuteIndicator(debugRoot.transform);
         CreateInstructionText(debugRoot.transform);
 
@@ -110,12 +120,56 @@ public static class OrigamiFoldWorkbenchBuilder
 
     private static void DeleteIfExists(string objectName)
     {
-        GameObject existing = GameObject.Find(objectName);
+        GameObject existing = FindSceneObject(objectName);
 
         if (existing != null)
         {
             Object.DestroyImmediate(existing);
         }
+    }
+
+    private static void SetLegacyContainersActive(bool active)
+    {
+        string[] legacyContainers =
+        {
+            "MANAGERS",
+            "BOOK",
+            "PATH_GRAPH",
+            "ACTORS",
+            "INTERACTABLES",
+            "UI",
+            "FOLD_ACTIONS"
+        };
+
+        for (int i = 0; i < legacyContainers.Length; i++)
+        {
+            GameObject legacy = FindSceneObject(legacyContainers[i]);
+
+            if (legacy != null)
+            {
+                legacy.SetActive(active);
+            }
+        }
+    }
+
+    private static GameObject FindSceneObject(string objectName)
+    {
+        Scene activeScene = SceneManager.GetActiveScene();
+        GameObject[] objects = Resources.FindObjectsOfTypeAll<GameObject>();
+
+        for (int i = 0; i < objects.Length; i++)
+        {
+            GameObject candidate = objects[i];
+
+            if (candidate.name == objectName
+                && candidate.scene == activeScene
+                && candidate.hideFlags == HideFlags.None)
+            {
+                return candidate;
+            }
+        }
+
+        return null;
     }
 
     private static Camera FindMainCameraOrCreate()
@@ -124,6 +178,7 @@ public static class OrigamiFoldWorkbenchBuilder
 
         if (camera != null)
         {
+            ConfigureCamera(camera);
             return camera;
         }
 
@@ -135,6 +190,7 @@ public static class OrigamiFoldWorkbenchBuilder
 
             if (camera != null)
             {
+                ConfigureCamera(camera);
                 return camera;
             }
         }
@@ -144,13 +200,65 @@ public static class OrigamiFoldWorkbenchBuilder
         cameraObject.transform.position = new Vector3(0f, 0f, -10f);
 
         camera = cameraObject.AddComponent<Camera>();
-        camera.orthographic = true;
-        camera.orthographicSize = 4f;
-        camera.backgroundColor = new Color(0.08f, 0.09f, 0.12f);
-        camera.clearFlags = CameraClearFlags.SolidColor;
+        ConfigureCamera(camera);
         cameraObject.AddComponent<AudioListener>();
 
         return camera;
+    }
+
+    private static void ConfigureCamera(Camera camera)
+    {
+        camera.transform.position = new Vector3(0f, 0f, -10f);
+        camera.orthographic = true;
+        camera.orthographicSize = 3.5f;
+        camera.backgroundColor = new Color(0.08f, 0.09f, 0.12f);
+        camera.clearFlags = CameraClearFlags.SolidColor;
+    }
+
+    private static void CreateWorkbenchVisuals(Transform parent)
+    {
+        CreateWorkbenchTile(
+            "WorkbenchTile_TopLeft",
+            new Vector3(-0.5f, 0.5f, 0.2f),
+            new Color(0.18f, 0.28f, 0.42f),
+            parent);
+
+        CreateWorkbenchTile(
+            "WorkbenchTile_TopRight",
+            new Vector3(0.5f, 0.5f, 0.2f),
+            new Color(0.25f, 0.38f, 0.28f),
+            parent);
+
+        CreateWorkbenchTile(
+            "WorkbenchTile_BottomLeft",
+            new Vector3(-0.5f, -0.5f, 0.2f),
+            new Color(0.42f, 0.30f, 0.18f),
+            parent);
+
+        CreateWorkbenchTile(
+            "WorkbenchTile_BottomRight",
+            new Vector3(0.5f, -0.5f, 0.2f),
+            new Color(0.36f, 0.24f, 0.40f),
+            parent);
+    }
+
+    private static void CreateWorkbenchTile(string objectName, Vector3 position, Color color, Transform parent)
+    {
+        GameObject tile = GameObject.CreatePrimitive(PrimitiveType.Quad);
+        tile.name = objectName;
+        tile.transform.SetParent(parent);
+        tile.transform.position = position;
+        tile.transform.localScale = new Vector3(0.95f, 0.95f, 1f);
+
+        Collider collider = tile.GetComponent<Collider>();
+
+        if (collider != null)
+        {
+            Object.DestroyImmediate(collider);
+        }
+
+        Renderer renderer = tile.GetComponent<Renderer>();
+        renderer.sharedMaterial = CreateMaterial(color);
     }
 
     private static OrigamiFoldPoint CreateFoldPoint(string objectName, Vector3 position, Transform parent)
@@ -235,10 +343,10 @@ public static class OrigamiFoldWorkbenchBuilder
     {
         GameObject textObject = new GameObject("InstructionText");
         textObject.transform.SetParent(parent);
-        textObject.transform.position = new Vector3(-3.6f, 2.7f, 0f);
+        textObject.transform.position = new Vector3(-2.3f, 2.6f, 0f);
 
         TextMesh text = textObject.AddComponent<TextMesh>();
-        text.text = "Drag one origami point to a neighboring point. Diagonals should not work.";
+        text.text = "Drag neighboring points. Diagonals do not work.";
         text.characterSize = 0.18f;
         text.fontSize = 32;
         text.anchor = TextAnchor.UpperLeft;
