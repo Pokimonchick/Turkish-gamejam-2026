@@ -25,6 +25,7 @@ public sealed class GameAudioManager : MonoBehaviour
     [SerializeField, Range(0f, 1f)] private float sfxVolume = DefaultCategoryVolume;
     [Tooltip("Keeps this audio manager alive when another scene is loaded.")]
     [SerializeField] private bool persistBetweenScenes = true;
+    [SerializeField] private AudioSource sfxOneShotSource;
 
     private readonly System.Collections.Generic.HashSet<CategorizedAudioSource> sources =
         new System.Collections.Generic.HashSet<CategorizedAudioSource>();
@@ -81,7 +82,30 @@ public sealed class GameAudioManager : MonoBehaviour
             DontDestroyOnLoad(gameObject);
         }
 
+        EnsureOneShotSource();
         ApplyVolumes();
+    }
+
+    public void PlaySfx(AudioClip clip)
+    {
+        if (clip == null)
+        {
+            return;
+        }
+
+        EnsureOneShotSource();
+        sfxOneShotSource.PlayOneShot(clip);
+    }
+
+    public void PlaySfx(AudioClip clip, float volumeScale)
+    {
+        if (clip == null)
+        {
+            return;
+        }
+
+        EnsureOneShotSource();
+        sfxOneShotSource.PlayOneShot(clip, Mathf.Clamp01(volumeScale));
     }
 
     public void SetMasterVolume(float volume)
@@ -153,6 +177,23 @@ public sealed class GameAudioManager : MonoBehaviour
                 source.ApplyCategoryVolume(GetCategoryVolume(source.Category));
             }
         }
+    }
+
+    private void EnsureOneShotSource()
+    {
+        if (sfxOneShotSource != null)
+        {
+            return;
+        }
+
+        var sfxObject = new GameObject("SFX One Shot Source");
+        sfxObject.transform.SetParent(transform);
+
+        sfxOneShotSource = sfxObject.AddComponent<AudioSource>();
+        sfxOneShotSource.playOnAwake = false;
+        sfxOneShotSource.loop = false;
+
+        sfxObject.AddComponent<CategorizedAudioSource>();
     }
 
     private void OnValidate()

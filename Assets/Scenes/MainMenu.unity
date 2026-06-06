@@ -715,6 +715,7 @@ GameObject:
   - component: {fileID: 230002}
   - component: {fileID: 230003}
   - component: {fileID: 230004}
+  - component: {fileID: 230005}
   m_Layer: 5
   m_Name: Play Button
   m_TagString: Untagged
@@ -824,6 +825,19 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &230005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 230000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f90f6d1a4c4459e8f1a7a0d2b5cb1f3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  clickSound: {fileID: 8300000, guid: a47c74d3674b1894da5b0a98bfdd47c1, type: 3}
 --- !u!1 &230100
 GameObject:
   m_ObjectHideFlags: 0
@@ -915,6 +929,7 @@ GameObject:
   - component: {fileID: 231002}
   - component: {fileID: 231003}
   - component: {fileID: 231004}
+  - component: {fileID: 231005}
   m_Layer: 5
   m_Name: Settings Button
   m_TagString: Untagged
@@ -1024,6 +1039,19 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &231005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 231000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f90f6d1a4c4459e8f1a7a0d2b5cb1f3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  clickSound: {fileID: 8300000, guid: a47c74d3674b1894da5b0a98bfdd47c1, type: 3}
 --- !u!1 &231100
 GameObject:
   m_ObjectHideFlags: 0
@@ -1115,6 +1143,7 @@ GameObject:
   - component: {fileID: 232002}
   - component: {fileID: 232003}
   - component: {fileID: 232004}
+  - component: {fileID: 232005}
   m_Layer: 5
   m_Name: Exit Button
   m_TagString: Untagged
@@ -1224,6 +1253,19 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &232005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 232000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f90f6d1a4c4459e8f1a7a0d2b5cb1f3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  clickSound: {fileID: 8300000, guid: a47c74d3674b1894da5b0a98bfdd47c1, type: 3}
 --- !u!1 &232100
 GameObject:
   m_ObjectHideFlags: 0
@@ -2025,6 +2067,7 @@ GameObject:
   - component: {fileID: 245002}
   - component: {fileID: 245003}
   - component: {fileID: 245004}
+  - component: {fileID: 245005}
   m_Layer: 5
   m_Name: Back Button
   m_TagString: Untagged
@@ -2134,6 +2177,19 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &245005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 245000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f90f6d1a4c4459e8f1a7a0d2b5cb1f3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  clickSound: {fileID: 8300000, guid: a47c74d3674b1894da5b0a98bfdd47c1, type: 3}
 --- !u!1 &245100
 GameObject:
   m_ObjectHideFlags: 0
