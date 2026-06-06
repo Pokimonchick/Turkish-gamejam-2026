@@ -16,6 +16,8 @@ public class OrigamiFoldPuzzleState : MonoBehaviour
     public OrigamiFoldFireShard[] fireShards;
     public OrigamiFoldExit[] exits;
     public bool autoFindResetObjects = true;
+    public bool resetPatrolsOnRespawn = true;
+    public OrigamiFoldPatrolMover[] patrols;
 
     public bool IsRespawning { get; private set; }
 
@@ -72,7 +74,7 @@ public class OrigamiFoldPuzzleState : MonoBehaviour
             return;
         }
 
-        if (!resetFoldsOnRespawn && !resetProgressOnRespawn)
+        if (!resetFoldsOnRespawn && !resetProgressOnRespawn && !resetPatrolsOnRespawn)
         {
             TeleportPlayerToRespawn();
             return;
@@ -116,6 +118,11 @@ public class OrigamiFoldPuzzleState : MonoBehaviour
         if (resetProgressOnRespawn)
         {
             ResetRunProgress();
+        }
+
+        if (resetPatrolsOnRespawn)
+        {
+            ResetPatrols();
         }
 
         TeleportPlayerToRespawn();
@@ -175,6 +182,26 @@ public class OrigamiFoldPuzzleState : MonoBehaviour
         Debug.Log("Origami puzzle run progress reset", this);
     }
 
+    private void ResetPatrols()
+    {
+        FindResetObjectsIfNeeded();
+
+        if (patrols == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < patrols.Length; i++)
+        {
+            OrigamiFoldPatrolMover patrol = patrols[i];
+
+            if (patrol != null)
+            {
+                patrol.ResetPatrol();
+            }
+        }
+    }
+
     private void FindResetObjectsIfNeeded()
     {
         if (!autoFindResetObjects)
@@ -192,6 +219,13 @@ public class OrigamiFoldPuzzleState : MonoBehaviour
         if (exits == null || exits.Length == 0)
         {
             exits = FindObjectsByType<OrigamiFoldExit>(
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None);
+        }
+
+        if (patrols == null || patrols.Length == 0)
+        {
+            patrols = FindObjectsByType<OrigamiFoldPatrolMover>(
                 FindObjectsInactive.Include,
                 FindObjectsSortMode.None);
         }

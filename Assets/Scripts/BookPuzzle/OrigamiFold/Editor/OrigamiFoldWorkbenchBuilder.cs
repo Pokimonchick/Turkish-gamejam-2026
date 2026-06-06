@@ -25,7 +25,8 @@ public static class OrigamiFoldWorkbenchBuilder
         Step5_1,
         Step5_2,
         Step5_3,
-        Step5_3_1
+        Step5_3_1,
+        Step5_4
     }
 
     [MenuItem("Tools/PANINI/Origami Fold/Rebuild Workbench Step 1")]
@@ -118,6 +119,12 @@ public static class OrigamiFoldWorkbenchBuilder
         RebuildWorkbench(WorkbenchStep.Step5_3_1);
     }
 
+    [MenuItem("Tools/PANINI/Origami Fold/Rebuild Workbench Step 5.4 Patrol Enemy")]
+    public static void RebuildWorkbenchStep5_4()
+    {
+        RebuildWorkbench(WorkbenchStep.Step5_4);
+    }
+
     private static void RebuildWorkbench(WorkbenchStep step)
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
@@ -184,7 +191,8 @@ public static class OrigamiFoldWorkbenchBuilder
             || step == WorkbenchStep.Step5_1
             || step == WorkbenchStep.Step5_2
             || step == WorkbenchStep.Step5_3
-            || step == WorkbenchStep.Step5_3_1)
+            || step == WorkbenchStep.Step5_3_1
+            || step == WorkbenchStep.Step5_4)
         {
             RebuildPuzzleLoopOrigamiObjects(
                 systemRoot,
@@ -195,12 +203,17 @@ public static class OrigamiFoldWorkbenchBuilder
                 step == WorkbenchStep.Step5_1
                     || step == WorkbenchStep.Step5_2
                     || step == WorkbenchStep.Step5_3
-                    || step == WorkbenchStep.Step5_3_1,
+                    || step == WorkbenchStep.Step5_3_1
+                    || step == WorkbenchStep.Step5_4,
                 step == WorkbenchStep.Step5_2
                     || step == WorkbenchStep.Step5_3
-                    || step == WorkbenchStep.Step5_3_1,
-                step == WorkbenchStep.Step5_3 || step == WorkbenchStep.Step5_3_1,
-                step == WorkbenchStep.Step5_3_1);
+                    || step == WorkbenchStep.Step5_3_1
+                    || step == WorkbenchStep.Step5_4,
+                step == WorkbenchStep.Step5_3
+                    || step == WorkbenchStep.Step5_3_1
+                    || step == WorkbenchStep.Step5_4,
+                step == WorkbenchStep.Step5_3_1 || step == WorkbenchStep.Step5_4,
+                step == WorkbenchStep.Step5_4);
 
             return;
         }
@@ -542,7 +555,8 @@ public static class OrigamiFoldWorkbenchBuilder
         bool useTightPlayerBounds,
         bool includeHazards,
         bool resetFoldsOnRespawn,
-        bool resetProgressOnRespawn)
+        bool resetProgressOnRespawn,
+        bool includePatrolEnemy)
     {
         GameObject actionsRoot = new GameObject("ORIGAMI_ACTIONS");
         GameObject guidesRoot = new GameObject("ORIGAMI_GRID_GUIDES");
@@ -614,6 +628,7 @@ public static class OrigamiFoldWorkbenchBuilder
         puzzleState.mapResetter = mapResetter;
         puzzleState.resetFoldsOnRespawn = resetFoldsOnRespawn;
         puzzleState.resetProgressOnRespawn = resetProgressOnRespawn;
+        puzzleState.resetPatrolsOnRespawn = includePatrolEnemy;
         puzzleState.disableWhileRespawning = GetPlayerMovementBehaviours(player);
 
         OrigamiFoldFireShard fireShard = CreateFireShard(cells[2, 2].transform, puzzleState);
@@ -625,6 +640,12 @@ public static class OrigamiFoldWorkbenchBuilder
         if (includeHazards)
         {
             CreatePuzzleLoopHazards(cells, actionsRoot.transform, puzzleState);
+        }
+
+        if (includePatrolEnemy)
+        {
+            OrigamiFoldPatrolMover patrol = CreatePatrolEnemy(cells[2, 2].transform, puzzleState);
+            puzzleState.patrols = new[] { patrol };
         }
 
         OrigamiFoldDragController controller = systemRoot.AddComponent<OrigamiFoldDragController>();
@@ -1200,6 +1221,66 @@ public static class OrigamiFoldWorkbenchBuilder
             FindStripAction(actionsRoot, "Column_StripSqueezeAction"),
             columnActiveHazard,
             columnTrappedVisual);
+    }
+
+    private static OrigamiFoldPatrolMover CreatePatrolEnemy(
+        Transform parent,
+        OrigamiFoldPuzzleState puzzleState)
+    {
+        GameObject enemy = CreateHazardVisualObject(
+            "PatrolEnemy",
+            parent,
+            new Vector3(-0.25f, 0.20f, 0f),
+            new Vector3(0.24f, 0.24f, 1f),
+            new Color(1f, 0.08f, 0.45f),
+            82);
+
+        CircleCollider2D collider = enemy.AddComponent<CircleCollider2D>();
+        collider.isTrigger = true;
+        collider.radius = 0.12f;
+
+        OrigamiFoldHazard hazard = enemy.AddComponent<OrigamiFoldHazard>();
+        hazard.puzzleState = puzzleState;
+        hazard.respawnOnTouch = true;
+        hazard.disableAfterTouch = false;
+        hazard.visualRoot = enemy;
+        hazard.debugName = "PatrolEnemy";
+
+        GameObject waypointsRoot = new GameObject("Waypoints");
+        waypointsRoot.transform.SetParent(enemy.transform);
+        waypointsRoot.transform.localPosition = Vector3.zero;
+        waypointsRoot.transform.localScale = Vector3.one;
+
+        Transform pointA = CreatePatrolWaypoint(
+            "PatrolPoint_A",
+            waypointsRoot.transform,
+            new Vector3(-0.25f, 0.20f, 0f));
+        Transform pointB = CreatePatrolWaypoint(
+            "PatrolPoint_B",
+            waypointsRoot.transform,
+            new Vector3(0.25f, 0.20f, 0f));
+
+        OrigamiFoldPatrolMover patrol = enemy.AddComponent<OrigamiFoldPatrolMover>();
+        patrol.waypoints = new[] { pointA, pointB };
+        patrol.moveSpeed = 0.9f;
+        patrol.waitAtPointSeconds = 0.2f;
+        patrol.pingPong = true;
+        patrol.useLocalSpace = true;
+        patrol.playOnStart = true;
+
+        return patrol;
+    }
+
+    private static Transform CreatePatrolWaypoint(
+        string objectName,
+        Transform parent,
+        Vector3 localPosition)
+    {
+        GameObject waypoint = new GameObject(objectName);
+        waypoint.transform.SetParent(parent);
+        waypoint.transform.localPosition = localPosition;
+        waypoint.transform.localScale = Vector3.one;
+        return waypoint.transform;
     }
 
     private static void CreateTrapHazard(
@@ -3730,7 +3811,8 @@ public static class OrigamiFoldWorkbenchBuilder
             || step == WorkbenchStep.Step5_1
             || step == WorkbenchStep.Step5_2
             || step == WorkbenchStep.Step5_3
-            || step == WorkbenchStep.Step5_3_1)
+            || step == WorkbenchStep.Step5_3_1
+            || step == WorkbenchStep.Step5_4)
         {
             camera.transform.position = new Vector3(0f, 0.1f, -10f);
             camera.orthographicSize = 4.5f;
@@ -3816,10 +3898,13 @@ public static class OrigamiFoldWorkbenchBuilder
             || step == WorkbenchStep.Step5_1
             || step == WorkbenchStep.Step5_2
             || step == WorkbenchStep.Step5_3
-            || step == WorkbenchStep.Step5_3_1)
+            || step == WorkbenchStep.Step5_3_1
+            || step == WorkbenchStep.Step5_4)
         {
             CreateWorkbenchTile(
-                step == WorkbenchStep.Step5_3_1
+                step == WorkbenchStep.Step5_4
+                    ? "WorkbenchPlate_PatrolPuzzleLoop"
+                    : step == WorkbenchStep.Step5_3_1
                     ? "WorkbenchPlate_ResetProgressPuzzleLoop"
                     : step == WorkbenchStep.Step5_3
                     ? "WorkbenchPlate_RespawnResetPuzzleLoop"
@@ -4043,6 +4128,7 @@ public static class OrigamiFoldWorkbenchBuilder
             || step == WorkbenchStep.Step5_2
             || step == WorkbenchStep.Step5_3
             || step == WorkbenchStep.Step5_3_1
+            || step == WorkbenchStep.Step5_4
             ? new Vector3(-3.95f, 4.18f, 0f)
             : step == WorkbenchStep.Step4
             ? new Vector3(-3.75f, 4.12f, 0f)
@@ -4060,7 +4146,11 @@ public static class OrigamiFoldWorkbenchBuilder
 
         TextMesh text = textObject.AddComponent<TextMesh>();
 
-        if (step == WorkbenchStep.Step5_3_1)
+        if (step == WorkbenchStep.Step5_4)
+        {
+            text.text = "WASD move. Avoid patrol. Death resets folds and fire.";
+        }
+        else if (step == WorkbenchStep.Step5_3_1)
         {
             text.text = "WASD move. Death resets folds and fire shard.";
         }
@@ -4126,6 +4216,7 @@ public static class OrigamiFoldWorkbenchBuilder
             || step == WorkbenchStep.Step5_2
             || step == WorkbenchStep.Step5_3
             || step == WorkbenchStep.Step5_3_1
+            || step == WorkbenchStep.Step5_4
             ? 0.105f
             : step == WorkbenchStep.Step4
             ? 0.11f
@@ -4143,6 +4234,7 @@ public static class OrigamiFoldWorkbenchBuilder
             || step == WorkbenchStep.Step5_2
             || step == WorkbenchStep.Step5_3
             || step == WorkbenchStep.Step5_3_1
+            || step == WorkbenchStep.Step5_4
             ? 23
             : step == WorkbenchStep.Step4
             ? 24
