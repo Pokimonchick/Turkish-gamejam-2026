@@ -27,6 +27,7 @@ public class OrigamiFoldStripSqueezeAction : MonoBehaviour
     public GameObject[] disableBeforeInactive;
     public GameObject[] enableAfterInactive;
     public GameObject[] disableAfterInactive;
+    public OrigamiFoldTrapTarget[] trapTargetsWhenActive;
 
     public bool IsAnimating { get; private set; }
 
@@ -125,11 +126,13 @@ public class OrigamiFoldStripSqueezeAction : MonoBehaviour
         {
             SetObjectsActive(enableAfterActive, true, nameof(enableAfterActive));
             SetObjectsActive(disableAfterActive, false, nameof(disableAfterActive));
+            SetTrapTargets(true);
         }
         else
         {
             SetObjectsActive(enableAfterInactive, true, nameof(enableAfterInactive));
             SetObjectsActive(disableAfterInactive, false, nameof(disableAfterInactive));
+            SetTrapTargets(false);
         }
 
         IsAnimating = false;
@@ -316,6 +319,27 @@ public class OrigamiFoldStripSqueezeAction : MonoBehaviour
             }
 
             item.SetActive(active);
+        }
+    }
+
+    private void SetTrapTargets(bool trapped)
+    {
+        if (trapTargetsWhenActive == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < trapTargetsWhenActive.Length; i++)
+        {
+            OrigamiFoldTrapTarget trapTarget = trapTargetsWhenActive[i];
+
+            if (trapTarget == null)
+            {
+                Debug.LogWarning($"{name}: trapTargetsWhenActive contains an empty slot.", this);
+                continue;
+            }
+
+            trapTarget.SetTrapped(trapped);
         }
     }
 }

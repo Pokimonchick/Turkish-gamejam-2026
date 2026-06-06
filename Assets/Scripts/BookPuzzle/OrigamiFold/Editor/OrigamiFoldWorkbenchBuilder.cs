@@ -26,7 +26,8 @@ public static class OrigamiFoldWorkbenchBuilder
         Step5_2,
         Step5_3,
         Step5_3_1,
-        Step5_4
+        Step5_4,
+        Step5_5
     }
 
     [MenuItem("Tools/PANINI/Origami Fold/Rebuild Workbench Step 1")]
@@ -125,6 +126,12 @@ public static class OrigamiFoldWorkbenchBuilder
         RebuildWorkbench(WorkbenchStep.Step5_4);
     }
 
+    [MenuItem("Tools/PANINI/Origami Fold/Rebuild Workbench Step 5.5 Trappable Patrol")]
+    public static void RebuildWorkbenchStep5_5()
+    {
+        RebuildWorkbench(WorkbenchStep.Step5_5);
+    }
+
     private static void RebuildWorkbench(WorkbenchStep step)
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
@@ -192,7 +199,8 @@ public static class OrigamiFoldWorkbenchBuilder
             || step == WorkbenchStep.Step5_2
             || step == WorkbenchStep.Step5_3
             || step == WorkbenchStep.Step5_3_1
-            || step == WorkbenchStep.Step5_4)
+            || step == WorkbenchStep.Step5_4
+            || step == WorkbenchStep.Step5_5)
         {
             RebuildPuzzleLoopOrigamiObjects(
                 systemRoot,
@@ -204,16 +212,22 @@ public static class OrigamiFoldWorkbenchBuilder
                     || step == WorkbenchStep.Step5_2
                     || step == WorkbenchStep.Step5_3
                     || step == WorkbenchStep.Step5_3_1
-                    || step == WorkbenchStep.Step5_4,
+                    || step == WorkbenchStep.Step5_4
+                    || step == WorkbenchStep.Step5_5,
                 step == WorkbenchStep.Step5_2
                     || step == WorkbenchStep.Step5_3
                     || step == WorkbenchStep.Step5_3_1
-                    || step == WorkbenchStep.Step5_4,
+                    || step == WorkbenchStep.Step5_4
+                    || step == WorkbenchStep.Step5_5,
                 step == WorkbenchStep.Step5_3
                     || step == WorkbenchStep.Step5_3_1
-                    || step == WorkbenchStep.Step5_4,
-                step == WorkbenchStep.Step5_3_1 || step == WorkbenchStep.Step5_4,
-                step == WorkbenchStep.Step5_4);
+                    || step == WorkbenchStep.Step5_4
+                    || step == WorkbenchStep.Step5_5,
+                step == WorkbenchStep.Step5_3_1
+                    || step == WorkbenchStep.Step5_4
+                    || step == WorkbenchStep.Step5_5,
+                step == WorkbenchStep.Step5_4 || step == WorkbenchStep.Step5_5,
+                step == WorkbenchStep.Step5_5);
 
             return;
         }
@@ -556,7 +570,8 @@ public static class OrigamiFoldWorkbenchBuilder
         bool includeHazards,
         bool resetFoldsOnRespawn,
         bool resetProgressOnRespawn,
-        bool includePatrolEnemy)
+        bool includePatrolEnemy,
+        bool includeTrappablePatrolEnemy)
     {
         GameObject actionsRoot = new GameObject("ORIGAMI_ACTIONS");
         GameObject guidesRoot = new GameObject("ORIGAMI_GRID_GUIDES");
@@ -642,10 +657,25 @@ public static class OrigamiFoldWorkbenchBuilder
             CreatePuzzleLoopHazards(cells, actionsRoot.transform, puzzleState);
         }
 
+        OrigamiFoldPatrolMover patrolEnemy = null;
+        OrigamiFoldPatrolMover trappablePatrolEnemy = null;
+
         if (includePatrolEnemy)
         {
-            OrigamiFoldPatrolMover patrol = CreatePatrolEnemy(cells[2, 2].transform, puzzleState);
-            puzzleState.patrols = new[] { patrol };
+            patrolEnemy = CreatePatrolEnemy(cells[2, 2].transform, puzzleState);
+        }
+
+        if (includeTrappablePatrolEnemy)
+        {
+            trappablePatrolEnemy = CreateRowTrappablePatrolEnemy(
+                cells[2, 1].transform,
+                puzzleState,
+                rowAction);
+        }
+
+        if (includePatrolEnemy || includeTrappablePatrolEnemy)
+        {
+            puzzleState.patrols = CombinePatrols(patrolEnemy, trappablePatrolEnemy);
         }
 
         OrigamiFoldDragController controller = systemRoot.AddComponent<OrigamiFoldDragController>();
@@ -1271,6 +1301,94 @@ public static class OrigamiFoldWorkbenchBuilder
         return patrol;
     }
 
+    private static OrigamiFoldPatrolMover CreateRowTrappablePatrolEnemy(
+        Transform parent,
+        OrigamiFoldPuzzleState puzzleState,
+        OrigamiFoldStripSqueezeAction rowAction)
+    {
+        GameObject enemy = new GameObject("RowTrappablePatrolEnemy");
+        enemy.transform.SetParent(parent);
+        enemy.transform.localPosition = new Vector3(-0.25f, 0f, 0f);
+        enemy.transform.localScale = Vector3.one;
+
+        GameObject activeRoot = new GameObject("ActiveRoot");
+        activeRoot.transform.SetParent(enemy.transform);
+        activeRoot.transform.localPosition = Vector3.zero;
+        activeRoot.transform.localScale = Vector3.one;
+        CreateColoredQuadVisual(
+            activeRoot.transform,
+            new Vector3(0.24f, 0.24f, 1f),
+            new Color(1f, 0.08f, 0.45f),
+            84);
+
+        GameObject hazardColliderObject = new GameObject("HazardCollider");
+        hazardColliderObject.transform.SetParent(activeRoot.transform);
+        hazardColliderObject.transform.localPosition = Vector3.zero;
+        hazardColliderObject.transform.localScale = Vector3.one;
+
+        CircleCollider2D hazardCollider = hazardColliderObject.AddComponent<CircleCollider2D>();
+        hazardCollider.isTrigger = true;
+        hazardCollider.radius = 0.12f;
+
+        OrigamiFoldHazard hazard = hazardColliderObject.AddComponent<OrigamiFoldHazard>();
+        hazard.puzzleState = puzzleState;
+        hazard.respawnOnTouch = true;
+        hazard.disableAfterTouch = false;
+        hazard.visualRoot = activeRoot;
+        hazard.debugName = "RowTrappablePatrolEnemy";
+
+        GameObject trappedRoot = new GameObject("TrappedRoot");
+        trappedRoot.transform.SetParent(enemy.transform);
+        trappedRoot.transform.localPosition = Vector3.zero;
+        trappedRoot.transform.localScale = Vector3.one;
+        CreateColoredQuadVisual(
+            trappedRoot.transform,
+            new Vector3(0.30f, 0.30f, 1f),
+            new Color(0.1f, 0.85f, 1f),
+            85);
+        trappedRoot.SetActive(false);
+
+        GameObject waypointsRoot = new GameObject("Waypoints");
+        waypointsRoot.transform.SetParent(enemy.transform);
+        waypointsRoot.transform.localPosition = Vector3.zero;
+        waypointsRoot.transform.localScale = Vector3.one;
+
+        Transform pointA = CreatePatrolWaypoint(
+            "PatrolPoint_A",
+            waypointsRoot.transform,
+            new Vector3(-0.25f, 0f, 0f));
+        Transform pointB = CreatePatrolWaypoint(
+            "PatrolPoint_B",
+            waypointsRoot.transform,
+            new Vector3(0.25f, 0f, 0f));
+
+        OrigamiFoldPatrolMover patrol = enemy.AddComponent<OrigamiFoldPatrolMover>();
+        patrol.waypoints = new[] { pointA, pointB };
+        patrol.moveSpeed = 0.8f;
+        patrol.waitAtPointSeconds = 0.15f;
+        patrol.pingPong = true;
+        patrol.useLocalSpace = true;
+        patrol.playOnStart = true;
+
+        OrigamiFoldTrapTarget trapTarget = enemy.AddComponent<OrigamiFoldTrapTarget>();
+        trapTarget.activeRoot = activeRoot;
+        trapTarget.trappedRoot = trappedRoot;
+        trapTarget.hazardColliders = new Collider2D[] { hazardCollider };
+        trapTarget.patrolMover = patrol;
+        trapTarget.resetPatrolOnUntrap = true;
+        trapTarget.pausePatrolWhenTrapped = true;
+        trapTarget.isTrapped = false;
+
+        if (rowAction != null)
+        {
+            rowAction.trapTargetsWhenActive = AppendTrapTargets(
+                rowAction.trapTargetsWhenActive,
+                trapTarget);
+        }
+
+        return patrol;
+    }
+
     private static Transform CreatePatrolWaypoint(
         string objectName,
         Transform parent,
@@ -1475,6 +1593,87 @@ public static class OrigamiFoldWorkbenchBuilder
                 }
 
                 result[index] = additions[i];
+                index++;
+            }
+        }
+
+        return result;
+    }
+
+    private static OrigamiFoldTrapTarget[] AppendTrapTargets(
+        OrigamiFoldTrapTarget[] existing,
+        params OrigamiFoldTrapTarget[] additions)
+    {
+        int existingLength = existing == null ? 0 : existing.Length;
+        int additionCount = 0;
+
+        if (additions != null)
+        {
+            for (int i = 0; i < additions.Length; i++)
+            {
+                if (additions[i] != null)
+                {
+                    additionCount++;
+                }
+            }
+        }
+
+        OrigamiFoldTrapTarget[] result =
+            new OrigamiFoldTrapTarget[existingLength + additionCount];
+        int index = 0;
+
+        for (int i = 0; i < existingLength; i++)
+        {
+            result[index] = existing[i];
+            index++;
+        }
+
+        if (additions != null)
+        {
+            for (int i = 0; i < additions.Length; i++)
+            {
+                if (additions[i] == null)
+                {
+                    continue;
+                }
+
+                result[index] = additions[i];
+                index++;
+            }
+        }
+
+        return result;
+    }
+
+    private static OrigamiFoldPatrolMover[] CombinePatrols(
+        params OrigamiFoldPatrolMover[] patrols)
+    {
+        int count = 0;
+
+        if (patrols != null)
+        {
+            for (int i = 0; i < patrols.Length; i++)
+            {
+                if (patrols[i] != null)
+                {
+                    count++;
+                }
+            }
+        }
+
+        OrigamiFoldPatrolMover[] result = new OrigamiFoldPatrolMover[count];
+        int index = 0;
+
+        if (patrols != null)
+        {
+            for (int i = 0; i < patrols.Length; i++)
+            {
+                if (patrols[i] == null)
+                {
+                    continue;
+                }
+
+                result[index] = patrols[i];
                 index++;
             }
         }
@@ -3812,7 +4011,8 @@ public static class OrigamiFoldWorkbenchBuilder
             || step == WorkbenchStep.Step5_2
             || step == WorkbenchStep.Step5_3
             || step == WorkbenchStep.Step5_3_1
-            || step == WorkbenchStep.Step5_4)
+            || step == WorkbenchStep.Step5_4
+            || step == WorkbenchStep.Step5_5)
         {
             camera.transform.position = new Vector3(0f, 0.1f, -10f);
             camera.orthographicSize = 4.5f;
@@ -3899,10 +4099,13 @@ public static class OrigamiFoldWorkbenchBuilder
             || step == WorkbenchStep.Step5_2
             || step == WorkbenchStep.Step5_3
             || step == WorkbenchStep.Step5_3_1
-            || step == WorkbenchStep.Step5_4)
+            || step == WorkbenchStep.Step5_4
+            || step == WorkbenchStep.Step5_5)
         {
             CreateWorkbenchTile(
-                step == WorkbenchStep.Step5_4
+                step == WorkbenchStep.Step5_5
+                    ? "WorkbenchPlate_TrappablePatrolPuzzleLoop"
+                    : step == WorkbenchStep.Step5_4
                     ? "WorkbenchPlate_PatrolPuzzleLoop"
                     : step == WorkbenchStep.Step5_3_1
                     ? "WorkbenchPlate_ResetProgressPuzzleLoop"
@@ -4129,6 +4332,7 @@ public static class OrigamiFoldWorkbenchBuilder
             || step == WorkbenchStep.Step5_3
             || step == WorkbenchStep.Step5_3_1
             || step == WorkbenchStep.Step5_4
+            || step == WorkbenchStep.Step5_5
             ? new Vector3(-3.95f, 4.18f, 0f)
             : step == WorkbenchStep.Step4
             ? new Vector3(-3.75f, 4.12f, 0f)
@@ -4146,7 +4350,11 @@ public static class OrigamiFoldWorkbenchBuilder
 
         TextMesh text = textObject.AddComponent<TextMesh>();
 
-        if (step == WorkbenchStep.Step5_4)
+        if (step == WorkbenchStep.Step5_5)
+        {
+            text.text = "WASD move. Fold row to trap moving enemy. Death resets attempt.";
+        }
+        else if (step == WorkbenchStep.Step5_4)
         {
             text.text = "WASD move. Avoid patrol. Death resets folds and fire.";
         }
@@ -4217,6 +4425,7 @@ public static class OrigamiFoldWorkbenchBuilder
             || step == WorkbenchStep.Step5_3
             || step == WorkbenchStep.Step5_3_1
             || step == WorkbenchStep.Step5_4
+            || step == WorkbenchStep.Step5_5
             ? 0.105f
             : step == WorkbenchStep.Step4
             ? 0.11f
@@ -4235,6 +4444,7 @@ public static class OrigamiFoldWorkbenchBuilder
             || step == WorkbenchStep.Step5_3
             || step == WorkbenchStep.Step5_3_1
             || step == WorkbenchStep.Step5_4
+            || step == WorkbenchStep.Step5_5
             ? 23
             : step == WorkbenchStep.Step4
             ? 24
