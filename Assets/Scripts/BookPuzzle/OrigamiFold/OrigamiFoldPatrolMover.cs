@@ -9,6 +9,9 @@ public class OrigamiFoldPatrolMover : MonoBehaviour
     public bool pingPong = true;
     public bool useLocalSpace = true;
     public bool playOnStart = true;
+    public bool constrainToWalkableAreas;
+    public LayerMask walkableMask = ~0;
+    public float walkableProbeRadius = 0.08f;
 
     public bool IsMoving { get; private set; }
 
@@ -115,6 +118,7 @@ public class OrigamiFoldPatrolMover : MonoBehaviour
             Vector3 targetPosition = useLocalSpace
                 ? waypoint.localPosition
                 : waypoint.position;
+            bool blocked = false;
 
             while (!HasReached(targetPosition))
             {
@@ -125,8 +129,20 @@ public class OrigamiFoldPatrolMover : MonoBehaviour
                     continue;
                 }
 
-                MoveToward(targetPosition);
+                if (!MoveToward(targetPosition))
+                {
+                    SelectNextWaypoint();
+                    blocked = true;
+                    yield return null;
+                    break;
+                }
+
                 yield return null;
+            }
+
+            if (blocked)
+            {
+                continue;
             }
 
             SnapTo(targetPosition);
@@ -160,7 +176,7 @@ public class OrigamiFoldPatrolMover : MonoBehaviour
         return Vector3.Distance(currentPosition, targetPosition) <= 0.01f;
     }
 
-    private void MoveToward(Vector3 targetPosition)
+    private bool MoveToward(Vector3 targetPosition)
     {
         Vector3 currentPosition = useLocalSpace
             ? transform.localPosition
@@ -170,6 +186,11 @@ public class OrigamiFoldPatrolMover : MonoBehaviour
             targetPosition,
             moveSpeed * Time.deltaTime);
 
+        if (constrainToWalkableAreas && !CanOccupy(nextPosition))
+        {
+            return false;
+        }
+
         if (useLocalSpace)
         {
             transform.localPosition = nextPosition;
@@ -178,6 +199,8 @@ public class OrigamiFoldPatrolMover : MonoBehaviour
         {
             transform.position = nextPosition;
         }
+
+        return true;
     }
 
     private void SnapTo(Vector3 targetPosition)
@@ -227,5 +250,41 @@ public class OrigamiFoldPatrolMover : MonoBehaviour
             StopCoroutine(patrolRoutine);
             patrolRoutine = null;
         }
+    }
+
+    private bool CanOccupy(Vector3 position)
+    {
+        Vector3 worldPosition = useLocalSpace && transform.parent != null
+            ? transform.parent.TransformPoint(position)
+            : position;
+        Collider2D[] hits = Physics2D.OverlapCircleAll(
+            worldPosition,
+            walkableProbeRadius,
+            walkableMask);
+
+        for (int i = 0; i < hits.Length; i++)
+        {
+            Collider2D hit = hits[i];
+
+            if (hit == null)
+            {
+                continue;
+            }
+
+            OrigamiFoldWalkableArea area =
+                hit.GetComponent<OrigamiFoldWalkableArea>();
+
+            if (area == null)
+            {
+                area = hit.GetComponentInParent<OrigamiFoldWalkableArea>();
+            }
+
+            if (area != null && area.isWalkable)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

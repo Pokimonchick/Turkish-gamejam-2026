@@ -1,4 +1,6 @@
 using UnityEngine;
+using Object = UnityEngine.Object;
+using System.Collections.Generic;
 
 public class OrigamiFoldTrapTarget : MonoBehaviour
 {
@@ -9,6 +11,8 @@ public class OrigamiFoldTrapTarget : MonoBehaviour
     public bool resetPatrolOnUntrap = true;
     public bool pausePatrolWhenTrapped = true;
     public bool isTrapped;
+
+    private readonly List<Object> trapOwners = new List<Object>();
 
     private void Awake()
     {
@@ -23,10 +27,45 @@ public class OrigamiFoldTrapTarget : MonoBehaviour
 
     public void SetTrapped(bool trapped)
     {
-        isTrapped = trapped;
+        SetTrapped(this, trapped);
+    }
+
+    public void SetTrapped(Object owner, bool trapped)
+    {
+        if (owner == null)
+        {
+            owner = this;
+        }
+
+        if (trapped)
+        {
+            if (!trapOwners.Contains(owner))
+            {
+                trapOwners.Add(owner);
+            }
+        }
+        else
+        {
+            for (int i = trapOwners.Count - 1; i >= 0; i--)
+            {
+                if (trapOwners[i] == owner)
+                {
+                    trapOwners.RemoveAt(i);
+                }
+            }
+        }
+
+        bool shouldBeTrapped = trapOwners.Count > 0;
         ResolveHazardCollidersIfNeeded();
-        ApplyTrappedState(trapped, true);
-        Debug.Log($"{name}: trap state set to {trapped}.", this);
+
+        if (isTrapped == shouldBeTrapped)
+        {
+            return;
+        }
+
+        isTrapped = shouldBeTrapped;
+        ApplyTrappedState(shouldBeTrapped, true);
+        Debug.Log($"{name}: trap state set to {shouldBeTrapped}.", this);
     }
 
     private void ApplyTrappedState(bool trapped, bool applyPatrolReset)
