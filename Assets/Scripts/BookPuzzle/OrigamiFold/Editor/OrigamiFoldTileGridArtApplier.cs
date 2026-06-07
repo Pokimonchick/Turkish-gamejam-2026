@@ -9,9 +9,6 @@ using UnityEngine.SceneManagement;
 
 public static class OrigamiFoldTileGridArtApplier
 {
-    private const int TileGridWidth = 12;
-    private const int TileGridHeight = 9;
-    private const int ExpectedTileCount = TileGridWidth * TileGridHeight;
     private const float TargetCellVisualSize = 1f;
     private const float TileGridCameraMargin = 0.3f;
     private const float TargetAspect = 16f / 9f;
@@ -27,11 +24,39 @@ public static class OrigamiFoldTileGridArtApplier
     private const string BookLevel03TileFolder = "Assets/Art/Levels/Book_Level_03/Tiles";
     private const string BookLevel03TileFallbackFolder =
         "Assets/Art/Levels/Book_Level_03_Greybox/Tiles";
+    private const string BookLevel04SceneFileName = "Book_Level_04_Greybox.unity";
+    private const string BookLevel04TileFolder = "Assets/Art/Levels/Book_Level_04/Tiles";
+    private const string BookLevel04TileFallbackFolder =
+        "Assets/Art/Levels/Book_Level_04_Greybox/Tiles";
 
     private static readonly Regex CellNameRegex =
         new Regex(@"^MapCell_(\d+)_(\d+)$", RegexOptions.Compiled);
     private static readonly Regex TileNameRegex =
         new Regex(@"^tile_r(\d{2})_c(\d{2})\.png$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+    private readonly struct TileGridSpec
+    {
+        public TileGridSpec(
+            string sceneFileName,
+            int width,
+            int height,
+            string primaryTileFolder,
+            string fallbackTileFolder)
+        {
+            SceneFileName = sceneFileName;
+            Width = width;
+            Height = height;
+            PrimaryTileFolder = primaryTileFolder;
+            FallbackTileFolder = fallbackTileFolder;
+        }
+
+        public string SceneFileName { get; }
+        public int Width { get; }
+        public int Height { get; }
+        public string PrimaryTileFolder { get; }
+        public string FallbackTileFolder { get; }
+        public int ExpectedTileCount => Width * Height;
+    }
 
     [MenuItem("Tools/PANINI/Art/Apply Tile Grid Art To Active Level")]
     public static void ApplyTileGridArtToActiveLevel()
@@ -67,7 +92,7 @@ public static class OrigamiFoldTileGridArtApplier
             return;
         }
 
-        if (!TryResolveTileFolder(scene, out string tileFolder))
+        if (!TryResolveTileGrid(scene, out TileGridSpec spec, out string tileFolder))
         {
             Debug.LogWarning(
                 $"Tile Grid Art Applier: no tile folder is configured/found for active scene {scene.path}.");
@@ -75,14 +100,14 @@ public static class OrigamiFoldTileGridArtApplier
         }
 
         Dictionary<Vector2Int, GameObject> cells = FindMapCells(scene);
-        Dictionary<Vector2Int, string> tilePaths = FindTilePaths(tileFolder);
+        Dictionary<Vector2Int, string> tilePaths = FindTilePaths(tileFolder, spec.Height);
         List<string> missingCells = new List<string>();
         List<string> missingTiles = new List<string>();
         List<string> unmatchedTiles = new List<string>();
         int assignedCount = 0;
         int createdArtVisualCount = 0;
 
-        WarnIfMapCellCountDoesNotMatchTiles(cells.Count);
+        WarnIfMapCellCountDoesNotMatchTiles(cells.Count, spec);
 
         foreach (KeyValuePair<Vector2Int, string> tile in tilePaths)
         {
@@ -108,9 +133,9 @@ public static class OrigamiFoldTileGridArtApplier
             assignedCount++;
         }
 
-        for (int y = 0; y < TileGridHeight; y++)
+        for (int y = 0; y < spec.Height; y++)
         {
-            for (int x = 0; x < TileGridWidth; x++)
+            for (int x = 0; x < spec.Width; x++)
             {
                 Vector2Int key = new Vector2Int(x, y);
 
@@ -121,7 +146,7 @@ public static class OrigamiFoldTileGridArtApplier
 
                 if (!tilePaths.ContainsKey(key))
                 {
-                    int row = TileGridHeight - y;
+                    int row = spec.Height - y;
                     int column = x + 1;
                     missingTiles.Add($"tile_r{row:00}_c{column:00}.png");
                 }
@@ -133,6 +158,7 @@ public static class OrigamiFoldTileGridArtApplier
 
         Debug.Log(BuildReport(
             scene,
+            spec,
             tileFolder,
             cells.Count,
             tilePaths.Count,
@@ -161,7 +187,9 @@ public static class OrigamiFoldTileGridArtApplier
             return;
         }
 
-        if (FitCameraToTileGrid(scene, cells, out string report))
+        TryResolveTileGrid(scene, out TileGridSpec spec, out _);
+
+        if (FitCameraToTileGrid(scene, cells, spec, out string report))
         {
             EditorSceneManager.MarkSceneDirty(scene);
             Debug.Log(report);
@@ -171,12 +199,23 @@ public static class OrigamiFoldTileGridArtApplier
         Debug.LogWarning(report);
     }
 
-    private static bool TryResolveTileFolder(Scene scene, out string tileFolder)
+    private static bool TryResolveTileGrid(
+        Scene scene,
+        out TileGridSpec spec,
+        out string tileFolder)
     {
         string sceneFileName = Path.GetFileName(scene.path);
+        spec = default;
+        tileFolder = null;
 
         if (sceneFileName == VillageSceneFileName)
         {
+            spec = new TileGridSpec(
+                VillageSceneFileName,
+                12,
+                9,
+                VillageTileFolder,
+                VillageTileFallbackFolder);
             return TryUseFirstExistingFolder(
                 out tileFolder,
                 VillageTileFolder,
@@ -185,6 +224,12 @@ public static class OrigamiFoldTileGridArtApplier
 
         if (sceneFileName == BookLevel02SceneFileName)
         {
+            spec = new TileGridSpec(
+                BookLevel02SceneFileName,
+                12,
+                9,
+                BookLevel02TileFolder,
+                BookLevel02TileFallbackFolder);
             return TryUseFirstExistingFolder(
                 out tileFolder,
                 BookLevel02TileFolder,
@@ -193,13 +238,32 @@ public static class OrigamiFoldTileGridArtApplier
 
         if (sceneFileName == BookLevel03SceneFileName)
         {
+            spec = new TileGridSpec(
+                BookLevel03SceneFileName,
+                12,
+                9,
+                BookLevel03TileFolder,
+                BookLevel03TileFallbackFolder);
             return TryUseFirstExistingFolder(
                 out tileFolder,
                 BookLevel03TileFolder,
                 BookLevel03TileFallbackFolder);
         }
 
-        tileFolder = null;
+        if (sceneFileName == BookLevel04SceneFileName)
+        {
+            spec = new TileGridSpec(
+                BookLevel04SceneFileName,
+                10,
+                7,
+                BookLevel04TileFolder,
+                BookLevel04TileFallbackFolder);
+            return TryUseFirstExistingFolder(
+                out tileFolder,
+                BookLevel04TileFolder,
+                BookLevel04TileFallbackFolder);
+        }
+
         return false;
     }
 
@@ -251,7 +315,7 @@ public static class OrigamiFoldTileGridArtApplier
         return cells;
     }
 
-    private static Dictionary<Vector2Int, string> FindTilePaths(string tileFolder)
+    private static Dictionary<Vector2Int, string> FindTilePaths(string tileFolder, int gridHeight)
     {
         Dictionary<Vector2Int, string> tilePaths = new Dictionary<Vector2Int, string>();
         string[] guids = AssetDatabase.FindAssets("t:Texture2D", new[] { tileFolder });
@@ -270,7 +334,7 @@ public static class OrigamiFoldTileGridArtApplier
             int row = int.Parse(match.Groups[1].Value);
             int column = int.Parse(match.Groups[2].Value);
             int x = column - 1;
-            int y = TileGridHeight - row;
+            int y = gridHeight - row;
             Vector2Int key = new Vector2Int(x, y);
 
             if (!tilePaths.ContainsKey(key))
@@ -394,6 +458,7 @@ public static class OrigamiFoldTileGridArtApplier
     private static bool FitCameraToTileGrid(
         Scene scene,
         Dictionary<Vector2Int, GameObject> cells,
+        TileGridSpec spec,
         out string report)
     {
         Camera camera = FindSceneCamera(scene);
@@ -404,7 +469,7 @@ public static class OrigamiFoldTileGridArtApplier
             return false;
         }
 
-        if (!TryGetGridBounds(cells, out Vector2 center, out Vector2 size))
+        if (!TryGetGridBounds(cells, spec, out Vector2 center, out Vector2 size))
         {
             report = "Tile Grid Art Applier: could not resolve MapCell bounds.";
             return false;
@@ -459,6 +524,7 @@ public static class OrigamiFoldTileGridArtApplier
 
     private static bool TryGetGridBounds(
         Dictionary<Vector2Int, GameObject> cells,
+        TileGridSpec spec,
         out Vector2 center,
         out Vector2 size)
     {
@@ -468,9 +534,25 @@ public static class OrigamiFoldTileGridArtApplier
         float minY = 0f;
         float maxY = 0f;
 
-        for (int y = 0; y < TileGridHeight; y++)
+        int minGridX = 0;
+        int maxGridX = spec.Width > 0 ? spec.Width - 1 : 0;
+        int minGridY = 0;
+        int maxGridY = spec.Height > 0 ? spec.Height - 1 : 0;
+
+        if (spec.Width <= 0 || spec.Height <= 0)
         {
-            for (int x = 0; x < TileGridWidth; x++)
+            foreach (Vector2Int key in cells.Keys)
+            {
+                minGridX = Mathf.Min(minGridX, key.x);
+                maxGridX = Mathf.Max(maxGridX, key.x);
+                minGridY = Mathf.Min(minGridY, key.y);
+                maxGridY = Mathf.Max(maxGridY, key.y);
+            }
+        }
+
+        for (int y = minGridY; y <= maxGridY; y++)
+        {
+            for (int x = minGridX; x <= maxGridX; x++)
             {
                 if (!cells.TryGetValue(new Vector2Int(x, y), out GameObject cell) || cell == null)
                 {
@@ -520,6 +602,7 @@ public static class OrigamiFoldTileGridArtApplier
 
     private static string BuildReport(
         Scene scene,
+        TileGridSpec spec,
         string tileFolder,
         int mapCellCount,
         int tileFileCount,
@@ -534,9 +617,9 @@ public static class OrigamiFoldTileGridArtApplier
         report.AppendLine($"Scene: {scene.path}");
         report.AppendLine($"Tile folder: {tileFolder}");
         report.AppendLine($"MapCells found: {mapCellCount}");
-        report.AppendLine($"MapCells expected: {ExpectedTileCount}");
+        report.AppendLine($"MapCells expected: {spec.ExpectedTileCount}");
         report.AppendLine($"Tiles found: {tileFileCount}");
-        report.AppendLine($"Tiles expected: {ExpectedTileCount}");
+        report.AppendLine($"Tiles expected: {spec.ExpectedTileCount}");
         report.AppendLine($"ArtVisual created: {createdArtVisualCount}");
         report.AppendLine($"Sprites assigned: {assignedCount}");
         AppendList(report, "Missing cells", missingCells);
@@ -545,16 +628,16 @@ public static class OrigamiFoldTileGridArtApplier
         return report.ToString();
     }
 
-    private static void WarnIfMapCellCountDoesNotMatchTiles(int mapCellCount)
+    private static void WarnIfMapCellCountDoesNotMatchTiles(int mapCellCount, TileGridSpec spec)
     {
-        if (mapCellCount == ExpectedTileCount)
+        if (mapCellCount == spec.ExpectedTileCount)
         {
             return;
         }
 
         Debug.LogWarning(
-            $"Tile map cell count does not match tile grid. Found {mapCellCount} MapCells, expected {ExpectedTileCount}. "
-            + "Rebuild the level before applying 12x9 tile art.");
+            $"Tile map cell count does not match tile grid. Found {mapCellCount} MapCells, expected {spec.ExpectedTileCount}. "
+            + $"Rebuild {spec.SceneFileName} before applying {spec.Width}x{spec.Height} tile art.");
     }
 
     private static void AppendList(StringBuilder report, string title, List<string> values)
