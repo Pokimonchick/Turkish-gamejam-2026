@@ -36,11 +36,11 @@ public static class OrigamiFoldVillageLevelBuilder
         "\u0410\u0411\u0412\u0413\u0414\u0415\u0401\u0416\u0417\u0418\u0419\u041a\u041b\u041c\u041d\u041e\u041f\u0420\u0421\u0422\u0423\u0424\u0425\u0426\u0427\u0428\u0429\u042a\u042b\u042c\u042d\u042e\u042f" +
         "\u0430\u0431\u0432\u0433\u0434\u0435\u0451\u0436\u0437\u0438\u0439\u043a\u043b\u043c\u043d\u043e\u043f\u0440\u0441\u0442\u0443\u0444\u0445\u0446\u0447\u0448\u0449\u044a\u044b\u044c\u044d\u044e\u044f" +
         " .,!?;:-/()[]\"'\u00ab\u00bb\u2014";
-    private const int MapWidth = 11;
-    private const int VisibleVillageWidth = 10;
-    private const int MapHeight = 7;
-    private const int WallColumnX = 9;
-    private const int ExitBufferX = 10;
+    private const int MapWidth = 12;
+    private const int VisibleVillageWidth = 9;
+    private const int MapHeight = 9;
+    private const int WallColumnX = 7;
+    private const int ExitBufferX = 8;
     private const float CellSize = 1f;
 
     private enum VillageCellKind
@@ -103,7 +103,7 @@ public static class OrigamiFoldVillageLevelBuilder
         Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
         scene.name = "Village_Level_01_Greybox";
 
-        Camera camera = CreateCamera("Main Camera", new Vector3(0f, 0.25f, -10f), 5.15f);
+        Camera camera = CreateCamera("Main Camera", new Vector3(0f, 0f, -10f), 5f);
 
         GameObject levelRoot = CreateEmpty("LEVEL_ROOT", null);
         GameObject foldSystemRoot = CreateEmpty("ORIGAMI_FOLD_SYSTEM", levelRoot.transform);
@@ -131,6 +131,7 @@ public static class OrigamiFoldVillageLevelBuilder
             coordinatorObject.AddComponent<OrigamiFoldActionCoordinator>();
 
         CellData[,] cells = CreateCells(cellsRoot.transform);
+        Debug.Log($"Village map grid created: MapCells={MapWidth * MapHeight}, expected=108.");
         int walkableLayer = ResolveWalkableLayer();
         LayerMask walkableMask = new LayerMask
         {
@@ -1413,7 +1414,7 @@ public static class OrigamiFoldVillageLevelBuilder
     private static void CreateInstructionText(Transform parent)
     {
         GameObject textObject = CreateEmpty("InstructionText", parent);
-        textObject.transform.position = new Vector3(-5.15f, 4.15f, 0f);
+        textObject.transform.position = new Vector3(-5.45f, 4.35f, 0f);
 
         TextMesh text = textObject.AddComponent<TextMesh>();
         text.text = "WASD move. Drag wall points to fold the wall. Enter green exit.";
@@ -1536,6 +1537,11 @@ public static class OrigamiFoldVillageLevelBuilder
             return VillageCellKind.ExitBuffer;
         }
 
+        if (y >= 7)
+        {
+            return VillageCellKind.Blocked;
+        }
+
         if (y == 6 && (x == 1 || x == 2 || x == 3 || x == 6 || x == 7 || x == 8))
         {
             return VillageCellKind.House;
@@ -1600,7 +1606,9 @@ public static class OrigamiFoldVillageLevelBuilder
 
     private static Vector3 CellToWorld(int x, int y)
     {
-        return new Vector3((x - 5) * CellSize, (y - 3) * CellSize, 0f);
+        float worldX = (x - (MapWidth - 1) / 2f) * CellSize;
+        float worldY = (y - (MapHeight - 1) / 2f) * CellSize;
+        return new Vector3(worldX, worldY, 0f);
     }
 
     private static int ResolveWalkableLayer()
