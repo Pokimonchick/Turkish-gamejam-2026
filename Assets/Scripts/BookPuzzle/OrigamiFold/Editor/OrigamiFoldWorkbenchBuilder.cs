@@ -27,7 +27,8 @@ public static class OrigamiFoldWorkbenchBuilder
         Step5_3,
         Step5_3_1,
         Step5_4,
-        Step5_5
+        Step5_5,
+        Step5_6
     }
 
     [MenuItem("Tools/PANINI/Origami Fold/Rebuild Workbench Step 1")]
@@ -132,6 +133,12 @@ public static class OrigamiFoldWorkbenchBuilder
         RebuildWorkbench(WorkbenchStep.Step5_5);
     }
 
+    [MenuItem("Tools/PANINI/Origami Fold/Rebuild Workbench Step 5.6 Triad Fold Group")]
+    public static void RebuildWorkbenchStep5_6()
+    {
+        RebuildWorkbench(WorkbenchStep.Step5_6);
+    }
+
     private static void RebuildWorkbench(WorkbenchStep step)
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
@@ -228,6 +235,18 @@ public static class OrigamiFoldWorkbenchBuilder
                     || step == WorkbenchStep.Step5_5,
                 step == WorkbenchStep.Step5_4 || step == WorkbenchStep.Step5_5,
                 step == WorkbenchStep.Step5_5);
+
+            return;
+        }
+
+        if (step == WorkbenchStep.Step5_6)
+        {
+            RebuildTriadGroupOrigamiObjects(
+                systemRoot,
+                pointsRoot,
+                linksRoot,
+                camera,
+                executeIndicator);
 
             return;
         }
@@ -1783,6 +1802,351 @@ public static class OrigamiFoldWorkbenchBuilder
             columnLinks[3]
         };
 
+    }
+
+    private static void RebuildTriadGroupOrigamiObjects(
+        GameObject systemRoot,
+        GameObject pointsRoot,
+        GameObject linksRoot,
+        Camera camera,
+        GameObject executeIndicator)
+    {
+        GameObject actionsRoot = new GameObject("ORIGAMI_ACTIONS");
+        GameObject guidesRoot = new GameObject("ORIGAMI_GRID_GUIDES");
+        GameObject mapRoot = new GameObject("ORIGAMI_UNIFIED_MAP");
+        GameObject cellsRoot = new GameObject("Cells");
+        cellsRoot.transform.SetParent(mapRoot.transform);
+        cellsRoot.transform.localPosition = Vector3.zero;
+
+        OrigamiFoldActionCoordinator coordinator = systemRoot.AddComponent<OrigamiFoldActionCoordinator>();
+        CreateWholeStripMapCells(
+            cellsRoot.transform,
+            out OrigamiFoldTransformStack[,] stacks);
+
+        OrigamiFoldStripSqueezeAction rowAction = CreateStripSqueezeAction(
+            "Row_StripSqueezeAction",
+            actionsRoot.transform,
+            CreateRowStripTargets(stacks, 1),
+            new OrigamiFoldPoint[0],
+            new OrigamiFoldPoint[0],
+            coordinator);
+
+        OrigamiFoldStripSqueezeAction columnAction = CreateStripSqueezeAction(
+            "Column_StripSqueezeAction",
+            actionsRoot.transform,
+            CreateColumnStripTargets(stacks, 3),
+            new OrigamiFoldPoint[0],
+            new OrigamiFoldPoint[0],
+            coordinator);
+
+        CreateWholeStripGuides(guidesRoot.transform);
+
+        OrigamiFoldLink[] triadLinks = CreateTriadFoldGroup(
+            actionsRoot.transform,
+            pointsRoot.transform,
+            linksRoot.transform,
+            camera,
+            executeIndicator,
+            coordinator,
+            columnAction,
+            rowAction);
+
+        OrigamiFoldDragController controller = systemRoot.AddComponent<OrigamiFoldDragController>();
+        controller.targetCamera = camera;
+        controller.snapDistance = 0.5f;
+        controller.autoFindLinks = true;
+        controller.links = triadLinks;
+    }
+
+    private static OrigamiFoldLink[] CreateTriadFoldGroup(
+        Transform actionsRoot,
+        Transform pointsRoot,
+        Transform linksRoot,
+        Camera camera,
+        GameObject executeIndicator,
+        OrigamiFoldActionCoordinator coordinator,
+        OrigamiFoldStripSqueezeAction horizontalAction,
+        OrigamiFoldStripSqueezeAction verticalAction)
+    {
+        GameObject groupObject = new GameObject("TriadGroup");
+        groupObject.transform.SetParent(actionsRoot);
+
+        OrigamiFoldTriadGroup group = groupObject.AddComponent<OrigamiFoldTriadGroup>();
+        group.state = OrigamiFoldTriadState.Unfolded;
+        group.horizontalAction = horizontalAction;
+        group.verticalAction = verticalAction;
+        group.coordinator = coordinator;
+        group.allowSecondFold = true;
+
+        float pointSize = 0.28f;
+        float mergedPointSize = 0.34f;
+        float colliderRadius = 0.18f;
+        float mergedColliderRadius = 0.22f;
+
+        Vector3 aPosition = new Vector3(0.5f, -1f, 0f);
+        Vector3 bPosition = new Vector3(1.5f, -1f, 0f);
+        Vector3 cPosition = new Vector3(0.5f, 0f, 0f);
+        Vector3 abPosition = new Vector3(1f, -1f, 0f);
+        Vector3 cAfterHorizontalPosition = new Vector3(1f, 0f, 0f);
+        Vector3 acPosition = new Vector3(0.5f, -0.5f, 0f);
+        Vector3 bAfterVerticalPosition = new Vector3(1.5f, -0.5f, 0f);
+        Vector3 abcPosition = new Vector3(1f, -0.5f, 0f);
+
+        OrigamiFoldPoint pointA = CreateFoldPoint(
+            "Triad_Point_A",
+            aPosition,
+            Color.white,
+            new Vector3(pointSize, pointSize, 1f),
+            colliderRadius,
+            45,
+            pointsRoot);
+
+        OrigamiFoldPoint pointB = CreateFoldPoint(
+            "Triad_Point_B",
+            bPosition,
+            Color.white,
+            new Vector3(pointSize, pointSize, 1f),
+            colliderRadius,
+            45,
+            pointsRoot);
+
+        OrigamiFoldPoint pointC = CreateFoldPoint(
+            "Triad_Point_C",
+            cPosition,
+            Color.white,
+            new Vector3(pointSize, pointSize, 1f),
+            colliderRadius,
+            45,
+            pointsRoot);
+
+        OrigamiFoldPoint pointAB = CreateFoldPoint(
+            "Triad_Point_AB",
+            abPosition,
+            Color.cyan,
+            new Vector3(mergedPointSize, mergedPointSize, 1f),
+            mergedColliderRadius,
+            48,
+            pointsRoot);
+
+        OrigamiFoldPoint pointCAfterHorizontal = CreateFoldPoint(
+            "Triad_Point_C_AfterHorizontal",
+            cAfterHorizontalPosition,
+            Color.white,
+            new Vector3(pointSize, pointSize, 1f),
+            colliderRadius,
+            45,
+            pointsRoot);
+
+        OrigamiFoldPoint pointAC = CreateFoldPoint(
+            "Triad_Point_AC",
+            acPosition,
+            Color.cyan,
+            new Vector3(mergedPointSize, mergedPointSize, 1f),
+            mergedColliderRadius,
+            48,
+            pointsRoot);
+
+        OrigamiFoldPoint pointBAfterVertical = CreateFoldPoint(
+            "Triad_Point_B_AfterVertical",
+            bAfterVerticalPosition,
+            Color.white,
+            new Vector3(pointSize, pointSize, 1f),
+            colliderRadius,
+            45,
+            pointsRoot);
+
+        OrigamiFoldPoint pointABC = CreateFoldPoint(
+            "Triad_Point_ABC",
+            abcPosition,
+            Color.cyan,
+            new Vector3(0.42f, 0.42f, 1f),
+            0.25f,
+            50,
+            pointsRoot);
+
+        ConfigureTriadClickAction(
+            pointAB,
+            group,
+            OrigamiFoldTriadCommand.ResetHorizontal,
+            camera);
+        ConfigureTriadClickAction(
+            pointAC,
+            group,
+            OrigamiFoldTriadCommand.ResetVertical,
+            camera);
+        ConfigureTriadClickAction(
+            pointABC,
+            group,
+            OrigamiFoldTriadCommand.ResetAll,
+            camera);
+
+        group.visibleWhenUnfolded = new[]
+        {
+            pointA.gameObject,
+            pointB.gameObject,
+            pointC.gameObject
+        };
+        group.visibleWhenHorizontalFolded = new[]
+        {
+            pointAB.gameObject,
+            pointCAfterHorizontal.gameObject
+        };
+        group.visibleWhenVerticalFolded = new[]
+        {
+            pointAC.gameObject,
+            pointBAfterVertical.gameObject
+        };
+        group.visibleWhenBothFolded = new[] { pointABC.gameObject };
+        group.ApplyVisibility();
+
+        OrigamiFoldLink aToB = CreateFoldLink(
+            "TriadLink_A_to_B",
+            pointA,
+            pointB,
+            executeIndicator,
+            linksRoot);
+        OrigamiFoldLink bToA = CreateFoldLink(
+            "TriadLink_B_to_A",
+            pointB,
+            pointA,
+            executeIndicator,
+            linksRoot);
+        OrigamiFoldLink aToC = CreateFoldLink(
+            "TriadLink_A_to_C",
+            pointA,
+            pointC,
+            executeIndicator,
+            linksRoot);
+        OrigamiFoldLink cToA = CreateFoldLink(
+            "TriadLink_C_to_A",
+            pointC,
+            pointA,
+            executeIndicator,
+            linksRoot);
+        OrigamiFoldLink abToCAfterHorizontal = CreateFoldLink(
+            "TriadLink_AB_to_CAfterH",
+            pointAB,
+            pointCAfterHorizontal,
+            executeIndicator,
+            linksRoot);
+        OrigamiFoldLink cAfterHorizontalToAB = CreateFoldLink(
+            "TriadLink_CAfterH_to_AB",
+            pointCAfterHorizontal,
+            pointAB,
+            executeIndicator,
+            linksRoot);
+        OrigamiFoldLink acToBAfterVertical = CreateFoldLink(
+            "TriadLink_AC_to_BAfterV",
+            pointAC,
+            pointBAfterVertical,
+            executeIndicator,
+            linksRoot);
+        OrigamiFoldLink bAfterVerticalToAC = CreateFoldLink(
+            "TriadLink_BAfterV_to_AC",
+            pointBAfterVertical,
+            pointAC,
+            executeIndicator,
+            linksRoot);
+
+        ConfigureTriadLink(aToB, group, OrigamiFoldTriadCommand.FoldHorizontal);
+        ConfigureTriadLink(bToA, group, OrigamiFoldTriadCommand.FoldHorizontal);
+        ConfigureTriadLink(aToC, group, OrigamiFoldTriadCommand.FoldVertical);
+        ConfigureTriadLink(cToA, group, OrigamiFoldTriadCommand.FoldVertical);
+        ConfigureTriadLink(
+            abToCAfterHorizontal,
+            group,
+            OrigamiFoldTriadCommand.FoldVertical);
+        ConfigureTriadLink(
+            cAfterHorizontalToAB,
+            group,
+            OrigamiFoldTriadCommand.FoldVertical);
+        ConfigureTriadLink(
+            acToBAfterVertical,
+            group,
+            OrigamiFoldTriadCommand.FoldHorizontal);
+        ConfigureTriadLink(
+            bAfterVerticalToAC,
+            group,
+            OrigamiFoldTriadCommand.FoldHorizontal);
+
+        CreateTriadLabel("Label_A", "A", pointA.transform, new Vector3(-0.2f, -0.25f, 0f));
+        CreateTriadLabel("Label_B", "B", pointB.transform, new Vector3(0.2f, -0.25f, 0f));
+        CreateTriadLabel("Label_C", "C", pointC.transform, new Vector3(-0.25f, 0.18f, 0f));
+        CreateTriadLabel("Label_AB", "AB", pointAB.transform, new Vector3(0f, -0.28f, 0f));
+        CreateTriadLabel("Label_AC", "AC", pointAC.transform, new Vector3(-0.3f, 0f, 0f));
+        CreateTriadLabel("Label_ABC", "ABC", pointABC.transform, new Vector3(0.3f, 0.2f, 0f));
+
+        return new[]
+        {
+            aToB,
+            bToA,
+            aToC,
+            cToA,
+            abToCAfterHorizontal,
+            cAfterHorizontalToAB,
+            acToBAfterVertical,
+            bAfterVerticalToAC
+        };
+    }
+
+    private static void ConfigureTriadLink(
+        OrigamiFoldLink link,
+        OrigamiFoldTriadGroup group,
+        OrigamiFoldTriadCommand command)
+    {
+        if (link == null)
+        {
+            return;
+        }
+
+        link.bidirectional = false;
+        link.targetTriadGroup = group;
+        link.triadCommand = command;
+    }
+
+    private static void ConfigureTriadClickAction(
+        OrigamiFoldPoint point,
+        OrigamiFoldTriadGroup group,
+        OrigamiFoldTriadCommand command,
+        Camera camera)
+    {
+        if (point == null)
+        {
+            return;
+        }
+
+        OrigamiFoldClickAction clickAction = point.gameObject
+            .AddComponent<OrigamiFoldClickAction>();
+        clickAction.targetCamera = camera;
+        clickAction.targetTriadGroup = group;
+        clickAction.triadCommandOnClick = command;
+        clickAction.debugName = point.pointId;
+    }
+
+    private static void CreateTriadLabel(
+        string objectName,
+        string label,
+        Transform parent,
+        Vector3 localPosition)
+    {
+        GameObject labelObject = new GameObject(objectName);
+        labelObject.transform.SetParent(parent);
+        labelObject.transform.localPosition = localPosition;
+
+        TextMesh text = labelObject.AddComponent<TextMesh>();
+        text.text = label;
+        text.characterSize = 0.12f;
+        text.fontSize = 22;
+        text.anchor = TextAnchor.MiddleCenter;
+        text.alignment = TextAlignment.Center;
+        text.color = Color.white;
+
+        Renderer renderer = labelObject.GetComponent<Renderer>();
+
+        if (renderer != null)
+        {
+            renderer.sortingOrder = 52;
+        }
     }
 
     private static GameObject[,] CreateWholeStripMapCells(
@@ -4012,7 +4376,8 @@ public static class OrigamiFoldWorkbenchBuilder
             || step == WorkbenchStep.Step5_3
             || step == WorkbenchStep.Step5_3_1
             || step == WorkbenchStep.Step5_4
-            || step == WorkbenchStep.Step5_5)
+            || step == WorkbenchStep.Step5_5
+            || step == WorkbenchStep.Step5_6)
         {
             camera.transform.position = new Vector3(0f, 0.1f, -10f);
             camera.orthographicSize = 4.5f;
@@ -4100,10 +4465,13 @@ public static class OrigamiFoldWorkbenchBuilder
             || step == WorkbenchStep.Step5_3
             || step == WorkbenchStep.Step5_3_1
             || step == WorkbenchStep.Step5_4
-            || step == WorkbenchStep.Step5_5)
+            || step == WorkbenchStep.Step5_5
+            || step == WorkbenchStep.Step5_6)
         {
             CreateWorkbenchTile(
-                step == WorkbenchStep.Step5_5
+                step == WorkbenchStep.Step5_6
+                    ? "WorkbenchPlate_TriadFoldGroup"
+                    : step == WorkbenchStep.Step5_5
                     ? "WorkbenchPlate_TrappablePatrolPuzzleLoop"
                     : step == WorkbenchStep.Step5_4
                     ? "WorkbenchPlate_PatrolPuzzleLoop"
@@ -4333,6 +4701,7 @@ public static class OrigamiFoldWorkbenchBuilder
             || step == WorkbenchStep.Step5_3_1
             || step == WorkbenchStep.Step5_4
             || step == WorkbenchStep.Step5_5
+            || step == WorkbenchStep.Step5_6
             ? new Vector3(-3.95f, 4.18f, 0f)
             : step == WorkbenchStep.Step4
             ? new Vector3(-3.75f, 4.12f, 0f)
@@ -4350,7 +4719,11 @@ public static class OrigamiFoldWorkbenchBuilder
 
         TextMesh text = textObject.AddComponent<TextMesh>();
 
-        if (step == WorkbenchStep.Step5_5)
+        if (step == WorkbenchStep.Step5_6)
+        {
+            text.text = "Triad fold: A can fold with B or C. No diagonal. Final cyan point resets all.";
+        }
+        else if (step == WorkbenchStep.Step5_5)
         {
             text.text = "WASD move. Fold row to trap moving enemy. Death resets attempt.";
         }
@@ -4426,6 +4799,7 @@ public static class OrigamiFoldWorkbenchBuilder
             || step == WorkbenchStep.Step5_3_1
             || step == WorkbenchStep.Step5_4
             || step == WorkbenchStep.Step5_5
+            || step == WorkbenchStep.Step5_6
             ? 0.105f
             : step == WorkbenchStep.Step4
             ? 0.11f
@@ -4445,6 +4819,7 @@ public static class OrigamiFoldWorkbenchBuilder
             || step == WorkbenchStep.Step5_3_1
             || step == WorkbenchStep.Step5_4
             || step == WorkbenchStep.Step5_5
+            || step == WorkbenchStep.Step5_6
             ? 23
             : step == WorkbenchStep.Step4
             ? 24

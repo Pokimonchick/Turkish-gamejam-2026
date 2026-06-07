@@ -11,7 +11,9 @@ public class OrigamiFoldClickAction : MonoBehaviour
     public OrigamiFoldMoveAction targetMoveAction;
     public OrigamiFoldSqueezeAction targetSqueezeAction;
     public OrigamiFoldStripSqueezeAction targetStripSqueezeAction;
+    public OrigamiFoldTriadGroup targetTriadGroup;
     public bool activeStateOnClick = false;
+    public OrigamiFoldTriadCommand triadCommandOnClick = OrigamiFoldTriadCommand.ResetAll;
     public bool ignoreWhileActionAnimating = true;
     public string debugName;
 
@@ -64,7 +66,8 @@ public class OrigamiFoldClickAction : MonoBehaviour
     {
         if (targetMoveAction == null
             && targetSqueezeAction == null
-            && targetStripSqueezeAction == null)
+            && targetStripSqueezeAction == null
+            && targetTriadGroup == null)
         {
             Debug.LogWarning($"{GetDebugName()}: no fold action is assigned.", this);
             return;
@@ -105,6 +108,11 @@ public class OrigamiFoldClickAction : MonoBehaviour
         if (targetStripSqueezeAction != null)
         {
             targetStripSqueezeAction.SetActive(activeStateOnClick);
+        }
+
+        if (targetTriadGroup != null)
+        {
+            targetTriadGroup.Execute(triadCommandOnClick);
         }
 
         Debug.Log($"{GetDebugName()}: clicked, setting fold action active={activeStateOnClick}.", this);
