@@ -119,6 +119,168 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &710000
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 710001}
+  - component: {fileID: 710002}
+  - component: {fileID: 710003}
+  - component: {fileID: 710004}
+  m_Layer: 0
+  m_Name: Level 01 Music
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &710001
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 710000}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!82 &710002
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 710000}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 8300000, guid: cf740319f370d99478c927c37bbf2aab, type: 3}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 1
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!114 &710003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 710000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19c5253076c9483da32eaa85f522e447, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::CategorizedAudioSource
+  audioSource: {fileID: 710002}
+  category: 0
+  sourceVolume: 1
+--- !u!114 &710004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 710000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f47a3c78d3645048b07d65f1fa5a4cc, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::SceneMusicPlayer
+  audioSource: {fileID: 710002}
+  musicClip: {fileID: 8300000, guid: cf740319f370d99478c927c37bbf2aab, type: 3}
+  playOnStart: 1
+  loop: 1
 --- !u!1 &1895079
 GameObject:
   m_ObjectHideFlags: 0
@@ -164,7 +326,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 3.5, y: 2, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -211,7 +373,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 755154817}
   isWalkable: 1
@@ -759,7 +921,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 219274147}
   isWalkable: 1
@@ -942,7 +1104,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2c3ed4271c08bd74781601f8a559f74a, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::InteractionPromptUI
   root: {fileID: 1546900053}
   promptText: {fileID: 1339422716}
@@ -994,7 +1156,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 2.5, y: -2, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -1043,7 +1205,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 1.5, y: -3, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -1220,11 +1382,11 @@ SpriteRenderer:
   m_SortingOrder: 35
   m_MaskInteraction: 0
   m_Sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
-  m_Color: {r: 0.1, g: 1, b: 0.25, a: 0.72}
+  m_Color: {r: 0.55, g: 1, b: 0.55, a: 0}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 0.82, y: 0.82}
+  m_Size: {x: 1.35, y: 1.35}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -1365,7 +1527,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 3.5, y: -3, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -1414,7 +1576,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 1.5, y: 0, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -1462,7 +1624,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 2.5, y: 2, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -1511,7 +1673,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 5.5, y: -4, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -1961,11 +2123,11 @@ SpriteRenderer:
   m_SortingOrder: 35
   m_MaskInteraction: 0
   m_Sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
-  m_Color: {r: 0.1, g: 1, b: 0.25, a: 0.72}
+  m_Color: {r: 0.55, g: 1, b: 0.55, a: 0}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 0.82, y: 0.82}
+  m_Size: {x: 1.35, y: 1.35}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -2014,7 +2176,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 0.5, y: 3, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -2061,7 +2223,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 1461436670}
   isWalkable: 1
@@ -2156,7 +2318,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 1.5, y: 1, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -2205,7 +2367,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -5.5, y: -1, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -2252,7 +2414,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 1591075226}
   isWalkable: 1
@@ -2603,7 +2765,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -1.5, y: -2, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -2925,7 +3087,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -3.5, y: -2, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -2972,7 +3134,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 1221133861}
   isWalkable: 1
@@ -3066,7 +3228,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 4.5, y: 1, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -3400,7 +3562,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -5.5, y: 4, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -3449,7 +3611,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -5.5, y: -2, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -3498,7 +3660,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 5.5, y: 2, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -3547,7 +3709,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 2.5, y: 0, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -3595,7 +3757,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 4.5, y: -4, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -3914,7 +4076,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33daae6fcb7b308479de1807aeaaf03e, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldLink
   pointA: {fileID: 1328211218}
   pointB: {fileID: 1246102702}
@@ -4063,7 +4225,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 4.5, y: 0, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -4112,7 +4274,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 73699e79f7061164bacf9a39a976a4b0, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldSceneExit
   nextSceneName: Village_Level_02_Stub
   loadSceneOnEnter: 1
@@ -4173,7 +4335,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 5.5, y: 1, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -4311,7 +4473,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 1782951302}
   isWalkable: 1
@@ -5043,7 +5205,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 2064367353}
   isWalkable: 1
@@ -5138,7 +5300,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -3.5, y: 1, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -5187,7 +5349,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 1.5, y: -1, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -5326,7 +5488,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 0.5, y: 0, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -5503,11 +5665,11 @@ SpriteRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  m_Color: {r: 0.08, g: 0.4, b: 0.18, a: 0.85}
+  m_Color: {r: 0.25, g: 1, b: 0.4, a: 0}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 0.96, y: 0.96}
+  m_Size: {x: 1.7, y: 1.7}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -5557,7 +5719,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 5.5, y: 0, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -6004,7 +6166,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -1.5, y: -4, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -6052,7 +6214,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -3.5, y: 4, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -6099,7 +6261,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 367670214}
   isWalkable: 1
@@ -6192,7 +6354,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 531126076}
   isWalkable: 1
@@ -6285,7 +6447,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 1733260734}
   isWalkable: 1
@@ -6364,7 +6526,7 @@ Transform:
   m_GameObject: {fileID: 424044770}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -4.5, y: -4, z: 0}
+  m_LocalPosition: {x: -3.034, y: -1.876, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -6381,12 +6543,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d47d127df113b6043b122537ccf1a39e, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldPassenger
   walkableMask:
     serializedVersion: 2
     m_Bits: 64
-  probeRadius: 0.18
+  probeRadius: 0.08
   currentStack: {fileID: 1154031027}
   disableWhileCarried:
   - {fileID: 424044773}
@@ -6407,11 +6569,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 42c2c9274c9295045bbe43a8d7db8e45, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldPlayerMover
   moveSpeed: 3.5
-  bodyRadius: 0.18
-  bodyCenterOffset: {x: 0, y: 0}
+  bodyRadius: 0.08
+  bodyCenterOffset: {x: -0.53, y: -2}
   sampleProbeRadius: 0.025
   walkableMask:
     serializedVersion: 2
@@ -6461,8 +6623,8 @@ CircleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Radius: 0.18
+  m_Offset: {x: -0.53, y: -2}
+  m_Radius: 0.08
 --- !u!50 &424044775
 Rigidbody2D:
   serializedVersion: 5
@@ -6535,7 +6697,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 73699e79f7061164bacf9a39a976a4b0, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldSceneExit
   nextSceneName: Village_Level_02_Stub
   loadSceneOnEnter: 1
@@ -6596,7 +6758,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 5.5, y: 3, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -6735,7 +6897,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 3.5, y: 3, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -6821,11 +6983,11 @@ SpriteRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  m_Color: {r: 0.08, g: 0.4, b: 0.18, a: 0.85}
+  m_Color: {r: 0.25, g: 1, b: 0.4, a: 0}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 0.96, y: 0.96}
+  m_Size: {x: 1.7, y: 1.7}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -7057,7 +7219,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -4.5, y: -3, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -7196,7 +7358,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -1.5, y: 3, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -7244,7 +7406,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 4.5, y: 2, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -7293,7 +7455,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -1.5, y: 0, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -7523,7 +7685,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8a9b6e4f7c654d6d8bcd10e46c61de21, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::NPCInteractable
   dialogueData: {fileID: 11400000, guid: 3a3146ad3702cec44a7a58ec10bd0a2a, type: 2}
   player: {fileID: 424044771}
@@ -7614,11 +7776,11 @@ SpriteRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  m_Color: {r: 0.08, g: 0.4, b: 0.18, a: 0.85}
+  m_Color: {r: 0.25, g: 1, b: 0.4, a: 0}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 0.96, y: 0.96}
+  m_Size: {x: 1.7, y: 1.7}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -7759,7 +7921,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -5.5, y: 2, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -7807,7 +7969,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 0.5, y: -1, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -7855,7 +8017,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -2.5, y: 3, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -7902,7 +8064,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 1517210253}
   isWalkable: 1
@@ -7995,7 +8157,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 1496561080}
   isWalkable: 1
@@ -8090,7 +8252,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 5.5, y: -3, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -8137,7 +8299,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 1899508678}
   isWalkable: 1
@@ -8323,7 +8485,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -0.5, y: -4, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -8658,7 +8820,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -2.5, y: -4, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -8705,7 +8867,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 338183770}
   isWalkable: 1
@@ -9019,11 +9181,11 @@ SpriteRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  m_Color: {r: 0.08, g: 0.4, b: 0.18, a: 0.85}
+  m_Color: {r: 0.25, g: 1, b: 0.4, a: 0}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 0.96, y: 0.96}
+  m_Size: {x: 1.7, y: 1.7}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -9072,7 +9234,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -5.5, y: 3, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -9212,7 +9374,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -5.5, y: 1, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -9259,7 +9421,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 659399737}
   isWalkable: 1
@@ -9352,7 +9514,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 1822759656}
   isWalkable: 1
@@ -9538,7 +9700,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 5.5, y: -1, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -9587,7 +9749,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 3.5, y: -1, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -9726,7 +9888,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 1.5, y: 4, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -10047,7 +10209,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 4.5, y: -1, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -10122,7 +10284,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 0.34, y: 0.34}
+  m_Size: {x: 0.5, y: 0.5}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -10187,7 +10349,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 73699e79f7061164bacf9a39a976a4b0, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldSceneExit
   nextSceneName: Village_Level_02_Stub
   loadSceneOnEnter: 1
@@ -10248,7 +10410,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 5.5, y: 4, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -10478,7 +10640,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 2.5, y: 4, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -10798,7 +10960,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 750127450}
   isWalkable: 1
@@ -11166,7 +11328,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -5.5, y: 0, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -11306,7 +11468,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 5.5, y: 3, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -11568,7 +11730,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 1571334757}
   isWalkable: 1
@@ -12025,7 +12187,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 218020449}
   isWalkable: 1
@@ -12118,7 +12280,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 477485291}
   isWalkable: 1
@@ -12341,11 +12503,11 @@ SpriteRenderer:
   m_SortingOrder: 35
   m_MaskInteraction: 0
   m_Sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
-  m_Color: {r: 0.1, g: 1, b: 0.25, a: 0.72}
+  m_Color: {r: 0.55, g: 1, b: 0.55, a: 0}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 0.82, y: 0.82}
+  m_Size: {x: 1.35, y: 1.35}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -12796,11 +12958,11 @@ SpriteRenderer:
   m_SortingOrder: 35
   m_MaskInteraction: 0
   m_Sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
-  m_Color: {r: 0.1, g: 1, b: 0.25, a: 0.72}
+  m_Color: {r: 0.55, g: 1, b: 0.55, a: 0}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 0.82, y: 0.82}
+  m_Size: {x: 1.35, y: 1.35}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -13304,7 +13466,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -3.5, y: 2, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -13351,7 +13513,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 1253842030}
   isWalkable: 1
@@ -13627,7 +13789,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -2.5, y: 4, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -13674,7 +13836,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 671917011}
   isWalkable: 1
@@ -14040,7 +14202,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 681017888}
   isWalkable: 1
@@ -14135,7 +14297,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 73699e79f7061164bacf9a39a976a4b0, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldSceneExit
   nextSceneName: Village_Level_02_Stub
   loadSceneOnEnter: 1
@@ -14196,7 +14358,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 5.5, y: -3, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -14518,7 +14680,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 2.5, y: 1, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -14656,7 +14818,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 150817320}
   isWalkable: 1
@@ -14750,7 +14912,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 4.5, y: 4, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -14799,7 +14961,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 5.5, y: -2, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -14848,7 +15010,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -3.5, y: -3, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -15441,7 +15603,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 1911637557}
   isWalkable: 1
@@ -15809,7 +15971,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -2.5, y: 1, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -15858,7 +16020,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -2.5, y: 0, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -15996,7 +16158,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 1790209939}
   isWalkable: 1
@@ -16486,7 +16648,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 1598549151}
   isWalkable: 1
@@ -16618,11 +16780,11 @@ SpriteRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  m_Color: {r: 0.08, g: 0.4, b: 0.18, a: 0.85}
+  m_Color: {r: 0.25, g: 1, b: 0.4, a: 0}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 0.96, y: 0.96}
+  m_Size: {x: 1.7, y: 1.7}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -16698,7 +16860,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 0.42, y: 0.42}
+  m_Size: {x: 0.5, y: 0.5}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -16761,7 +16923,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 99173777}
   isWalkable: 1
@@ -16947,7 +17109,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 73699e79f7061164bacf9a39a976a4b0, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldSceneExit
   nextSceneName: Village_Level_02_Stub
   loadSceneOnEnter: 1
@@ -17008,7 +17170,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 5.5, y: -4, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -17328,7 +17490,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 1405559236}
   isWalkable: 1
@@ -17642,11 +17804,11 @@ SpriteRenderer:
   m_SortingOrder: 35
   m_MaskInteraction: 0
   m_Sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
-  m_Color: {r: 0.1, g: 1, b: 0.25, a: 0.72}
+  m_Color: {r: 0.55, g: 1, b: 0.55, a: 0}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 0.82, y: 0.82}
+  m_Size: {x: 1.35, y: 1.35}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -17693,7 +17855,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f55fe9f91a0bb1443ace76cae8a7dcc7, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldStripSqueezeAction
   isActive: 0
   animationDuration: 0.3
@@ -18347,7 +18509,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 460209952}
   isWalkable: 1
@@ -18440,7 +18602,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 391016307}
   isWalkable: 1
@@ -18535,7 +18697,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 0.5, y: -2, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -18581,7 +18743,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33daae6fcb7b308479de1807aeaaf03e, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldLink
   pointA: {fileID: 1246102702}
   pointB: {fileID: 1328211218}
@@ -18859,11 +19021,11 @@ SpriteRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  m_Color: {r: 0.08, g: 0.4, b: 0.18, a: 0.85}
+  m_Color: {r: 0.25, g: 1, b: 0.4, a: 0}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 0.96, y: 0.96}
+  m_Size: {x: 1.7, y: 1.7}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -19259,7 +19421,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4ce11a7bed58dda47b0d32a8d958f3f4, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldActionCoordinator
   currentOwner: {fileID: 0}
 --- !u!4 &1144484423
@@ -19322,7 +19484,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -2.5, y: -3, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -19371,7 +19533,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 3.5, y: 1, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -19420,7 +19582,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 73699e79f7061164bacf9a39a976a4b0, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldSceneExit
   nextSceneName: Village_Level_02_Stub
   loadSceneOnEnter: 1
@@ -19481,7 +19643,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 5.5, y: 2, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -19512,7 +19674,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -4.5, y: -4, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -19695,7 +19857,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 32805526}
   isWalkable: 1
@@ -19880,7 +20042,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -2.5, y: 2, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -19927,7 +20089,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 553280446}
   isWalkable: 1
@@ -20022,7 +20184,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 1.5, y: -4, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -20070,7 +20232,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 3.5, y: 4, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -20209,7 +20371,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 0.5, y: 4, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -20347,7 +20509,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 1895081}
   isWalkable: 1
@@ -20442,7 +20604,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 2.5, y: -1, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -20491,7 +20653,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 0.5, y: -3, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -20539,7 +20701,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 2.5, y: 3, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -20587,7 +20749,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -0.5, y: -1, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -20634,7 +20796,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 79885437}
   isWalkable: 1
@@ -20727,7 +20889,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 2107619453}
   isWalkable: 1
@@ -20805,7 +20967,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9d1455e855e236a459edf3564cb43ed6, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldPoint
   pointId: Wall_Point_Left
   visualRenderer: {fileID: 1962433602}
@@ -20846,7 +21008,7 @@ CircleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Radius: 0.24
+  m_Radius: 0.5
 --- !u!4 &1246102704
 Transform:
   m_ObjectHideFlags: 0
@@ -20908,7 +21070,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 1.5, y: -2, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -20955,7 +21117,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 220132568}
   isWalkable: 1
@@ -21050,7 +21212,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -0.5, y: 1, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -21372,7 +21534,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 3.5, y: -2, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -21421,7 +21583,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -1.5, y: -3, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -21650,7 +21812,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 1948813306}
   isWalkable: 1
@@ -22153,7 +22315,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 1446357920}
   isWalkable: 1
@@ -22285,11 +22447,11 @@ SpriteRenderer:
   m_SortingOrder: 35
   m_MaskInteraction: 0
   m_Sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
-  m_Color: {r: 0.1, g: 1, b: 0.25, a: 0.72}
+  m_Color: {r: 0.55, g: 1, b: 0.55, a: 0}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 0.82, y: 0.82}
+  m_Size: {x: 1.35, y: 1.35}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -22338,7 +22500,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -1.5, y: 4, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -22370,7 +22532,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9d1455e855e236a459edf3564cb43ed6, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldPoint
   pointId: Wall_Point_Right
   visualRenderer: {fileID: 721361964}
@@ -22411,7 +22573,7 @@ CircleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Radius: 0.24
+  m_Radius: 0.5
 --- !u!4 &1328211220
 Transform:
   m_ObjectHideFlags: 0
@@ -22471,7 +22633,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 988906631}
   isWalkable: 1
@@ -22841,7 +23003,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -23065,7 +23227,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 141348492}
   isWalkable: 1
@@ -23158,7 +23320,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 1149747428}
   isWalkable: 1
@@ -23343,7 +23505,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -0.5, y: 0, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -23514,7 +23676,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -0.5, y: 3, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -23561,7 +23723,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 1945375953}
   isWalkable: 1
@@ -23836,7 +23998,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 923003786}
   isWalkable: 1
@@ -23931,7 +24093,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 73699e79f7061164bacf9a39a976a4b0, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldSceneExit
   nextSceneName: Village_Level_02_Stub
   loadSceneOnEnter: 1
@@ -23992,7 +24154,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 5.5, y: 0, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -24132,7 +24294,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -3.5, y: -4, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -24271,7 +24433,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -0.5, y: 4, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -24319,7 +24481,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -4.5, y: 4, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -24459,7 +24621,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -5.5, y: -3, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -24781,7 +24943,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 2.5, y: -4, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -24919,7 +25081,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 1176319259}
   isWalkable: 1
@@ -25376,7 +25538,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 76015526}
   isWalkable: 1
@@ -25471,7 +25633,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 2.5, y: -3, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -25517,7 +25679,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 76c684a4f1095aa44a7d239cde455c2e, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldDragController
   targetCamera: {fileID: 1306635320}
   foldPointMask:
@@ -25575,7 +25737,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 73699e79f7061164bacf9a39a976a4b0, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldSceneExit
   nextSceneName: Village_Level_02_Stub
   loadSceneOnEnter: 1
@@ -25636,7 +25798,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 5.5, y: -2, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -25683,7 +25845,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 1279690612}
   isWalkable: 1
@@ -25869,7 +26031,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 3.5, y: 0, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -26008,7 +26170,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8a9b6e4f7c654d6d8bcd10e46c61de21, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::NPCInteractable
   dialogueData: {fileID: 11400000, guid: 9a430a1684e3ff445b98d3f0f3ea4e4b, type: 2}
   player: {fileID: 424044771}
@@ -26153,7 +26315,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 0.5, y: 1, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -26382,7 +26544,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 942395688}
   isWalkable: 1
@@ -26571,7 +26733,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 0.02, g: 0.025, b: 0.032, a: 0.72}
@@ -26642,7 +26804,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 338677883}
   isWalkable: 1
@@ -26737,7 +26899,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -2.5, y: -1, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -26783,7 +26945,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2c26605ea169c674e87347465b1dc515, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::DialogueAutoStart
   dialogueData: {fileID: 11400000, guid: 9d44985c30886424b91411e681ccb8ae, type: 2}
   delaySeconds: 0.3
@@ -26832,7 +26994,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 617375822}
   isWalkable: 1
@@ -26927,7 +27089,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -4.5, y: 0, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -26959,7 +27121,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4f231c4fb786f3946a6b90b886c48677, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.EventSystems.StandaloneInputModule
   m_SendPointerHoverToParent: 1
   m_HorizontalAxis: Horizontal
@@ -26979,7 +27141,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.EventSystems.EventSystem
   m_FirstSelected: {fileID: 0}
   m_sendNavigationEvents: 1
@@ -27135,7 +27297,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 5.5, y: 4, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -27184,7 +27346,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -3.5, y: 0, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -27361,11 +27523,11 @@ SpriteRenderer:
   m_SortingOrder: 35
   m_MaskInteraction: 0
   m_Sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
-  m_Color: {r: 0.1, g: 1, b: 0.25, a: 0.72}
+  m_Color: {r: 0.55, g: 1, b: 0.55, a: 0}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 0.82, y: 0.82}
+  m_Size: {x: 1.35, y: 1.35}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -27506,7 +27668,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 0.5, y: -4, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -27826,7 +27988,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 943407502}
   isWalkable: 1
@@ -28010,7 +28172,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 1555848884}
   isWalkable: 1
@@ -28286,7 +28448,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 4.5, y: -3, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -28516,7 +28678,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -3.5, y: 3, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -28746,7 +28908,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 4.5, y: -2, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -29066,7 +29228,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 1727860701}
   isWalkable: 1
@@ -29524,7 +29686,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 0.5, y: 2, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -29663,7 +29825,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 4.5, y: 3, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -29712,7 +29874,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -1.5, y: 1, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -29759,7 +29921,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 1708097137}
   isWalkable: 1
@@ -29854,7 +30016,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 5.5, y: 1, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -29901,7 +30063,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 1286268426}
   isWalkable: 1
@@ -29996,7 +30158,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -0.5, y: -3, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -30227,7 +30389,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 73699e79f7061164bacf9a39a976a4b0, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldSceneExit
   nextSceneName: Village_Level_02_Stub
   loadSceneOnEnter: 1
@@ -30288,7 +30450,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 5.5, y: -1, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -30757,6 +30919,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1779176491}
   - component: {fileID: 1779176492}
+  - component: {fileID: 1779176493}
   m_Layer: 0
   m_Name: Visual
   m_TagString: Untagged
@@ -30773,8 +30936,8 @@ Transform:
   m_GameObject: {fileID: 1779176490}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: -0.53, y: -1, z: 0}
+  m_LocalScale: {x: 0.22, y: 0.22, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 424044771}
@@ -30828,16 +30991,42 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 70
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
-  m_Color: {r: 1, g: 0.68, b: 0.18, a: 1}
+  m_Sprite: {fileID: -1716235805892606973, guid: 77d3b28359b42e440905b56447f58511, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
-  m_DrawMode: 1
+  m_DrawMode: 0
   m_Size: {x: 0.36, y: 0.36}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &1779176493
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1779176490}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1161ad7fa67c4c4382a502256c909638, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::PaperDollWalkAnimator
+  visualRoot: {fileID: 1779176491}
+  spriteRenderer: {fileID: 1779176492}
+  idleRockTiltAmplitude: 1.5
+  idleRockSpeed: 3.46
+  walkRockTiltAmplitude: 7
+  walkRockSpeed: 7
+  walkBobHeight: 0.05
+  walkSideOffset: 0.03
+  steppedMotion: 1
+  stepiness: 1
+  stepsPerCycle: 4
+  snapSteppedPoses: 1
+  returnSmoothness: 0
+  flipByDirection: 1
 --- !u!1 &1782951300
 GameObject:
   m_ObjectHideFlags: 0
@@ -30883,7 +31072,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -0.5, y: -2, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -31023,7 +31212,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -4.5, y: -2, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -31434,7 +31623,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 39479866}
   isWalkable: 1
@@ -31553,7 +31742,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 239315ae13899a0409038305ccc244d7, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldClickAction
   targetCamera: {fileID: 1306635320}
   targetMoveAction: {fileID: 0}
@@ -31574,7 +31763,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9d1455e855e236a459edf3564cb43ed6, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldPoint
   pointId: Wall_Point_Merged
   visualRenderer: {fileID: 1043233346}
@@ -31615,7 +31804,7 @@ CircleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Radius: 0.28
+  m_Radius: 0.5
 --- !u!4 &1818373542
 Transform:
   m_ObjectHideFlags: 0
@@ -31677,7 +31866,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -3.5, y: -1, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -31796,11 +31985,11 @@ SpriteRenderer:
   m_SortingOrder: 35
   m_MaskInteraction: 0
   m_Sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
-  m_Color: {r: 0.1, g: 1, b: 0.25, a: 0.72}
+  m_Color: {r: 0.55, g: 1, b: 0.55, a: 0}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 0.82, y: 0.82}
+  m_Size: {x: 1.35, y: 1.35}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -32122,7 +32311,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -4.5, y: 3, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -32351,7 +32540,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 1114353353}
   isWalkable: 1
@@ -32899,7 +33088,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 580721899}
   isWalkable: 1
@@ -32992,7 +33181,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 1154031027}
   isWalkable: 1
@@ -33178,7 +33367,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -4.5, y: 1, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -33409,7 +33598,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -1.5, y: -1, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -33580,7 +33769,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -4.5, y: 2, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -33843,7 +34032,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -4.5, y: -1, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -33892,7 +34081,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -2.5, y: -2, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -33978,11 +34167,11 @@ SpriteRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  m_Color: {r: 0.08, g: 0.4, b: 0.18, a: 0.85}
+  m_Color: {r: 0.25, g: 1, b: 0.4, a: 0}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 0.96, y: 0.96}
+  m_Size: {x: 1.7, y: 1.7}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -34058,7 +34247,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 0.34, y: 0.34}
+  m_Size: {x: 0.5, y: 0.5}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -34212,7 +34401,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 180418262}
   isWalkable: 1
@@ -34397,7 +34586,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -0.5, y: 2, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -34574,11 +34763,11 @@ SpriteRenderer:
   m_SortingOrder: 35
   m_MaskInteraction: 0
   m_Sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
-  m_Color: {r: 0.1, g: 1, b: 0.25, a: 0.72}
+  m_Color: {r: 0.55, g: 1, b: 0.55, a: 0}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 0.82, y: 0.82}
+  m_Size: {x: 1.35, y: 1.35}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -34750,7 +34939,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 192544638}
   isWalkable: 1
@@ -34843,7 +35032,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 1249066029}
   isWalkable: 1
@@ -35027,7 +35216,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 1421484855}
   isWalkable: 1
@@ -35304,7 +35493,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -5.5, y: -4, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -35443,7 +35632,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 1.5, y: 2, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -35802,11 +35991,11 @@ SpriteRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  m_Color: {r: 0.08, g: 0.4, b: 0.18, a: 0.85}
+  m_Color: {r: 0.25, g: 1, b: 0.4, a: 0}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 0.96, y: 0.96}
+  m_Size: {x: 1.7, y: 1.7}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -35854,7 +36043,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 1215741183}
   isWalkable: 1
@@ -35947,7 +36136,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 1150581096}
   isWalkable: 1
@@ -36133,7 +36322,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 3.5, y: -4, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -36180,7 +36369,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 999886118}
   isWalkable: 1
@@ -36274,7 +36463,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 1.5, y: 3, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -36360,11 +36549,11 @@ SpriteRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  m_Color: {r: 0.08, g: 0.4, b: 0.18, a: 0.85}
+  m_Color: {r: 0.25, g: 1, b: 0.4, a: 0}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 0.96, y: 0.96}
+  m_Size: {x: 1.7, y: 1.7}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -36412,7 +36601,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b0b14df99072424aae923bdcccc8066, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldWalkableArea
   ownerStack: {fileID: 1583342424}
   isWalkable: 1
@@ -36688,7 +36877,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b789e165aaa290c499193b62824efbac, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: -1.5, y: 2, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
@@ -36699,3 +36888,4 @@ SceneRoots:
   - {fileID: 1306635322}
   - {fileID: 180019454}
   - {fileID: 1580841359}
+  - {fileID: 710001}
