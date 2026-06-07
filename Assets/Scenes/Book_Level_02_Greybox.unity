@@ -33244,7 +33244,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: cf740319f370d99478c927c37bbf2aab, type: 3}
+  m_Resource: {fileID: 8300000, guid: f5c51a531df93cd4b9575890e0cb3746, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
@@ -33289,7 +33289,7 @@ MonoBehaviour:
   m_Name: ""
   m_EditorClassIdentifier: Assembly-CSharp::SceneMusicPlayer
   audioSource: {fileID: 720002}
-  musicClip: {fileID: 8300000, guid: cf740319f370d99478c927c37bbf2aab, type: 3}
+  musicClip: {fileID: 8300000, guid: f5c51a531df93cd4b9575890e0cb3746, type: 3}
   playOnStart: 1
   loop: 1
 --- !u!1660057539 &9223372036854775807
