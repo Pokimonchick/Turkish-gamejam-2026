@@ -18462,6 +18462,15 @@ MonoBehaviour:
     m_Bits: 64
   requireAllSamplesInsideWalkable: 1
   debugDrawSamples: 1
+  footstepSounds:
+  - {fileID: 8300000, guid: ebde5bc8bd4e6f340a86cb62eede2819, type: 3}
+  - {fileID: 8300000, guid: dcefcf5a1b38a754eb14ae1fcb44f81a, type: 3}
+  - {fileID: 8300000, guid: a03acc880d8a4d63b25a6e801f9fcbd3, type: 3}
+  defaultFootstepProfile: {fileID: 11400000, guid: cc38f23ae8d7426eacc366ecc72e1741, type: 2}
+  minFootstepInterval: 0.28
+  maxFootstepInterval: 0.42
+  footstepVolume: 0.8
+  avoidRepeatingFootstepSound: 1
 --- !u!58 &2046953791
 CircleCollider2D:
   m_ObjectHideFlags: 0
