@@ -5657,6 +5657,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldStripSqueezeAction
   isActive: 0
   animationDuration: 0.32
+  foldSound: {fileID: 8300000, guid: bb39e4c8e6a5f86429602b386646fb65, type: 3}
+  foldSoundVolume: 1
   coordinator: {fileID: 1501093039}
   useCoordinator: 1
   targets:
@@ -7708,6 +7710,7 @@ GameObject:
   m_Component:
   - component: {fileID: 468399468}
   - component: {fileID: 468399467}
+  - component: {fileID: 468399469}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -7766,6 +7769,14 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!81 &468399469
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 468399466}
+  m_Enabled: 1
 --- !u!4 &468399468
 Transform:
   m_ObjectHideFlags: 0
@@ -9378,6 +9389,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldStripSqueezeAction
   isActive: 0
   animationDuration: 0.32
+  foldSound: {fileID: 8300000, guid: bb39e4c8e6a5f86429602b386646fb65, type: 3}
+  foldSoundVolume: 1
   coordinator: {fileID: 1501093039}
   useCoordinator: 1
   targets:
@@ -34373,6 +34386,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldStripSqueezeAction
   isActive: 0
   animationDuration: 0.32
+  foldSound: {fileID: 8300000, guid: bb39e4c8e6a5f86429602b386646fb65, type: 3}
+  foldSoundVolume: 1
   coordinator: {fileID: 1501093039}
   useCoordinator: 1
   targets:
