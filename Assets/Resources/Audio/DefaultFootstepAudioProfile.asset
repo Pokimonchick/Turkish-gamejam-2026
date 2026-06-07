@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d8e29d4593174c2487f87b5f8dca9b85, type: 3}
+  m_Name: DefaultFootstepAudioProfile
+  m_EditorClassIdentifier: 
+  clips:
+  - {fileID: 8300000, guid: ebde5bc8bd4e6f340a86cb62eede2819, type: 3}
+  - {fileID: 8300000, guid: dcefcf5a1b38a754eb14ae1fcb44f81a, type: 3}
+  - {fileID: 8300000, guid: a03acc880d8a4d63b25a6e801f9fcbd3, type: 3}

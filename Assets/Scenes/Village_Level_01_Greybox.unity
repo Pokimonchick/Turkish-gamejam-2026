@@ -10659,6 +10659,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldStripSqueezeAction
   isActive: 0
   animationDuration: 0.3
+  foldSound: {fileID: 8300000, guid: bb39e4c8e6a5f86429602b386646fb65, type: 3}
+  foldSoundVolume: 1
   coordinator: {fileID: 1125350071}
   useCoordinator: 1
   targets:
@@ -18460,6 +18462,15 @@ MonoBehaviour:
     m_Bits: 64
   requireAllSamplesInsideWalkable: 1
   debugDrawSamples: 1
+  footstepSounds:
+  - {fileID: 8300000, guid: ebde5bc8bd4e6f340a86cb62eede2819, type: 3}
+  - {fileID: 8300000, guid: dcefcf5a1b38a754eb14ae1fcb44f81a, type: 3}
+  - {fileID: 8300000, guid: a03acc880d8a4d63b25a6e801f9fcbd3, type: 3}
+  defaultFootstepProfile: {fileID: 11400000, guid: cc38f23ae8d7426eacc366ecc72e1741, type: 2}
+  minFootstepInterval: 0.28
+  maxFootstepInterval: 0.42
+  footstepVolume: 0.8
+  avoidRepeatingFootstepSound: 1
 --- !u!58 &2046953791
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -19068,6 +19079,151 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldTransformStack
   baseLocalPosition: {x: 3, y: 1, z: 0}
   baseLocalScale: {x: 1, y: 1, z: 1}
+--- !u!1 &2130000000
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2130000001}
+  - component: {fileID: 2130000002}
+  - component: {fileID: 2130000003}
+  m_Layer: 0
+  m_Name: Village Level Music
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2130000001
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2130000000}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!82 &2130000002
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2130000000}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 8300000, guid: 03b9214ba79add849a7c6d87d263a381, type: 3}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 1
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!114 &2130000003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2130000000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19c5253076c9483da32eaa85f522e447, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CategorizedAudioSource
+  audioSource: {fileID: 2130000002}
+  category: 0
+  sourceVolume: 1
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -19075,3 +19231,4 @@ SceneRoots:
   - {fileID: 647687107}
   - {fileID: 1870556252}
   - {fileID: 711168892}
+  - {fileID: 2130000001}

@@ -3,10 +3,17 @@ using UnityEngine;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class OrigamiFoldPlayerMover : MonoBehaviour
 {
+    private const string DefaultFootstepFolder = "Assets/Audio/Steps";
+    private const string DefaultFootstepProfileResourcePath = "Audio/DefaultFootstepAudioProfile";
+
+    [Header("Movement")]
     public float moveSpeed = 3.5f;
     public float bodyRadius = 0.18f;
     public float sampleProbeRadius = 0.025f;
@@ -14,9 +21,20 @@ public class OrigamiFoldPlayerMover : MonoBehaviour
     public bool requireAllSamplesInsideWalkable = true;
     public bool debugDrawSamples = true;
 
+    [Header("Footsteps")]
+    [SerializeField] private AudioClip[] footstepSounds;
+    [SerializeField] private FootstepAudioProfile defaultFootstepProfile;
+    [SerializeField, Min(0.02f)] private float minFootstepInterval = 0.28f;
+    [SerializeField, Min(0.02f)] private float maxFootstepInterval = 0.42f;
+    [SerializeField, Range(0f, 1f)] private float footstepVolume = 0.8f;
+    [SerializeField] private bool avoidRepeatingFootstepSound = true;
+
     private Rigidbody2D body;
     private OrigamiFoldPassenger passenger;
     private Vector2 moveInput;
+    private float footstepTimer;
+    private int lastFootstepIndex = -1;
+    private bool wasWalking;
 
     private void Awake()
     {
@@ -24,6 +42,8 @@ public class OrigamiFoldPlayerMover : MonoBehaviour
         body.gravityScale = 0f;
         body.freezeRotation = true;
         passenger = GetComponent<OrigamiFoldPassenger>();
+        ResetFootstepTimer();
+
     }
 
     private void Update()
@@ -47,11 +67,13 @@ public class OrigamiFoldPlayerMover : MonoBehaviour
         if (OrigamiFoldDialogueGuard.IsDialogueActive())
         {
             moveInput = Vector2.zero;
+            HandleFootsteps(false);
             return;
         }
 
         if (moveInput == Vector2.zero)
         {
+            HandleFootsteps(false);
             return;
         }
 
@@ -70,10 +92,13 @@ public class OrigamiFoldPlayerMover : MonoBehaviour
 
         Vector2 moveDelta = moveInput * moveSpeed * Time.fixedDeltaTime;
         Vector2 targetPosition = currentPosition + moveDelta;
+        bool moved = false;
 
         if (CanOccupy(targetPosition))
         {
             body.MovePosition(targetPosition);
+            moved = true;
+            HandleFootsteps(moved);
             return;
         }
 
@@ -99,7 +124,10 @@ public class OrigamiFoldPlayerMover : MonoBehaviour
         if (canSlide)
         {
             body.MovePosition(slidePosition);
+            moved = true;
         }
+
+        HandleFootsteps(moved);
     }
 
     public bool CanOccupy(Vector2 targetPosition)
@@ -229,6 +257,195 @@ public class OrigamiFoldPlayerMover : MonoBehaviour
 
         return input;
     }
+
+    private void HandleFootsteps(bool isWalking)
+    {
+        if (!isWalking)
+        {
+            wasWalking = false;
+            ResetFootstepTimer();
+            return;
+        }
+
+        if (!wasWalking)
+        {
+            PlayFootstep();
+            ResetFootstepTimer();
+            wasWalking = true;
+            return;
+        }
+
+        footstepTimer -= Time.fixedDeltaTime;
+
+        if (footstepTimer > 0f)
+        {
+            return;
+        }
+
+        PlayFootstep();
+        ResetFootstepTimer();
+    }
+
+    private void PlayFootstep()
+    {
+        AudioClip[] clips = GetFootstepSounds();
+
+        if (clips == null || clips.Length == 0)
+        {
+            return;
+        }
+
+        int clipIndex = GetRandomFootstepIndex(clips);
+
+        if (clipIndex < 0)
+        {
+            return;
+        }
+
+        AudioClip clip = clips[clipIndex];
+
+        if (clip == null)
+        {
+            return;
+        }
+
+        lastFootstepIndex = clipIndex;
+        GameAudioManager.Instance.PlaySfx(clip, footstepVolume);
+    }
+
+    private int GetRandomFootstepIndex(AudioClip[] clips)
+    {
+        if (clips.Length <= 1)
+        {
+            return clips[0] == null ? -1 : 0;
+        }
+
+        int clipIndex = Random.Range(0, clips.Length);
+
+        if (!avoidRepeatingFootstepSound || clipIndex != lastFootstepIndex)
+        {
+            return clips[clipIndex] == null ? FindFirstUsableClip(clips) : clipIndex;
+        }
+
+        for (int i = 1; i < clips.Length; i++)
+        {
+            int nextIndex = (clipIndex + i) % clips.Length;
+
+            if (nextIndex != lastFootstepIndex && clips[nextIndex] != null)
+            {
+                return nextIndex;
+            }
+        }
+
+        return FindFirstUsableClip(clips);
+    }
+
+    private AudioClip[] GetFootstepSounds()
+    {
+        if (HasUsableFootstepClips(footstepSounds))
+        {
+            return footstepSounds;
+        }
+
+        if (defaultFootstepProfile == null)
+        {
+            defaultFootstepProfile = Resources.Load<FootstepAudioProfile>(DefaultFootstepProfileResourcePath);
+        }
+
+        return defaultFootstepProfile == null ? null : defaultFootstepProfile.Clips;
+    }
+
+    private static bool HasUsableFootstepClips(AudioClip[] clips)
+    {
+        if (clips == null)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < clips.Length; i++)
+        {
+            if (clips[i] != null)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static int FindFirstUsableClip(AudioClip[] clips)
+    {
+        for (int i = 0; i < clips.Length; i++)
+        {
+            if (clips[i] != null)
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    private void ResetFootstepTimer()
+    {
+        float minInterval = Mathf.Max(0.02f, minFootstepInterval);
+        float maxInterval = Mathf.Max(minInterval, maxFootstepInterval);
+        footstepTimer = Random.Range(minInterval, maxInterval);
+    }
+
+    private void OnValidate()
+    {
+        minFootstepInterval = Mathf.Max(0.02f, minFootstepInterval);
+        maxFootstepInterval = Mathf.Max(minFootstepInterval, maxFootstepInterval);
+
+#if UNITY_EDITOR
+        AutoFillDefaultFootsteps();
+        AutoFillDefaultFootstepProfile();
+#endif
+    }
+
+#if UNITY_EDITOR
+    private void AutoFillDefaultFootstepProfile()
+    {
+        if (defaultFootstepProfile != null)
+        {
+            return;
+        }
+
+        defaultFootstepProfile = AssetDatabase.LoadAssetAtPath<FootstepAudioProfile>(
+            "Assets/Resources/Audio/DefaultFootstepAudioProfile.asset");
+    }
+
+    private void AutoFillDefaultFootsteps()
+    {
+        if (footstepSounds != null && footstepSounds.Length > 0)
+        {
+            return;
+        }
+
+        string[] clipGuids = AssetDatabase.FindAssets("t:AudioClip", new[] { DefaultFootstepFolder });
+        if (clipGuids == null || clipGuids.Length == 0)
+        {
+            return;
+        }
+
+        System.Array.Sort(clipGuids, CompareAssetGuidsByPath);
+        footstepSounds = new AudioClip[clipGuids.Length];
+
+        for (int i = 0; i < clipGuids.Length; i++)
+        {
+            string assetPath = AssetDatabase.GUIDToAssetPath(clipGuids[i]);
+            footstepSounds[i] = AssetDatabase.LoadAssetAtPath<AudioClip>(assetPath);
+        }
+    }
+
+    private static int CompareAssetGuidsByPath(string leftGuid, string rightGuid)
+    {
+        return string.CompareOrdinal(
+            AssetDatabase.GUIDToAssetPath(leftGuid),
+            AssetDatabase.GUIDToAssetPath(rightGuid));
+    }
+#endif
 
     private void OnDrawGizmosSelected()
     {

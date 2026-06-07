@@ -16,6 +16,8 @@ public class OrigamiFoldStripSqueezeAction : MonoBehaviour
 {
     public bool isActive;
     public float animationDuration = 0.3f;
+    public AudioClip foldSound;
+    [Range(0f, 1f)] public float foldSoundVolume = 1f;
     public OrigamiFoldActionCoordinator coordinator;
     public bool useCoordinator = true;
     public OrigamiStripContributionTarget[] targets;
@@ -63,6 +65,7 @@ public class OrigamiFoldStripSqueezeAction : MonoBehaviour
 
         PassengerCarry[] passengerCarries = CollectPassengerCarries(active);
         isActive = active;
+        PlayFoldSound();
 
         if (active)
         {
@@ -398,5 +401,15 @@ public class OrigamiFoldStripSqueezeAction : MonoBehaviour
 
             trapTarget.SetTrapped(trapped);
         }
+    }
+
+    private void PlayFoldSound()
+    {
+        if (foldSound == null)
+        {
+            return;
+        }
+
+        GameAudioManager.Instance.PlaySfx(foldSound, foldSoundVolume);
     }
 }
