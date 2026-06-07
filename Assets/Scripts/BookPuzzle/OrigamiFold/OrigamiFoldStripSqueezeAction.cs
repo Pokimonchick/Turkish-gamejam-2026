@@ -12,6 +12,15 @@ public class OrigamiStripContributionTarget
     public Vector3 passengerActiveLocalPositionOffset;
 }
 
+[System.Serializable]
+public class OrigamiConditionalTrapTarget
+{
+    public OrigamiFoldTrapTarget trapTarget;
+    public bool requireInsideWorldBounds = true;
+    public Vector2 worldBoundsCenter;
+    public Vector2 worldBoundsSize = Vector2.one;
+}
+
 public class OrigamiFoldStripSqueezeAction : MonoBehaviour
 {
     public bool isActive;
@@ -32,6 +41,8 @@ public class OrigamiFoldStripSqueezeAction : MonoBehaviour
     public GameObject[] enableAfterInactive;
     public GameObject[] disableAfterInactive;
     public OrigamiFoldTrapTarget[] trapTargetsWhenActive;
+    public OrigamiConditionalTrapTarget[] conditionalTrapTargetsWhenActive;
+    public bool trapTargetsBeforeActive;
 
     public bool IsAnimating { get; private set; }
 
@@ -71,6 +82,13 @@ public class OrigamiFoldStripSqueezeAction : MonoBehaviour
         {
             SetObjectsActive(enableBeforeActive, true, nameof(enableBeforeActive));
             SetObjectsActive(disableBeforeActive, false, nameof(disableBeforeActive));
+
+            if (trapTargetsBeforeActive)
+            {
+                SetTrapTargets(true);
+                SetConditionalTrapTargets(true);
+            }
+
             ApplyActiveContributions();
         }
         else
@@ -133,13 +151,19 @@ public class OrigamiFoldStripSqueezeAction : MonoBehaviour
         {
             SetObjectsActive(enableAfterActive, true, nameof(enableAfterActive));
             SetObjectsActive(disableAfterActive, false, nameof(disableAfterActive));
-            SetTrapTargets(true);
+
+            if (!trapTargetsBeforeActive)
+            {
+                SetTrapTargets(true);
+                SetConditionalTrapTargets(true);
+            }
         }
         else
         {
             SetObjectsActive(enableAfterInactive, true, nameof(enableAfterInactive));
             SetObjectsActive(disableAfterInactive, false, nameof(disableAfterInactive));
             SetTrapTargets(false);
+            SetConditionalTrapTargets(false);
         }
 
         IsAnimating = false;
@@ -399,8 +423,75 @@ public class OrigamiFoldStripSqueezeAction : MonoBehaviour
                 continue;
             }
 
-            trapTarget.SetTrapped(trapped);
+            trapTarget.SetTrapped(this, trapped);
         }
+    }
+
+    private void SetConditionalTrapTargets(bool trapped)
+    {
+        if (conditionalTrapTargetsWhenActive == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < conditionalTrapTargetsWhenActive.Length; i++)
+        {
+            OrigamiConditionalTrapTarget conditionalTarget =
+                conditionalTrapTargetsWhenActive[i];
+
+            if (conditionalTarget == null)
+            {
+                Debug.LogWarning($"{name}: conditionalTrapTargetsWhenActive contains an empty slot.", this);
+                continue;
+            }
+
+            OrigamiFoldTrapTarget trapTarget = conditionalTarget.trapTarget;
+
+            if (trapTarget == null)
+            {
+                Debug.LogWarning($"{name}: conditionalTrapTargetsWhenActive contains a target with no trap target.", this);
+                continue;
+            }
+
+            if (trapped
+                && conditionalTarget.requireInsideWorldBounds
+                && !IsTrapTargetInsideBounds(conditionalTarget))
+            {
+                continue;
+            }
+
+            trapTarget.SetTrapped(this, trapped);
+        }
+    }
+
+    private bool IsTrapTargetInsideBounds(OrigamiConditionalTrapTarget conditionalTarget)
+    {
+        Vector3 center = new Vector3(
+            conditionalTarget.worldBoundsCenter.x,
+            conditionalTarget.worldBoundsCenter.y,
+            0f);
+        Vector3 size = new Vector3(
+            Mathf.Max(0f, conditionalTarget.worldBoundsSize.x),
+            Mathf.Max(0f, conditionalTarget.worldBoundsSize.y),
+            1000f);
+        Bounds bounds = new Bounds(center, size);
+        OrigamiFoldTrapTarget trapTarget = conditionalTarget.trapTarget;
+        Collider2D[] colliders = trapTarget.GetComponentsInChildren<Collider2D>(true);
+
+        for (int i = 0; i < colliders.Length; i++)
+        {
+            Collider2D collider = colliders[i];
+
+            if (collider != null
+                && collider.enabled
+                && collider.gameObject.activeInHierarchy
+                && bounds.Intersects(collider.bounds))
+            {
+                return true;
+            }
+        }
+
+        return bounds.Contains(trapTarget.transform.position);
     }
 
     private void PlayFoldSound()
