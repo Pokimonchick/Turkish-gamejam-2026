@@ -17,56 +17,56 @@ MonoBehaviour:
   - speakerProfile: {fileID: 0}
     speakerName: "Mother"
     text: "Aisulu… you are safe. I was afraid the wind had taken you too."
-    portrait: {fileID: 0}
+    portrait: {fileID: -4998263284151760410, guid: 598d955d8bb62604980b06c7d0a02ca6, type: 3}
   - speakerProfile: {fileID: 0}
     speakerName: "Aisulu"
     text: "I saw it, Mother. The fire rose into the sky… and Umay flew away with it."
-    portrait: {fileID: 0}
+    portrait: {fileID: 21300000, guid: 39e15864a50fa1c4098c5a8759a13577, type: 3}
   - speakerProfile: {fileID: 0}
     speakerName: "Mother"
     text: "Then the stories were true. The sacred fire can leave us."
-    portrait: {fileID: 0}
+    portrait: {fileID: -4998263284151760410, guid: 598d955d8bb62604980b06c7d0a02ca6, type: 3}
   - speakerProfile: {fileID: 0}
     speakerName: "Aisulu"
     text: "The hearth is cold. Everyone is frightened."
-    portrait: {fileID: 0}
+    portrait: {fileID: 21300000, guid: 39e15864a50fa1c4098c5a8759a13577, type: 3}
   - speakerProfile: {fileID: 0}
     speakerName: "Mother"
     text: "Without fire, fear enters every yurt. Children cry, the elders shiver, and even the night feels closer than before."
-    portrait: {fileID: 0}
+    portrait: {fileID: -4998263284151760410, guid: 598d955d8bb62604980b06c7d0a02ca6, type: 3}
   - speakerProfile: {fileID: 0}
     speakerName: "Aisulu"
     text: "What should we do?"
-    portrait: {fileID: 0}
+    portrait: {fileID: 21300000, guid: 39e15864a50fa1c4098c5a8759a13577, type: 3}
   - speakerProfile: {fileID: 0}
     speakerName: "Mother"
     text: "Speak to the Elder. The village will look to him now."
-    portrait: {fileID: 0}
+    portrait: {fileID: -4998263284151760410, guid: 598d955d8bb62604980b06c7d0a02ca6, type: 3}
   - speakerProfile: {fileID: 0}
     speakerName: "Aisulu"
     text: "And what if he asks me to go?"
-    portrait: {fileID: 0}
+    portrait: {fileID: 21300000, guid: 39e15864a50fa1c4098c5a8759a13577, type: 3}
   - speakerProfile: {fileID: 0}
     speakerName: "Mother"
     text: "Then listen to your heart before you answer. No one should walk such a road only because others are afraid."
-    portrait: {fileID: 0}
+    portrait: {fileID: -4998263284151760410, guid: 598d955d8bb62604980b06c7d0a02ca6, type: 3}
   - speakerProfile: {fileID: 0}
     speakerName: "Aisulu"
     text: "I am afraid too."
-    portrait: {fileID: 0}
+    portrait: {fileID: 21300000, guid: 39e15864a50fa1c4098c5a8759a13577, type: 3}
   - speakerProfile: {fileID: 0}
     speakerName: "Mother"
     text: "I know. But fear does not make your heart weak."
-    portrait: {fileID: 0}
+    portrait: {fileID: -4998263284151760410, guid: 598d955d8bb62604980b06c7d0a02ca6, type: 3}
   - speakerProfile: {fileID: 0}
     speakerName: "Mother"
     text: "If you go, do not chase Umay with anger. Try to understand her. Sometimes what is taken from us is also trying to teach us."
-    portrait: {fileID: 0}
+    portrait: {fileID: -4998263284151760410, guid: 598d955d8bb62604980b06c7d0a02ca6, type: 3}
   - speakerProfile: {fileID: 0}
     speakerName: "Aisulu"
     text: "I will remember."
-    portrait: {fileID: 0}
+    portrait: {fileID: 21300000, guid: 39e15864a50fa1c4098c5a8759a13577, type: 3}
   - speakerProfile: {fileID: 0}
     speakerName: "Mother"
     text: "Come back to me, Aisulu. With fire if you can… but with yourself above all."
-    portrait: {fileID: 0}
+    portrait: {fileID: -4998263284151760410, guid: 598d955d8bb62604980b06c7d0a02ca6, type: 3}

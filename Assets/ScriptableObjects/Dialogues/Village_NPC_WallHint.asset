@@ -17,64 +17,64 @@ MonoBehaviour:
   - speakerProfile: {fileID: 0}
     speakerName: "Elder"
     text: "Aisulu. Come closer. You saw where Umay carried the fire, did you not?"
-    portrait: {fileID: 0}
+    portrait: {fileID: 21300000, guid: 4b5ded42dff2f0e49ae77db6484d10f3, type: 3}
   - speakerProfile: {fileID: 0}
     speakerName: "Aisulu"
     text: "Beyond the distant trees. I saw the last sparks fade there."
-    portrait: {fileID: 0}
+    portrait: {fileID: 21300000, guid: 39e15864a50fa1c4098c5a8759a13577, type: 3}
   - speakerProfile: {fileID: 0}
     speakerName: "Elder"
     text: "Then the path has shown itself to you."
-    portrait: {fileID: 0}
+    portrait: {fileID: 21300000, guid: 4b5ded42dff2f0e49ae77db6484d10f3, type: 3}
   - speakerProfile: {fileID: 0}
     speakerName: "Aisulu"
     text: "You want me to follow her?"
-    portrait: {fileID: 0}
+    portrait: {fileID: 21300000, guid: 39e15864a50fa1c4098c5a8759a13577, type: 3}
   - speakerProfile: {fileID: 0}
     speakerName: "Elder"
     text: "I will not command you. A road to a goddess must never begin with another person’s will."
-    portrait: {fileID: 0}
+    portrait: {fileID: 21300000, guid: 4b5ded42dff2f0e49ae77db6484d10f3, type: 3}
   - speakerProfile: {fileID: 0}
     speakerName: "Aisulu"
     text: "Why me? There are warriors in the village."
-    portrait: {fileID: 0}
+    portrait: {fileID: 21300000, guid: 39e15864a50fa1c4098c5a8759a13577, type: 3}
   - speakerProfile: {fileID: 0}
     speakerName: "Elder"
     text: "A warrior may bring strength, but strength alone will not return what our hearts have lost."
-    portrait: {fileID: 0}
+    portrait: {fileID: 21300000, guid: 4b5ded42dff2f0e49ae77db6484d10f3, type: 3}
   - speakerProfile: {fileID: 0}
     speakerName: "Elder"
     text: "Umay did not take the fire from our hands only. She took it from the place where gratitude should have lived."
-    portrait: {fileID: 0}
+    portrait: {fileID: 21300000, guid: 4b5ded42dff2f0e49ae77db6484d10f3, type: 3}
   - speakerProfile: {fileID: 0}
     speakerName: "Aisulu"
     text: "And you think I can speak to her?"
-    portrait: {fileID: 0}
+    portrait: {fileID: 21300000, guid: 39e15864a50fa1c4098c5a8759a13577, type: 3}
   - speakerProfile: {fileID: 0}
     speakerName: "Elder"
     text: "I have seen you share your bread when you had little. I have seen you help those who could not repay you."
-    portrait: {fileID: 0}
+    portrait: {fileID: 21300000, guid: 4b5ded42dff2f0e49ae77db6484d10f3, type: 3}
   - speakerProfile: {fileID: 0}
     speakerName: "Elder"
     text: "If anyone can stand before Umay without pride, it may be you."
-    portrait: {fileID: 0}
+    portrait: {fileID: 21300000, guid: 4b5ded42dff2f0e49ae77db6484d10f3, type: 3}
   - speakerProfile: {fileID: 0}
     speakerName: "Aisulu"
     text: "What must I do?"
-    portrait: {fileID: 0}
+    portrait: {fileID: 21300000, guid: 39e15864a50fa1c4098c5a8759a13577, type: 3}
   - speakerProfile: {fileID: 0}
     speakerName: "Elder"
     text: "Follow the path beyond the trees. Listen before you ask. Look for any spark she may have left behind."
-    portrait: {fileID: 0}
+    portrait: {fileID: 21300000, guid: 4b5ded42dff2f0e49ae77db6484d10f3, type: 3}
   - speakerProfile: {fileID: 0}
     speakerName: "Elder"
     text: "Even a small spark can guide a person through a great darkness."
-    portrait: {fileID: 0}
+    portrait: {fileID: 21300000, guid: 4b5ded42dff2f0e49ae77db6484d10f3, type: 3}
   - speakerProfile: {fileID: 0}
     speakerName: "Aisulu"
     text: "I will go."
-    portrait: {fileID: 0}
+    portrait: {fileID: 21300000, guid: 39e15864a50fa1c4098c5a8759a13577, type: 3}
   - speakerProfile: {fileID: 0}
     speakerName: "Elder"
     text: "Then go with a clear heart, Aisulu. Do not demand the fire back. Become worthy of carrying it."
-    portrait: {fileID: 0}
+    portrait: {fileID: 21300000, guid: 4b5ded42dff2f0e49ae77db6484d10f3, type: 3}
