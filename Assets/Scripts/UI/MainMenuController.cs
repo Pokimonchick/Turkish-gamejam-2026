@@ -1,4 +1,5 @@
 using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 #if ENABLE_INPUT_SYSTEM
@@ -87,11 +88,11 @@ public sealed class MainMenuController : MonoBehaviour
 
     [Header("Audio")]
     [SerializeField] private Slider masterVolumeSlider;
-    [SerializeField] private Text masterVolumeValueText;
+    [SerializeField] private TMP_Text masterVolumeValueText;
     [SerializeField] private Slider musicVolumeSlider;
-    [SerializeField] private Text musicVolumeValueText;
+    [SerializeField] private TMP_Text musicVolumeValueText;
     [SerializeField] private Slider sfxVolumeSlider;
-    [SerializeField] private Text sfxVolumeValueText;
+    [SerializeField] private TMP_Text sfxVolumeValueText;
 
     private void Awake()
     {
@@ -205,7 +206,7 @@ public sealed class MainMenuController : MonoBehaviour
         UpdateVolumeLabel(sfxVolumeValueText, GameAudioManager.Instance.SfxVolume);
     }
 
-    private void UpdateVolumeLabel(Text label, float volume)
+    private void UpdateVolumeLabel(TMP_Text label, float volume)
     {
         if (label == null)
         {

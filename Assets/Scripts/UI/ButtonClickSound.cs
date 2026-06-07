@@ -1,11 +1,13 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 [DisallowMultipleComponent]
 [RequireComponent(typeof(Button))]
-public sealed class ButtonClickSound : MonoBehaviour
+public sealed class ButtonClickSound : MonoBehaviour, IPointerEnterHandler
 {
     [SerializeField] private AudioClip clickSound;
+    [SerializeField] private AudioClip hoverSound;
 
     private Button button;
 
@@ -29,11 +31,26 @@ public sealed class ButtonClickSound : MonoBehaviour
 
     private void PlayClick()
     {
-        if (clickSound == null)
+        PlaySound(clickSound);
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        if (button != null && !button.interactable)
         {
             return;
         }
 
-        GameAudioManager.Instance.PlaySfx(clickSound);
+        PlaySound(hoverSound);
+    }
+
+    private static void PlaySound(AudioClip clip)
+    {
+        if (clip == null)
+        {
+            return;
+        }
+
+        GameAudioManager.Instance.PlaySfx(clip);
     }
 }

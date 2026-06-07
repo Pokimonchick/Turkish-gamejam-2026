@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a3a40b1ee4441518f69c26c62cb3cde, type: 3}
+  m_Name: TestDialogue
+  m_EditorClassIdentifier:
+  dialogueId: TestDialogue
+  lines:
+  - speakerName: Старик
+    text: Эта книга не такая простая, как кажется.
+    portrait: {fileID: 0}
+  - speakerName: Старик
+    text: Иногда путь появляется, если согнуть страницу.
+    portrait: {fileID: 0}
+  - speakerName: Герой
+    text: Значит, сама карта может стать частью головоломки?
+    portrait: {fileID: 0}
