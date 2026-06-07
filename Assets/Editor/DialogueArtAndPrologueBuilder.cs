@@ -117,11 +117,15 @@ public static class DialogueArtAndPrologueBuilder
     private static Sprite LoadNamePlateSprite()
     {
         List<string> candidates = FindAssetPathsContaining("6356");
-        string exactBlackPlatePath = "Assets/Art/Ассеты/IMG_6356 4.png";
 
-        if (candidates.Contains(exactBlackPlatePath))
+        for (int i = 0; i < candidates.Count; i++)
         {
-            return LoadSprite(exactBlackPlatePath);
+            string fileName = Path.GetFileNameWithoutExtension(candidates[i]);
+
+            if (fileName.IndexOf("6356 4", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return LoadSprite(candidates[i]);
+            }
         }
 
         if (candidates.Count == 1)
@@ -207,12 +211,56 @@ public static class DialogueArtAndPrologueBuilder
 
         TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
 
-        if (importer != null && importer.textureType != TextureImporterType.Sprite)
+        if (importer != null)
         {
-            importer.textureType = TextureImporterType.Sprite;
-            importer.spriteImportMode = SpriteImportMode.Single;
-            importer.alphaIsTransparency = true;
-            importer.SaveAndReimport();
+            bool changed = false;
+
+            if (importer.textureShape != TextureImporterShape.Texture2D)
+            {
+                importer.textureShape = TextureImporterShape.Texture2D;
+                changed = true;
+            }
+
+            if (importer.textureType != TextureImporterType.Sprite)
+            {
+                importer.textureType = TextureImporterType.Sprite;
+                changed = true;
+            }
+
+            if (importer.spriteImportMode != SpriteImportMode.Single)
+            {
+                importer.spriteImportMode = SpriteImportMode.Single;
+                changed = true;
+            }
+
+            if (!importer.alphaIsTransparency)
+            {
+                importer.alphaIsTransparency = true;
+                changed = true;
+            }
+
+            if (importer.mipmapEnabled)
+            {
+                importer.mipmapEnabled = false;
+                changed = true;
+            }
+
+            if (importer.wrapMode != TextureWrapMode.Clamp)
+            {
+                importer.wrapMode = TextureWrapMode.Clamp;
+                changed = true;
+            }
+
+            if (importer.textureCompression != TextureImporterCompression.Uncompressed)
+            {
+                importer.textureCompression = TextureImporterCompression.Uncompressed;
+                changed = true;
+            }
+
+            if (changed)
+            {
+                importer.SaveAndReimport();
+            }
         }
 
         Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>(path);
@@ -463,7 +511,11 @@ public static class DialogueArtAndPrologueBuilder
             image = gameObject.AddComponent<Image>();
         }
 
-        image.sprite = sprite;
+        if (sprite != null)
+        {
+            image.sprite = sprite;
+        }
+
         image.preserveAspect = false;
         image.raycastTarget = false;
         image.color = Color.white;
@@ -616,10 +668,10 @@ public static class DialogueArtAndPrologueBuilder
     private static void ConfigurePortrait(Image image)
     {
         RectTransform rect = image.GetComponent<RectTransform>();
-        rect.anchorMin = new Vector2(0f, 0f);
-        rect.anchorMax = new Vector2(0f, 0f);
+        rect.anchorMin = new Vector2(0.5f, 0f);
+        rect.anchorMax = new Vector2(0.5f, 0f);
         rect.pivot = new Vector2(0.5f, 0f);
-        rect.anchoredPosition = new Vector2(500f, 260f);
+        rect.anchoredPosition = new Vector2(0f, 260f);
         rect.sizeDelta = new Vector2(360f, 470f);
         image.preserveAspect = true;
         image.raycastTarget = false;

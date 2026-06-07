@@ -26,12 +26,12 @@ public sealed class MainMenuSceneReference
     {
         get
         {
-            if (!string.IsNullOrWhiteSpace(scenePath))
+            if (!string.IsNullOrWhiteSpace(sceneName))
             {
-                return scenePath;
+                return sceneName;
             }
 
-            return sceneName;
+            return scenePath;
         }
     }
 

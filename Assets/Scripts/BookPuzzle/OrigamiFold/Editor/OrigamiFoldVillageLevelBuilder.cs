@@ -11,6 +11,8 @@ using UnityEngine.UI;
 
 public static class OrigamiFoldVillageLevelBuilder
 {
+    private const string MainMenuScenePath = "Assets/Scenes/MainMenu.unity";
+    private const string LoadingScenePath = "Assets/Scenes/Loading.unity";
     private const string VillageScenePath = "Assets/Scenes/Village_Level_01_Greybox.unity";
     private const string StubScenePath = "Assets/Scenes/Village_Level_02_Stub.unity";
     private const string StubSceneName = "Village_Level_02_Stub";
@@ -332,6 +334,7 @@ public static class OrigamiFoldVillageLevelBuilder
             {
                 instance.name = "DialogueSystem";
                 instance.transform.SetParent(parent, false);
+                NormalizeDialogueCanvases(instance.transform);
 
                 DialogueManager prefabManager =
                     instance.GetComponentInChildren<DialogueManager>(true);
@@ -543,6 +546,7 @@ public static class OrigamiFoldVillageLevelBuilder
 
         if (canvas != null)
         {
+            NormalizeDialogueCanvas(canvas);
             return canvas;
         }
 
@@ -563,7 +567,46 @@ public static class OrigamiFoldVillageLevelBuilder
         scaler.matchWidthOrHeight = 0.5f;
 
         canvasObject.AddComponent<GraphicRaycaster>();
+        NormalizeDialogueCanvas(canvas);
         return canvas;
+    }
+
+    private static void NormalizeDialogueCanvases(Transform root)
+    {
+        if (root == null)
+        {
+            return;
+        }
+
+        Canvas[] canvases = root.GetComponentsInChildren<Canvas>(true);
+
+        for (int i = 0; i < canvases.Length; i++)
+        {
+            NormalizeDialogueCanvas(canvases[i]);
+        }
+    }
+
+    private static void NormalizeDialogueCanvas(Canvas canvas)
+    {
+        if (canvas == null)
+        {
+            return;
+        }
+
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.worldCamera = null;
+        canvas.sortingOrder = 100;
+
+        RectTransform rectTransform = canvas.GetComponent<RectTransform>();
+
+        if (rectTransform == null)
+        {
+            return;
+        }
+
+        rectTransform.localPosition = Vector3.zero;
+        rectTransform.localRotation = Quaternion.identity;
+        rectTransform.localScale = Vector3.one;
     }
 
     private static void CreateInteractionPromptUI(
@@ -1604,6 +1647,8 @@ public static class OrigamiFoldVillageLevelBuilder
             List<EditorBuildSettingsScene> scenes =
                 new List<EditorBuildSettingsScene>(EditorBuildSettings.scenes);
 
+            EnsureSceneInBuildSettingsIfExists(scenes, MainMenuScenePath);
+            EnsureSceneInBuildSettingsIfExists(scenes, LoadingScenePath);
             EnsureSceneInBuildSettings(scenes, VillageScenePath);
             EnsureSceneInBuildSettings(scenes, StubScenePath);
 
@@ -1629,5 +1674,18 @@ public static class OrigamiFoldVillageLevelBuilder
         }
 
         scenes.Add(new EditorBuildSettingsScene(path, true));
+    }
+
+    private static void EnsureSceneInBuildSettingsIfExists(
+        List<EditorBuildSettingsScene> scenes,
+        string path)
+    {
+        if (AssetDatabase.LoadAssetAtPath<SceneAsset>(path) == null)
+        {
+            Debug.LogWarning($"Scene was not found and was not added to Build Settings: {path}");
+            return;
+        }
+
+        EnsureSceneInBuildSettings(scenes, path);
     }
 }

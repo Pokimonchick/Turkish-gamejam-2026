@@ -4,6 +4,12 @@ using UnityEngine;
 using UnityEngine.TextCore.LowLevel;
 using UnityEngine.UI;
 
+#if UNITY_EDITOR
+using System.Collections.Generic;
+using System.IO;
+using UnityEditor;
+#endif
+
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
@@ -49,6 +55,7 @@ public class DialogueManager : MonoBehaviour
         }
 
         Instance = this;
+        RepairUiReferences();
         ApplyConfiguredFont();
 
         if (dialogRoot != null)
@@ -167,6 +174,151 @@ public class DialogueManager : MonoBehaviour
         DialogueEnded?.Invoke();
     }
 
+    private void RepairUiReferences()
+    {
+        NormalizeDialogueCanvases();
+
+        GameObject modernDialogRoot = FindDeepChild("DialogRoot")?.gameObject
+            ?? FindDeepChild("Dialog Root")?.gameObject;
+
+        if (modernDialogRoot != null)
+        {
+            dialogRoot = modernDialogRoot;
+        }
+
+        TextMeshProUGUI modernSpeakerNameText =
+            FindDeepComponent<TextMeshProUGUI>("SpeakerNameText")
+            ?? FindDeepComponent<TextMeshProUGUI>("Speaker Name Text");
+
+        if (modernSpeakerNameText != null)
+        {
+            speakerNameText = modernSpeakerNameText;
+        }
+
+        TextMeshProUGUI modernBodyText =
+            FindDeepComponent<TextMeshProUGUI>("BodyText")
+            ?? FindDeepComponent<TextMeshProUGUI>("Body Text");
+
+        if (modernBodyText != null)
+        {
+            bodyText = modernBodyText;
+        }
+
+        Image modernPortraitImage =
+            FindDeepComponent<Image>("PortraitImage")
+            ?? FindDeepComponent<Image>("Portrait Image");
+
+        if (modernPortraitImage != null)
+        {
+            portraitImage = modernPortraitImage;
+        }
+
+        GameObject modernContinueHint = FindDeepChild("ContinueHint")?.gameObject
+            ?? FindDeepChild("Continue Hint Text")?.gameObject;
+
+        if (modernContinueHint != null)
+        {
+            continueHintObject = modernContinueHint;
+        }
+
+        Image modernDialogueFrameImage = FindDeepComponent<Image>("DialogueFrameImage");
+
+        if (modernDialogueFrameImage != null)
+        {
+            dialogueFrameImage = modernDialogueFrameImage;
+        }
+
+        Image modernTopPatternImage = FindDeepComponent<Image>("TopPatternImage");
+
+        if (modernTopPatternImage != null)
+        {
+            topPatternImage = modernTopPatternImage;
+        }
+
+        Image modernNamePlateImage = FindDeepComponent<Image>("NamePlateImage");
+
+        if (modernNamePlateImage != null)
+        {
+            namePlateImage = modernNamePlateImage;
+        }
+
+        DisableLegacyDialogPanel();
+
+#if UNITY_EDITOR
+        RepairEditorSpriteFallbacks();
+#endif
+    }
+
+    private void NormalizeDialogueCanvases()
+    {
+        Canvas[] canvases = GetComponentsInChildren<Canvas>(true);
+
+        for (int i = 0; i < canvases.Length; i++)
+        {
+            if (canvases[i] == null)
+            {
+                continue;
+            }
+
+            canvases[i].renderMode = RenderMode.ScreenSpaceOverlay;
+            canvases[i].worldCamera = null;
+            canvases[i].sortingOrder = 100;
+
+            RectTransform rectTransform = canvases[i].GetComponent<RectTransform>();
+
+            if (rectTransform == null)
+            {
+                continue;
+            }
+
+            rectTransform.localPosition = Vector3.zero;
+            rectTransform.localRotation = Quaternion.identity;
+            rectTransform.localScale = Vector3.one;
+        }
+    }
+
+    private Transform FindDeepChild(string childName)
+    {
+        Transform[] transforms = GetComponentsInChildren<Transform>(true);
+
+        for (int i = 0; i < transforms.Length; i++)
+        {
+            if (transforms[i].name == childName)
+            {
+                return transforms[i];
+            }
+        }
+
+        return null;
+    }
+
+    private T FindDeepComponent<T>(string objectName)
+        where T : Component
+    {
+        Transform child = FindDeepChild(objectName);
+        return child != null ? child.GetComponent<T>() : null;
+    }
+
+    private void DisableLegacyDialogPanel()
+    {
+        Transform legacyPanel = FindDeepChild("Dialog Panel");
+
+        if (legacyPanel == null)
+        {
+            return;
+        }
+
+        Image image = legacyPanel.GetComponent<Image>();
+
+        if (image != null)
+        {
+            image.color = new Color(0f, 0f, 0f, 0f);
+            image.raycastTarget = false;
+        }
+
+        legacyPanel.gameObject.SetActive(false);
+    }
+
     private void ShowCurrentLine()
     {
         if (currentDialogue == null
@@ -185,6 +337,13 @@ public class DialogueManager : MonoBehaviour
         {
             speakerName = line.speakerProfile.displayName;
             portrait = line.speakerProfile.portrait;
+
+#if UNITY_EDITOR
+            if (portrait == null)
+            {
+                portrait = ResolveEditorPortraitFallback(line.speakerProfile);
+            }
+#endif
         }
 
         if (speakerNameText != null)
@@ -212,6 +371,131 @@ public class DialogueManager : MonoBehaviour
         portraitImage.sprite = portrait;
         portraitImage.gameObject.SetActive(true);
     }
+
+#if UNITY_EDITOR
+    private void RepairEditorSpriteFallbacks()
+    {
+        AssignEditorSpriteIfMissing(dialogueFrameImage, "9586", null);
+        AssignEditorSpriteIfMissing(topPatternImage, "9590", null);
+        AssignEditorSpriteIfMissing(namePlateImage, "6356", "6356 4");
+    }
+
+    private static void AssignEditorSpriteIfMissing(
+        Image image,
+        string token,
+        string preferredFileNamePart)
+    {
+        if (image == null || image.sprite != null)
+        {
+            return;
+        }
+
+        Sprite sprite = LoadEditorSpriteByToken(token, preferredFileNamePart);
+
+        if (sprite != null)
+        {
+            image.sprite = sprite;
+        }
+    }
+
+    private static Sprite ResolveEditorPortraitFallback(DialogueSpeakerProfile profile)
+    {
+        if (profile == null)
+        {
+            return null;
+        }
+
+        string speakerId = profile.speakerId ?? string.Empty;
+
+        if (speakerId.Equals("aisulu", StringComparison.OrdinalIgnoreCase))
+        {
+            return LoadEditorSpriteByToken("9592", null);
+        }
+
+        if (speakerId.Equals("umay", StringComparison.OrdinalIgnoreCase))
+        {
+            return LoadEditorSpriteByToken("9593", null);
+        }
+
+        if (speakerId.Equals("elder_village_01", StringComparison.OrdinalIgnoreCase))
+        {
+            return LoadEditorSpriteByToken("9601", "9601 1");
+        }
+
+        return null;
+    }
+
+    private static Sprite LoadEditorSpriteByToken(string token, string preferredFileNamePart)
+    {
+        string[] guids = AssetDatabase.FindAssets(token, new[] { "Assets" });
+        List<string> candidates = new List<string>();
+
+        for (int i = 0; i < guids.Length; i++)
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guids[i]).Replace('\\', '/');
+            string extension = Path.GetExtension(path).ToLowerInvariant();
+
+            if (extension != ".png"
+                && extension != ".jpg"
+                && extension != ".jpeg"
+                && extension != ".psd")
+            {
+                continue;
+            }
+
+            string fileName = Path.GetFileName(path);
+
+            if (fileName.IndexOf(token, StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                candidates.Add(path);
+            }
+        }
+
+        candidates.Sort(StringComparer.OrdinalIgnoreCase);
+
+        if (!string.IsNullOrEmpty(preferredFileNamePart))
+        {
+            for (int i = 0; i < candidates.Count; i++)
+            {
+                string fileName = Path.GetFileNameWithoutExtension(candidates[i]);
+
+                if (fileName.IndexOf(preferredFileNamePart, StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    return LoadEditorSprite(candidates[i]);
+                }
+            }
+        }
+
+        return candidates.Count == 1 ? LoadEditorSprite(candidates[0]) : null;
+    }
+
+    private static Sprite LoadEditorSprite(string path)
+    {
+        if (string.IsNullOrEmpty(path))
+        {
+            return null;
+        }
+
+        Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>(path);
+
+        if (sprite != null)
+        {
+            return sprite;
+        }
+
+        UnityEngine.Object[] assets = AssetDatabase.LoadAllAssetsAtPath(path);
+
+        for (int i = 0; i < assets.Length; i++)
+        {
+            if (assets[i] is Sprite nestedSprite)
+            {
+                return nestedSprite;
+            }
+        }
+
+        return null;
+    }
+#endif
 
     private void SetDialogueVisualsActive(bool active)
     {
