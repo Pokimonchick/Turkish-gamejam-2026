@@ -15,6 +15,7 @@ public class OrigamiFoldPlayerMover : MonoBehaviour
     public bool debugDrawSamples = true;
 
     private Rigidbody2D body;
+    private OrigamiFoldPassenger passenger;
     private Vector2 moveInput;
 
     private void Awake()
@@ -22,6 +23,7 @@ public class OrigamiFoldPlayerMover : MonoBehaviour
         body = GetComponent<Rigidbody2D>();
         body.gravityScale = 0f;
         body.freezeRotation = true;
+        passenger = GetComponent<OrigamiFoldPassenger>();
     }
 
     private void Update()
@@ -54,6 +56,18 @@ public class OrigamiFoldPlayerMover : MonoBehaviour
         }
 
         Vector2 currentPosition = body.position;
+
+        if (!CanOccupy(currentPosition))
+        {
+            if (passenger != null)
+            {
+                passenger.ResolveToNearestWalkable(passenger.resolveMoveDuration);
+            }
+
+            moveInput = Vector2.zero;
+            return;
+        }
+
         Vector2 moveDelta = moveInput * moveSpeed * Time.fixedDeltaTime;
         Vector2 targetPosition = currentPosition + moveDelta;
 

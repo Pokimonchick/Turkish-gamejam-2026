@@ -8,6 +8,8 @@ public class OrigamiStripContributionTarget
     public OrigamiFoldTransformStack stack;
     public Vector3 activeLocalPositionOffset;
     public Vector3 activeLocalScaleMultiplier = Vector3.one;
+    public bool overridePassengerCarryOffset;
+    public Vector3 passengerActiveLocalPositionOffset;
 }
 
 public class OrigamiFoldStripSqueezeAction : MonoBehaviour
@@ -122,6 +124,8 @@ public class OrigamiFoldStripSqueezeAction : MonoBehaviour
             }
         }
 
+        yield return ResolvePassengerPlacements();
+
         if (active)
         {
             SetObjectsActive(enableAfterActive, true, nameof(enableAfterActive));
@@ -184,8 +188,8 @@ public class OrigamiFoldStripSqueezeAction : MonoBehaviour
                 }
 
                 Vector3 localOffset = active
-                    ? target.activeLocalPositionOffset
-                    : -target.activeLocalPositionOffset;
+                    ? GetPassengerCarryOffset(target)
+                    : -GetPassengerCarryOffset(target);
                 Vector3 worldOffset = LocalOffsetToWorldOffset(target.stack, localOffset);
 
                 carries.Add(new PassengerCarry
@@ -198,6 +202,59 @@ public class OrigamiFoldStripSqueezeAction : MonoBehaviour
         }
 
         return carries.ToArray();
+    }
+
+    private IEnumerator ResolvePassengerPlacements()
+    {
+        OrigamiFoldPassenger[] passengers = FindObjectsByType<OrigamiFoldPassenger>(
+            FindObjectsSortMode.None);
+
+        if (passengers == null || passengers.Length == 0)
+        {
+            yield break;
+        }
+
+        Coroutine[] resolves = new Coroutine[passengers.Length];
+        int resolveCount = 0;
+
+        for (int i = 0; i < passengers.Length; i++)
+        {
+            OrigamiFoldPassenger passenger = passengers[i];
+
+            if (passenger == null)
+            {
+                continue;
+            }
+
+            Coroutine resolve = passenger.ResolveToNearestWalkable(
+                passenger.resolveMoveDuration);
+
+            if (resolve != null)
+            {
+                resolves[resolveCount] = resolve;
+                resolveCount++;
+            }
+        }
+
+        for (int i = 0; i < resolveCount; i++)
+        {
+            if (resolves[i] != null)
+            {
+                yield return resolves[i];
+            }
+        }
+    }
+
+    private static Vector3 GetPassengerCarryOffset(OrigamiStripContributionTarget target)
+    {
+        if (target == null)
+        {
+            return Vector3.zero;
+        }
+
+        return target.overridePassengerCarryOffset
+            ? target.passengerActiveLocalPositionOffset
+            : target.activeLocalPositionOffset;
     }
 
     private Vector3 LocalOffsetToWorldOffset(
