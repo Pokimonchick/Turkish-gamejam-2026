@@ -1,0 +1,112 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a3a40b1ee4441518f69c26c62cb3cde, type: 3}
+  m_Name: Final_Umay_Truth
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueData
+  dialogueId: final_umay_truth
+  lines:
+  - speakerProfile: {fileID: 0}
+    speakerName: "Umay"
+    text: "You have passed the trial, Aisulu. But before I give you the last source of fire, I must ask: do you wish to know the truth, even if it turns your world upside down?"
+    portrait: {fileID: 0}
+  - speakerProfile: {fileID: 0}
+    speakerName: "Aisulu"
+    text: "If I return with fire but without the truth, I will bring people only warmth. But if I return with the truth, I may bring them wisdom. Speak, Umay. I am ready to listen."
+    portrait: {fileID: 0}
+  - speakerProfile: {fileID: 0}
+    speakerName: "Umay"
+    text: "Then listen not with your ears, but with your heart. In ancient times, the first people suffered from cold, hunger, and wild beasts. Night was not a time for sleep, but a bottomless maw where every sound could be their last."
+    portrait: {fileID: 0}
+  - speakerProfile: {fileID: 0}
+    speakerName: "Aisulu"
+    text: "How did they survive?"
+    portrait: {fileID: 0}
+  - speakerProfile: {fileID: 0}
+    speakerName: "Umay"
+    text: "Among them was one young man. He was not a king, nor a great warrior, but there was endurance in his heart. He searched for the source of life because he did not want his people to vanish like a trace in the sand after a storm."
+    portrait: {fileID: 0}
+  - speakerProfile: {fileID: 0}
+    speakerName: "Umay"
+    text: "He walked for a long time, overcame many trials, and reached the dwelling of the gods. There he saw a shimmering source of light and warmth - fire, which humankind had never known before."
+    portrait: {fileID: 0}
+  - speakerProfile: {fileID: 0}
+    speakerName: "Aisulu"
+    text: "And he took it?"
+    portrait: {fileID: 0}
+  - speakerProfile: {fileID: 0}
+    speakerName: "Umay"
+    text: "Yes. He seized the fire and carried it to the people. He took what did not belong to him, but not for power and not for destruction. There was daring in his act, but no greed."
+    portrait: {fileID: 0}
+  - speakerProfile: {fileID: 0}
+    speakerName: "Aisulu"
+    text: "Why did the gods not take the fire back?"
+    portrait: {fileID: 0}
+  - speakerProfile: {fileID: 0}
+    speakerName: "Umay"
+    text: "Because he brought it to those who still knew gratitude. The first people welcomed the flame as a living miracle: they guarded it, bowed their heads before its light, and taught their children to remember that fire had saved them."
+    portrait: {fileID: 0}
+  - speakerProfile: {fileID: 0}
+    speakerName: "Umay"
+    text: "But centuries passed. People forgot their ancestors and stopped seeing fire as a gift. What had been taken for the sake of life began to be used for power, fear, and pride."
+    portrait: {fileID: 0}
+  - speakerProfile: {fileID: 0}
+    speakerName: "Aisulu"
+    text: "That is why you took it away."
+    portrait: {fileID: 0}
+  - speakerProfile: {fileID: 0}
+    speakerName: "Umay"
+    text: "I descended into the world of humans not for revenge. I wanted to stop the desecration of the memory of that young man. When fire blackens from human deeds, it no longer shines for the ancestors - it wounds their memory."
+    portrait: {fileID: 0}
+  - speakerProfile: {fileID: 0}
+    speakerName: "Aisulu"
+    text: "Now I understand. You wanted us to see not only the loss, but the reason for the loss."
+    portrait: {fileID: 0}
+  - speakerProfile: {fileID: 0}
+    speakerName: "Umay"
+    text: "Yes. But now answer me: what will you say in defense of people, if you yourself have seen their guilt?"
+    portrait: {fileID: 0}
+  - speakerProfile: {fileID: 0}
+    speakerName: "Aisulu"
+    text: "I will not say that people are innocent. My tribe forgot gratitude. We took fire as an ordinary right, argued beside the hearth, threw cruel words into the flame, and never thought it could grow tired of our blindness."
+    portrait: {fileID: 0}
+  - speakerProfile: {fileID: 0}
+    speakerName: "Aisulu"
+    text: "But I ask you to see not only our guilt. There were other fires too: by them the poor warmed their hands, elders told children stories, wanderers found their way to the yurts, and families welcomed one another after long journeys."
+    portrait: {fileID: 0}
+  - speakerProfile: {fileID: 0}
+    speakerName: "Aisulu"
+    text: "Not every human fire was cruel, Umay. Some fires still remembered their purpose."
+    portrait: {fileID: 0}
+  - speakerProfile: {fileID: 0}
+    speakerName: "Umay"
+    text: "If I return fire to you, how will you keep people from making the same mistake again?"
+    portrait: {fileID: 0}
+  - speakerProfile: {fileID: 0}
+    speakerName: "Aisulu"
+    text: "I cannot hold everyone back by force, because the sacred cannot be preserved by force. But I will tell them the truth: about the young man, about your pain, and about how fire leaves those who become unworthy of its light."
+    portrait: {fileID: 0}
+  - speakerProfile: {fileID: 0}
+    speakerName: "Umay"
+    text: "I thought people had forgotten fire completely. But as long as there is one among them who can admit guilt and still ask not for herself, memory has not died."
+    portrait: {fileID: 0}
+  - speakerProfile: {fileID: 0}
+    speakerName: "Umay"
+    text: "Take it, Aisulu. But remember: I am returning to people not a possession, but a trial that will repeat every day. Fire will remain with them as long as they remember why it burns."
+    portrait: {fileID: 0}
+  - speakerProfile: {fileID: 0}
+    speakerName: "Aisulu"
+    text: "I will carry it carefully, as one carries a mother's name, water across the desert, and the last song of a people."
+    portrait: {fileID: 0}
+  - speakerProfile: {fileID: 0}
+    speakerName: "Umay"
+    text: "And when people sit beside the hearth, let them remember: flame does not love proud hands, but it loves open hearts."
+    portrait: {fileID: 0}
