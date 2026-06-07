@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class OrigamiFoldSceneExit : MonoBehaviour
 {
@@ -35,7 +34,7 @@ public class OrigamiFoldSceneExit : MonoBehaviour
 
         try
         {
-            SceneManager.LoadScene(nextSceneName);
+            SceneTransition.Load(nextSceneName);
         }
         catch (System.Exception exception)
         {

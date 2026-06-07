@@ -45,6 +45,9 @@ public sealed class LoadingController : MonoBehaviour
             yield return null;
         }
 
+        yield return SceneTransition.FadeToBlack();
+
         loadingOperation.allowSceneActivation = true;
+        SceneTransition.FadeFromBlackAfterSceneLoad(targetSceneKey);
     }
 }
