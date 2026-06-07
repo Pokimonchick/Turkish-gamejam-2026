@@ -26,8 +26,9 @@ public class OrigamiFoldPassenger : MonoBehaviour
 
     public void RefreshCurrentStack()
     {
+        Vector2 probeCenter = GetProbeCenter(transform.position);
         Collider2D[] hits = Physics2D.OverlapCircleAll(
-            transform.position,
+            probeCenter,
             probeRadius,
             walkableMask);
 
@@ -233,7 +234,7 @@ public class OrigamiFoldPassenger : MonoBehaviour
                 continue;
             }
 
-            Vector3 candidate = hit.bounds.center;
+            Vector3 candidate = GetRootPositionForProbeCenter(hit.bounds.center);
 
             if (!CanOccupy(candidate))
             {
@@ -265,8 +266,9 @@ public class OrigamiFoldPassenger : MonoBehaviour
             return playerMover.CanOccupy(position);
         }
 
+        Vector2 probeCenter = GetProbeCenter(position);
         Collider2D[] hits = Physics2D.OverlapCircleAll(
-            position,
+            probeCenter,
             probeRadius,
             walkableMask);
 
@@ -279,6 +281,32 @@ public class OrigamiFoldPassenger : MonoBehaviour
         }
 
         return false;
+    }
+
+    private Vector2 GetProbeCenter(Vector3 rootPosition)
+    {
+        if (playerMover == null)
+        {
+            playerMover = GetComponent<OrigamiFoldPlayerMover>();
+        }
+
+        if (playerMover != null)
+        {
+            return playerMover.GetBodyCenter(rootPosition);
+        }
+
+        return rootPosition;
+    }
+
+    private Vector3 GetRootPositionForProbeCenter(Vector3 probeCenter)
+    {
+        if (playerMover != null)
+        {
+            Vector2 rootPosition = playerMover.GetRootPositionForBodyCenter(probeCenter);
+            return new Vector3(rootPosition.x, rootPosition.y, transform.position.z);
+        }
+
+        return probeCenter;
     }
 
     private static bool IsWalkableHit(Collider2D hit)
@@ -330,6 +358,6 @@ public class OrigamiFoldPassenger : MonoBehaviour
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.cyan;
-        Gizmos.DrawWireSphere(transform.position, probeRadius);
+        Gizmos.DrawWireSphere(GetProbeCenter(transform.position), probeRadius);
     }
 }
