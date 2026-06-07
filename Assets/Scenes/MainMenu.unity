@@ -271,8 +271,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   videoClip: {fileID: 32900000, guid: 7d2df2d6a2b8d2a49a7b85bcec019a0d, type: 3}
   targetCamera: {fileID: 100002}
+  targetImage: {fileID: 0}
+  targetTexture: {fileID: 0}
   loop: 1
   muteVideoAudio: 1
+  stallRestartDelay: 0.8
 --- !u!1 &200000
 GameObject:
   m_ObjectHideFlags: 0
@@ -3404,7 +3407,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   audioSource: {fileID: 410002}
   category: 0
-  sourceVolume: 1
+  sourceVolume: 0.744
 --- !u!1 &420000
 GameObject:
   m_ObjectHideFlags: 0
