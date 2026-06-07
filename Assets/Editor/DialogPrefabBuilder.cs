@@ -221,17 +221,9 @@ public static class DialogPrefabBuilder
 
         EnsureFolder("Assets/Fonts");
 
-        var metaPath = PreferredFontAssetPath + ".meta";
-        var meta = File.Exists(metaPath) ? File.ReadAllText(metaPath) : null;
-
         if (existing != null)
         {
             AssetDatabase.DeleteAsset(PreferredFontAssetPath);
-            if (!string.IsNullOrEmpty(meta))
-            {
-                File.WriteAllText(metaPath, meta);
-            }
-
             AssetDatabase.Refresh();
         }
 

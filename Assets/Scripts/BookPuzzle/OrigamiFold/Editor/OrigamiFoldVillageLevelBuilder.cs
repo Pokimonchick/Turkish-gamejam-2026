@@ -21,6 +21,12 @@ public static class OrigamiFoldVillageLevelBuilder
         "Assets/ScriptableObjects/Dialogues/Village_NPC_Intro.asset";
     private const string WallHintDialoguePath =
         "Assets/ScriptableObjects/Dialogues/Village_NPC_WallHint.asset";
+    private const string PrologueDialoguePath =
+        "Assets/ScriptableObjects/Dialogues/Prologue_Fire_Remembers.asset";
+    private const string MotherSpeakerProfilePath =
+        "Assets/ScriptableObjects/Dialogues/Speakers/Speaker_Mother.asset";
+    private const string ElderSpeakerProfilePath =
+        "Assets/ScriptableObjects/Dialogues/Speakers/Speaker_Elder_Village01.asset";
     private const string InteractionPromptMessage =
         "E \u2014 \u0432\u0437\u0430\u0438\u043c\u043e\u0434\u0435\u0439\u0441\u0442\u0432\u0438\u0435";
     private const string DialogueFontCharacters =
@@ -67,14 +73,16 @@ public static class OrigamiFoldVillageLevelBuilder
 
         DialogueData introDialogue = EnsureDialogueData(
             IntroDialoguePath,
-            "Village_NPC_Intro",
-            "\u0421\u0442\u0430\u0440\u0435\u0439\u0448\u0438\u043d\u0430",
-            "\u041e\u0433\u043e\u043d\u044c \u0438\u0441\u0447\u0435\u0437. \u0410\u0439\u0441\u0430\u043b\u0443, \u043d\u0430\u0439\u0434\u0438 \u043f\u0443\u0442\u044c \u0437\u0430 \u0441\u0442\u0435\u043d\u043e\u0439.");
+            "Village_NPC_Mother",
+            MotherSpeakerProfilePath,
+            "\u041c\u0430\u043c\u0430",
+            "\u0411\u0443\u0434\u044c \u043e\u0441\u0442\u043e\u0440\u043e\u0436\u043d\u0430, \u0410\u0439\u0441\u0443\u043b\u0443. \u0417\u0430 \u0441\u0442\u0435\u043d\u043e\u0439 \u043d\u0430\u0447\u0438\u043d\u0430\u0435\u0442\u0441\u044f \u043f\u0443\u0442\u044c \u0441\u043a\u0430\u0437\u0430\u043d\u0438\u044f.");
         DialogueData wallHintDialogue = EnsureDialogueData(
             WallHintDialoguePath,
-            "Village_NPC_WallHint",
-            "\u0416\u0438\u0442\u0435\u043b\u044c",
-            "\u0427\u0435\u0440\u043d\u044b\u0435 \u0442\u043e\u0447\u043a\u0438 \u043d\u0430 \u0441\u0442\u0435\u043d\u0435 \u043c\u043e\u0436\u043d\u043e \u0441\u0442\u044f\u043d\u0443\u0442\u044c. \u0422\u0430\u043a \u0441\u0442\u0440\u0430\u043d\u0438\u0446\u0430 \u0441\u043b\u043e\u0436\u0438\u0442\u0441\u044f.");
+            "Village_NPC_Elder_Wall",
+            ElderSpeakerProfilePath,
+            "\u0421\u0442\u0430\u0440\u0435\u0439\u0448\u0438\u043d\u0430",
+            "\u041e\u0433\u043e\u043d\u044c \u0438\u0441\u0447\u0435\u0437. \u0410\u0439\u0441\u0443\u043b\u0443, \u043d\u0430\u0439\u0434\u0438 \u043f\u0443\u0442\u044c \u0437\u0430 \u0441\u0442\u0435\u043d\u043e\u0439.");
 
         CreateVillageScene(introDialogue, wallHintDialogue);
         CreateStubScene();
@@ -114,6 +122,7 @@ public static class OrigamiFoldVillageLevelBuilder
         Canvas dialogueCanvas = FindOrCreateDialogueCanvas(dialogueManager, levelRoot.transform);
         CreateInteractionPromptUI(dialogueCanvas, uiFont, uiSourceFont);
         CreateEventSystemIfMissing();
+        CreatePrologueAutoStart(levelRoot.transform);
 
         GameObject coordinatorObject = CreateEmpty("OrigamiFoldActionCoordinator", foldSystemRoot.transform);
         OrigamiFoldActionCoordinator coordinator =
@@ -196,6 +205,25 @@ public static class OrigamiFoldVillageLevelBuilder
             $"Village dialogue setup: NPCInteractable created={npcCount}, DialogueManager found={dialogueManager != null}, Player found={player != null}.");
     }
 
+    private static void CreatePrologueAutoStart(Transform parent)
+    {
+        DialogueData prologue = AssetDatabase.LoadAssetAtPath<DialogueData>(PrologueDialoguePath);
+
+        if (prologue == null)
+        {
+            Debug.LogWarning(
+                $"Village prologue dialogue was not found: {PrologueDialoguePath}. Run Tools/PANINI/Dialog/Rebuild Dialogue Art And Prologue before rebuilding the village scene.");
+            return;
+        }
+
+        GameObject autoStartObject = CreateEmpty("PrologueAutoStart", parent);
+        DialogueAutoStart autoStart = autoStartObject.AddComponent<DialogueAutoStart>();
+        autoStart.dialogueData = prologue;
+        autoStart.delaySeconds = 0.3f;
+        autoStart.playOnStart = true;
+        autoStart.onlyIfNoDialogueActive = true;
+    }
+
     private static void CreateStubScene()
     {
         Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
@@ -237,6 +265,7 @@ public static class OrigamiFoldVillageLevelBuilder
     private static DialogueData EnsureDialogueData(
         string path,
         string dialogueId,
+        string speakerProfilePath,
         string speakerName,
         string text)
     {
@@ -252,13 +281,16 @@ public static class OrigamiFoldVillageLevelBuilder
         }
 
         data.dialogueId = dialogueId;
+        DialogueSpeakerProfile speakerProfile =
+            AssetDatabase.LoadAssetAtPath<DialogueSpeakerProfile>(speakerProfilePath);
         data.lines = new List<DialogueLine>
         {
             new DialogueLine
             {
-                speakerName = speakerName,
+                speakerProfile = speakerProfile,
+                speakerName = speakerProfile != null ? speakerProfile.displayName : speakerName,
                 text = text,
-                portrait = null
+                portrait = speakerProfile != null ? speakerProfile.portrait : null
             }
         };
 
@@ -697,18 +729,9 @@ public static class OrigamiFoldVillageLevelBuilder
 
         EnsureFolder("Assets/Fonts");
 
-        string metaPath = PreferredFontAssetPath + ".meta";
-        string meta = File.Exists(metaPath) ? File.ReadAllText(metaPath) : null;
-
         if (existing != null)
         {
             AssetDatabase.DeleteAsset(PreferredFontAssetPath);
-
-            if (!string.IsNullOrEmpty(meta))
-            {
-                File.WriteAllText(metaPath, meta);
-            }
-
             AssetDatabase.Refresh();
         }
 

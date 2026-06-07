@@ -17,6 +17,9 @@ public class DialogueManager : MonoBehaviour
     [SerializeField] private GameObject continueHintObject;
     [SerializeField] private Font uiSourceFont;
     [SerializeField] private TMP_FontAsset uiFontAsset;
+    public Image dialogueFrameImage;
+    public Image topPatternImage;
+    public Image namePlateImage;
 
     [SerializeField] private AudioClip dialogOpenSound;
     [SerializeField] private AudioClip dialogNextSound;
@@ -52,6 +55,8 @@ public class DialogueManager : MonoBehaviour
         {
             dialogRoot.SetActive(false);
         }
+
+        SetDialogueVisualsActive(false);
     }
 
     private void OnDestroy()
@@ -103,6 +108,8 @@ public class DialogueManager : MonoBehaviour
             dialogRoot.SetActive(true);
         }
 
+        SetDialogueVisualsActive(true);
+
         if (continueHintObject != null)
         {
             continueHintObject.SetActive(true);
@@ -149,6 +156,8 @@ public class DialogueManager : MonoBehaviour
             dialogRoot.SetActive(false);
         }
 
+        SetDialogueVisualsActive(false);
+
         if (continueHintObject != null)
         {
             continueHintObject.SetActive(false);
@@ -168,11 +177,19 @@ public class DialogueManager : MonoBehaviour
             return;
         }
 
-        var line = currentDialogue.lines[currentLineIndex];
+        DialogueLine line = currentDialogue.lines[currentLineIndex];
+        string speakerName = line.speakerName;
+        Sprite portrait = line.portrait;
+
+        if (line.speakerProfile != null)
+        {
+            speakerName = line.speakerProfile.displayName;
+            portrait = line.speakerProfile.portrait;
+        }
 
         if (speakerNameText != null)
         {
-            speakerNameText.text = line.speakerName;
+            speakerNameText.text = speakerName;
         }
 
         if (bodyText != null)
@@ -185,15 +202,33 @@ public class DialogueManager : MonoBehaviour
             return;
         }
 
-        if (line.portrait == null)
+        if (portrait == null)
         {
             portraitImage.gameObject.SetActive(false);
             portraitImage.sprite = null;
             return;
         }
 
-        portraitImage.sprite = line.portrait;
+        portraitImage.sprite = portrait;
         portraitImage.gameObject.SetActive(true);
+    }
+
+    private void SetDialogueVisualsActive(bool active)
+    {
+        if (topPatternImage != null)
+        {
+            topPatternImage.gameObject.SetActive(active);
+        }
+
+        if (dialogueFrameImage != null)
+        {
+            dialogueFrameImage.gameObject.SetActive(active);
+        }
+
+        if (namePlateImage != null)
+        {
+            namePlateImage.gameObject.SetActive(active);
+        }
     }
 
     private static void PlaySfx(AudioClip clip)
