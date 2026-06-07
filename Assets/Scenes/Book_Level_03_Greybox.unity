@@ -5657,6 +5657,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldStripSqueezeAction
   isActive: 0
   animationDuration: 0.32
+  foldSound: {fileID: 8300000, guid: bb39e4c8e6a5f86429602b386646fb65, type: 3}
+  foldSoundVolume: 1
   coordinator: {fileID: 1501093039}
   useCoordinator: 1
   targets:
@@ -7708,6 +7710,7 @@ GameObject:
   m_Component:
   - component: {fileID: 468399468}
   - component: {fileID: 468399467}
+  - component: {fileID: 468399469}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -7766,6 +7769,14 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!81 &468399469
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 468399466}
+  m_Enabled: 1
 --- !u!4 &468399468
 Transform:
   m_ObjectHideFlags: 0
@@ -9378,6 +9389,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldStripSqueezeAction
   isActive: 0
   animationDuration: 0.32
+  foldSound: {fileID: 8300000, guid: bb39e4c8e6a5f86429602b386646fb65, type: 3}
+  foldSoundVolume: 1
   coordinator: {fileID: 1501093039}
   useCoordinator: 1
   targets:
@@ -34373,6 +34386,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldStripSqueezeAction
   isActive: 0
   animationDuration: 0.32
+  foldSound: {fileID: 8300000, guid: bb39e4c8e6a5f86429602b386646fb65, type: 3}
+  foldSoundVolume: 1
   coordinator: {fileID: 1501093039}
   useCoordinator: 1
   targets:
@@ -35035,9 +35050,103 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2142058780}
   m_Mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &730000
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 730001}
+  - component: {fileID: 730002}
+  - component: {fileID: 730003}
+  - component: {fileID: 730004}
+  m_Layer: 0
+  m_Name: Level 03 Music
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &730001
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 730000}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!82 &730002
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 730000}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 8300000, guid: cf740319f370d99478c927c37bbf2aab, type: 3}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 1
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+--- !u!114 &730003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 730000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19c5253076c9483da32eaa85f522e447, type: 3}
+  m_Name: ""
+  m_EditorClassIdentifier: Assembly-CSharp::CategorizedAudioSource
+  audioSource: {fileID: 730002}
+  category: 0
+  sourceVolume: 1
+--- !u!114 &730004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 730000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f47a3c78d3645048b07d65f1fa5a4cc, type: 3}
+  m_Name: ""
+  m_EditorClassIdentifier: Assembly-CSharp::SceneMusicPlayer
+  audioSource: {fileID: 730002}
+  musicClip: {fileID: 8300000, guid: cf740319f370d99478c927c37bbf2aab, type: 3}
+  playOnStart: 1
+  loop: 1
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 468399468}
   - {fileID: 686835722}
+  - {fileID: 730001}
