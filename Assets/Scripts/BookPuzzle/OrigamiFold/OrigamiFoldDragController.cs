@@ -38,6 +38,12 @@ public class OrigamiFoldDragController : MonoBehaviour
 
     private void Update()
     {
+        if (OrigamiFoldDialogueGuard.IsDialogueActive())
+        {
+            CancelDrag();
+            return;
+        }
+
         if (targetCamera == null)
         {
             targetCamera = Camera.main;
@@ -64,6 +70,18 @@ public class OrigamiFoldDragController : MonoBehaviour
         {
             EndDrag();
         }
+    }
+
+    private void OnDisable()
+    {
+        CancelDrag();
+    }
+
+    public void CancelDrag()
+    {
+        SetHighlightedTarget(null, null);
+        startPoint = null;
+        HideLine();
     }
 
     private void TryBeginDrag(Vector2 mouseWorld)

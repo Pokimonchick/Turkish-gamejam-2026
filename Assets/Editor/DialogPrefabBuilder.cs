@@ -322,6 +322,9 @@ public static class DialogPrefabBuilder
         serializedObject.FindProperty("bodyText").objectReferenceValue = bodyText;
         serializedObject.FindProperty("portraitImage").objectReferenceValue = portraitImage;
         serializedObject.FindProperty("continueHintObject").objectReferenceValue = continueHintObject;
+        serializedObject.FindProperty("uiSourceFont").objectReferenceValue =
+            AssetDatabase.LoadAssetAtPath<Font>(PreferredFontSourcePath);
+        serializedObject.FindProperty("uiFontAsset").objectReferenceValue = LoadPreferredFontAsset();
         serializedObject.ApplyModifiedPropertiesWithoutUndo();
     }
 

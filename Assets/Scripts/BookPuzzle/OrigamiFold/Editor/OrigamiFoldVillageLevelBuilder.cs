@@ -1,15 +1,33 @@
 using System.Collections.Generic;
 using System.IO;
+using TMPro;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
+using UnityEngine.TextCore.LowLevel;
+using UnityEngine.UI;
 
 public static class OrigamiFoldVillageLevelBuilder
 {
     private const string VillageScenePath = "Assets/Scenes/Village_Level_01_Greybox.unity";
     private const string StubScenePath = "Assets/Scenes/Village_Level_02_Stub.unity";
     private const string StubSceneName = "Village_Level_02_Stub";
+    private const string DialogueSystemPrefabPath = "Assets/Prefabs/Dialog/DialogueSystem.prefab";
+    private const string PreferredFontSourcePath = "Assets/artist_nouveau.ttf";
+    private const string PreferredFontAssetPath = "Assets/Fonts/artist_nouveau SDF.asset";
+    private const string IntroDialoguePath =
+        "Assets/ScriptableObjects/Dialogues/Village_NPC_Intro.asset";
+    private const string WallHintDialoguePath =
+        "Assets/ScriptableObjects/Dialogues/Village_NPC_WallHint.asset";
+    private const string InteractionPromptMessage =
+        "E \u2014 \u0432\u0437\u0430\u0438\u043c\u043e\u0434\u0435\u0439\u0441\u0442\u0432\u0438\u0435";
+    private const string DialogueFontCharacters =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789" +
+        "\u0410\u0411\u0412\u0413\u0414\u0415\u0401\u0416\u0417\u0418\u0419\u041a\u041b\u041c\u041d\u041e\u041f\u0420\u0421\u0422\u0423\u0424\u0425\u0426\u0427\u0428\u0429\u042a\u042b\u042c\u042d\u042e\u042f" +
+        "\u0430\u0431\u0432\u0433\u0434\u0435\u0451\u0436\u0437\u0438\u0439\u043a\u043b\u043c\u043d\u043e\u043f\u0440\u0441\u0442\u0443\u0444\u0445\u0446\u0447\u0448\u0449\u044a\u044b\u044c\u044d\u044e\u044f" +
+        " .,!?;:-/()[]\"'\u00ab\u00bb\u2014";
     private const int MapWidth = 11;
     private const int VisibleVillageWidth = 10;
     private const int MapHeight = 7;
@@ -47,7 +65,18 @@ public static class OrigamiFoldVillageLevelBuilder
 
         Directory.CreateDirectory("Assets/Scenes");
 
-        CreateVillageScene();
+        DialogueData introDialogue = EnsureDialogueData(
+            IntroDialoguePath,
+            "Village_NPC_Intro",
+            "\u0421\u0442\u0430\u0440\u0435\u0439\u0448\u0438\u043d\u0430",
+            "\u041e\u0433\u043e\u043d\u044c \u0438\u0441\u0447\u0435\u0437. \u0410\u0439\u0441\u0430\u043b\u0443, \u043d\u0430\u0439\u0434\u0438 \u043f\u0443\u0442\u044c \u0437\u0430 \u0441\u0442\u0435\u043d\u043e\u0439.");
+        DialogueData wallHintDialogue = EnsureDialogueData(
+            WallHintDialoguePath,
+            "Village_NPC_WallHint",
+            "\u0416\u0438\u0442\u0435\u043b\u044c",
+            "\u0427\u0435\u0440\u043d\u044b\u0435 \u0442\u043e\u0447\u043a\u0438 \u043d\u0430 \u0441\u0442\u0435\u043d\u0435 \u043c\u043e\u0436\u043d\u043e \u0441\u0442\u044f\u043d\u0443\u0442\u044c. \u0422\u0430\u043a \u0441\u0442\u0440\u0430\u043d\u0438\u0446\u0430 \u0441\u043b\u043e\u0436\u0438\u0442\u0441\u044f.");
+
+        CreateVillageScene(introDialogue, wallHintDialogue);
         CreateStubScene();
         AddScenesToBuildSettings();
 
@@ -57,7 +86,9 @@ public static class OrigamiFoldVillageLevelBuilder
         Debug.Log($"Created village greybox scenes: {VillageScenePath}, {StubScenePath}");
     }
 
-    private static void CreateVillageScene()
+    private static void CreateVillageScene(
+        DialogueData introDialogue,
+        DialogueData wallHintDialogue)
     {
         Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
         scene.name = "Village_Level_01_Greybox";
@@ -76,6 +107,14 @@ public static class OrigamiFoldVillageLevelBuilder
         GameObject exitRoot = CreateEmpty("VILLAGE_EXIT", levelRoot.transform);
         GameObject debugRoot = CreateEmpty("VILLAGE_DEBUG", levelRoot.transform);
 
+        DialogueManager dialogueManager = CreateDialogueSystem(levelRoot.transform);
+        TMP_FontAsset uiFont = ResolveProjectTmpFontAsset();
+        Font uiSourceFont = ResolveProjectSourceFont();
+        ApplyFontToDialogueManager(dialogueManager, uiFont, uiSourceFont);
+        Canvas dialogueCanvas = FindOrCreateDialogueCanvas(dialogueManager, levelRoot.transform);
+        CreateInteractionPromptUI(dialogueCanvas, uiFont, uiSourceFont);
+        CreateEventSystemIfMissing();
+
         GameObject coordinatorObject = CreateEmpty("OrigamiFoldActionCoordinator", foldSystemRoot.transform);
         OrigamiFoldActionCoordinator coordinator =
             coordinatorObject.AddComponent<OrigamiFoldActionCoordinator>();
@@ -87,9 +126,6 @@ public static class OrigamiFoldVillageLevelBuilder
             value = 1 << walkableLayer
         };
         CreateWalkableAreas(cells, walkableLayer);
-
-        CreateNpcPlaceholder("NPC_3_5", npcsRoot.transform, CellToWorld(3, 5));
-        CreateNpcPlaceholder("NPC_8_2", npcsRoot.transform, CellToWorld(8, 2));
 
         OrigamiFoldTransformStack exitStack;
         CreateVillageExit(exitRoot.transform, out exitStack);
@@ -137,11 +173,27 @@ public static class OrigamiFoldVillageLevelBuilder
         dragController.snapDistance = 0.5f;
         dragController.lineWidth = 0.05f;
 
-        CreatePlayer(playerRoot.transform, cells[1, 0], walkableMask);
+        GameObject player = CreatePlayer(playerRoot.transform, cells[1, 0], walkableMask);
+        GameObject introNpc = CreateNpcPlaceholder("NPC_3_5", npcsRoot.transform, CellToWorld(3, 5));
+        GameObject wallHintNpc = CreateNpcPlaceholder("NPC_8_2", npcsRoot.transform, CellToWorld(8, 2));
+        int npcCount = 0;
+        npcCount += ConfigureNpcInteractable(
+            introNpc,
+            introDialogue,
+            player.transform,
+            "VillageIntroNpc") ? 1 : 0;
+        npcCount += ConfigureNpcInteractable(
+            wallHintNpc,
+            wallHintDialogue,
+            player.transform,
+            "VillageWallHintNpc") ? 1 : 0;
+
         CreateInstructionText(debugRoot.transform);
 
         Selection.activeGameObject = levelRoot;
         EditorSceneManager.SaveScene(scene, VillageScenePath);
+        Debug.Log(
+            $"Village dialogue setup: NPCInteractable created={npcCount}, DialogueManager found={dialogueManager != null}, Player found={player != null}.");
     }
 
     private static void CreateStubScene()
@@ -180,6 +232,640 @@ public static class OrigamiFoldVillageLevelBuilder
             false);
 
         EditorSceneManager.SaveScene(scene, StubScenePath);
+    }
+
+    private static DialogueData EnsureDialogueData(
+        string path,
+        string dialogueId,
+        string speakerName,
+        string text)
+    {
+        EnsureFolder("Assets/ScriptableObjects");
+        EnsureFolder("Assets/ScriptableObjects/Dialogues");
+
+        DialogueData data = AssetDatabase.LoadAssetAtPath<DialogueData>(path);
+
+        if (data == null)
+        {
+            data = ScriptableObject.CreateInstance<DialogueData>();
+            AssetDatabase.CreateAsset(data, path);
+        }
+
+        data.dialogueId = dialogueId;
+        data.lines = new List<DialogueLine>
+        {
+            new DialogueLine
+            {
+                speakerName = speakerName,
+                text = text,
+                portrait = null
+            }
+        };
+
+        EditorUtility.SetDirty(data);
+        return data;
+    }
+
+    private static void EnsureFolder(string path)
+    {
+        path = path.Replace('\\', '/');
+
+        if (AssetDatabase.IsValidFolder(path))
+        {
+            return;
+        }
+
+        string parent = Path.GetDirectoryName(path);
+        string folderName = Path.GetFileName(path);
+
+        if (string.IsNullOrEmpty(parent) || string.IsNullOrEmpty(folderName))
+        {
+            return;
+        }
+
+        parent = parent.Replace('\\', '/');
+        EnsureFolder(parent);
+        AssetDatabase.CreateFolder(parent, folderName);
+    }
+
+    private static DialogueManager CreateDialogueSystem(Transform parent)
+    {
+        GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(DialogueSystemPrefabPath);
+
+        if (prefab != null)
+        {
+            GameObject instance = PrefabUtility.InstantiatePrefab(prefab) as GameObject;
+
+            if (instance != null)
+            {
+                instance.name = "DialogueSystem";
+                instance.transform.SetParent(parent, false);
+
+                DialogueManager prefabManager =
+                    instance.GetComponentInChildren<DialogueManager>(true);
+                SetDialogueRootActive(prefabManager, false);
+                return prefabManager;
+            }
+        }
+
+        Debug.LogWarning("DialogueSystem prefab was not found. Creating fallback DialogueManager UI.");
+        return CreateFallbackDialogueSystem(parent);
+    }
+
+    private static DialogueManager CreateFallbackDialogueSystem(Transform parent)
+    {
+        GameObject root = CreateEmpty("DialogueSystem", parent);
+        DialogueManager manager = root.AddComponent<DialogueManager>();
+
+        GameObject canvasObject = CreateEmpty("Canvas", root.transform);
+        int uiLayer = LayerMask.NameToLayer("UI");
+
+        if (uiLayer >= 0)
+        {
+            canvasObject.layer = uiLayer;
+        }
+
+        Canvas canvas = canvasObject.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+
+        CanvasScaler scaler = canvasObject.AddComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1920f, 1080f);
+        scaler.matchWidthOrHeight = 0.5f;
+
+        canvasObject.AddComponent<GraphicRaycaster>();
+
+        GameObject dialogRoot = CreateUiObject("Dialog Root", canvasObject.transform);
+        Stretch(dialogRoot.GetComponent<RectTransform>());
+
+        GameObject panel = CreateUiObject("Dialog Panel", dialogRoot.transform);
+        RectTransform panelRect = panel.GetComponent<RectTransform>();
+        panelRect.anchorMin = new Vector2(0.05f, 0.04f);
+        panelRect.anchorMax = new Vector2(0.95f, 0.34f);
+        panelRect.offsetMin = Vector2.zero;
+        panelRect.offsetMax = Vector2.zero;
+
+        Image panelImage = panel.AddComponent<Image>();
+        panelImage.color = new Color(0.03f, 0.035f, 0.045f, 0.88f);
+
+        GameObject portraitObject = CreateUiObject("Portrait Image", panel.transform);
+        RectTransform portraitRect = portraitObject.GetComponent<RectTransform>();
+        portraitRect.anchorMin = new Vector2(0f, 0f);
+        portraitRect.anchorMax = new Vector2(0f, 1f);
+        portraitRect.pivot = new Vector2(0f, 0.5f);
+        portraitRect.anchoredPosition = new Vector2(32f, 0f);
+        portraitRect.sizeDelta = new Vector2(220f, -48f);
+        Image portraitImage = portraitObject.AddComponent<Image>();
+        portraitImage.color = new Color(1f, 1f, 1f, 0.18f);
+        portraitImage.preserveAspect = true;
+
+        TextMeshProUGUI speakerNameText = CreateTmpText(
+            "Speaker Name Text",
+            panel.transform,
+            new Vector2(284f, -84f),
+            new Vector2(-36f, -24f),
+            38f,
+            FontStyles.Bold,
+            new Color(1f, 0.78f, 0.35f));
+
+        TextMeshProUGUI bodyText = CreateTmpText(
+            "Body Text",
+            panel.transform,
+            new Vector2(284f, 78f),
+            new Vector2(-36f, -104f),
+            34f,
+            FontStyles.Normal,
+            new Color(0.94f, 0.92f, 0.86f));
+
+        TextMeshProUGUI continueHintText = CreateTmpText(
+            "Continue Hint Text",
+            panel.transform,
+            Vector2.zero,
+            Vector2.zero,
+            26f,
+            FontStyles.Normal,
+            new Color(1f, 0.78f, 0.35f));
+        continueHintText.text = "E / Enter / Click\nPress Space to Skip";
+        continueHintText.alignment = TextAlignmentOptions.Right;
+        RectTransform hintRect = continueHintText.GetComponent<RectTransform>();
+        hintRect.anchorMin = new Vector2(1f, 0f);
+        hintRect.anchorMax = new Vector2(1f, 0f);
+        hintRect.pivot = new Vector2(1f, 0f);
+        hintRect.anchoredPosition = new Vector2(-36f, 26f);
+        hintRect.sizeDelta = new Vector2(420f, 68f);
+
+        dialogRoot.SetActive(false);
+        AssignDialogueManager(
+            manager,
+            dialogRoot,
+            speakerNameText,
+            bodyText,
+            portraitImage,
+            continueHintText.gameObject);
+
+        return manager;
+    }
+
+    private static TextMeshProUGUI CreateTmpText(
+        string name,
+        Transform parent,
+        Vector2 offsetMin,
+        Vector2 offsetMax,
+        float fontSize,
+        FontStyles fontStyle,
+        Color color)
+    {
+        GameObject textObject = CreateUiObject(name, parent);
+        RectTransform rectTransform = textObject.GetComponent<RectTransform>();
+        rectTransform.anchorMin = Vector2.zero;
+        rectTransform.anchorMax = Vector2.one;
+        rectTransform.offsetMin = offsetMin;
+        rectTransform.offsetMax = offsetMax;
+
+        TextMeshProUGUI tmp = textObject.AddComponent<TextMeshProUGUI>();
+        tmp.text = string.Empty;
+        tmp.fontSize = fontSize;
+        tmp.fontStyle = fontStyle;
+        tmp.color = color;
+        tmp.alignment = TextAlignmentOptions.TopLeft;
+        tmp.raycastTarget = false;
+        tmp.textWrappingMode = TextWrappingModes.Normal;
+        return tmp;
+    }
+
+    private static GameObject CreateUiObject(string name, Transform parent)
+    {
+        GameObject gameObject = new GameObject(name, typeof(RectTransform));
+        gameObject.transform.SetParent(parent, false);
+        return gameObject;
+    }
+
+    private static void Stretch(RectTransform rectTransform)
+    {
+        rectTransform.anchorMin = Vector2.zero;
+        rectTransform.anchorMax = Vector2.one;
+        rectTransform.offsetMin = Vector2.zero;
+        rectTransform.offsetMax = Vector2.zero;
+    }
+
+    private static void AssignDialogueManager(
+        DialogueManager manager,
+        GameObject dialogRoot,
+        TextMeshProUGUI speakerNameText,
+        TextMeshProUGUI bodyText,
+        Image portraitImage,
+        GameObject continueHintObject)
+    {
+        SerializedObject serializedManager = new SerializedObject(manager);
+        SetSerializedObjectReference(serializedManager, "dialogRoot", dialogRoot);
+        SetSerializedObjectReference(serializedManager, "speakerNameText", speakerNameText);
+        SetSerializedObjectReference(serializedManager, "bodyText", bodyText);
+        SetSerializedObjectReference(serializedManager, "portraitImage", portraitImage);
+        SetSerializedObjectReference(serializedManager, "continueHintObject", continueHintObject);
+        serializedManager.ApplyModifiedPropertiesWithoutUndo();
+    }
+
+    private static void SetDialogueRootActive(DialogueManager manager, bool active)
+    {
+        if (manager == null)
+        {
+            return;
+        }
+
+        SerializedObject serializedManager = new SerializedObject(manager);
+        SerializedProperty dialogRootProperty = serializedManager.FindProperty("dialogRoot");
+        GameObject dialogRoot = dialogRootProperty != null
+            ? dialogRootProperty.objectReferenceValue as GameObject
+            : null;
+
+        if (dialogRoot != null)
+        {
+            dialogRoot.SetActive(active);
+        }
+    }
+
+    private static void CreateEventSystemIfMissing()
+    {
+        if (UnityEngine.Object.FindFirstObjectByType<EventSystem>() != null)
+        {
+            return;
+        }
+
+        GameObject eventSystemObject = new GameObject("EventSystem");
+        eventSystemObject.AddComponent<EventSystem>();
+        eventSystemObject.AddComponent<StandaloneInputModule>();
+    }
+
+    private static Canvas FindOrCreateDialogueCanvas(DialogueManager dialogueManager, Transform parent)
+    {
+        Canvas canvas = dialogueManager != null
+            ? dialogueManager.GetComponentInChildren<Canvas>(true)
+            : null;
+
+        if (canvas != null)
+        {
+            return canvas;
+        }
+
+        canvas = parent != null ? parent.GetComponentInChildren<Canvas>(true) : null;
+
+        if (canvas != null)
+        {
+            return canvas;
+        }
+
+        GameObject canvasObject = CreateEmpty("Canvas", parent);
+        int uiLayer = LayerMask.NameToLayer("UI");
+
+        if (uiLayer >= 0)
+        {
+            canvasObject.layer = uiLayer;
+        }
+
+        canvas = canvasObject.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+
+        CanvasScaler scaler = canvasObject.AddComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1920f, 1080f);
+        scaler.matchWidthOrHeight = 0.5f;
+
+        canvasObject.AddComponent<GraphicRaycaster>();
+        return canvas;
+    }
+
+    private static void CreateInteractionPromptUI(
+        Canvas canvas,
+        TMP_FontAsset fontAsset,
+        Font sourceFont)
+    {
+        if (canvas == null)
+        {
+            Debug.LogWarning("Could not create InteractionPromptUI: Canvas is missing.");
+            return;
+        }
+
+        GameObject controller = CreateEmpty("InteractionPromptUI", canvas.transform);
+        GameObject promptRoot = CreateUiObject("InteractionPrompt", canvas.transform);
+        RectTransform rootRect = promptRoot.GetComponent<RectTransform>();
+        rootRect.anchorMin = new Vector2(0.5f, 1f);
+        rootRect.anchorMax = new Vector2(0.5f, 1f);
+        rootRect.pivot = new Vector2(0.5f, 1f);
+        rootRect.anchoredPosition = new Vector2(0f, -70f);
+        rootRect.sizeDelta = new Vector2(420f, 54f);
+
+        Image background = promptRoot.AddComponent<Image>();
+        background.color = new Color(0.02f, 0.025f, 0.032f, 0.72f);
+
+        GameObject textObject = CreateUiObject("Prompt Text", promptRoot.transform);
+        RectTransform textRect = textObject.GetComponent<RectTransform>();
+        textRect.anchorMin = Vector2.zero;
+        textRect.anchorMax = Vector2.one;
+        textRect.offsetMin = new Vector2(18f, 6f);
+        textRect.offsetMax = new Vector2(-18f, -6f);
+
+        TextMeshProUGUI promptText = textObject.AddComponent<TextMeshProUGUI>();
+        promptText.text = InteractionPromptMessage;
+        promptText.fontSize = 30f;
+        promptText.color = new Color(0.96f, 0.94f, 0.88f, 1f);
+        promptText.alignment = TextAlignmentOptions.Center;
+        promptText.raycastTarget = false;
+        promptText.textWrappingMode = TextWrappingModes.Normal;
+
+        if (fontAsset != null)
+        {
+            promptText.font = fontAsset;
+        }
+
+        InteractionPromptUI promptUI = controller.AddComponent<InteractionPromptUI>();
+        promptUI.root = promptRoot;
+        promptUI.promptText = promptText;
+        promptUI.defaultMessage = InteractionPromptMessage;
+        promptUI.uiSourceFont = sourceFont;
+        promptUI.uiFontAsset = fontAsset;
+
+        promptRoot.SetActive(false);
+    }
+
+    private static TMP_FontAsset ResolveProjectTmpFontAsset()
+    {
+        TMP_FontAsset preferredFont =
+            AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(PreferredFontAssetPath);
+
+        if (IsUsableFontAsset(preferredFont))
+        {
+            Debug.Log($"Using TMP font asset for village dialogue UI: {PreferredFontAssetPath}");
+            return preferredFont;
+        }
+
+        TMP_FontAsset rebuiltPreferredFont = RebuildPreferredFontAssetIfPossible(preferredFont);
+
+        if (IsUsableFontAsset(rebuiltPreferredFont))
+        {
+            Debug.Log($"Using rebuilt TMP font asset for village dialogue UI: {PreferredFontAssetPath}");
+            return rebuiltPreferredFont;
+        }
+
+        List<string> customTmpFonts = FindCustomAssetPaths("t:TMP_FontAsset");
+        customTmpFonts.Remove(PreferredFontAssetPath);
+
+        if (customTmpFonts.Count == 1)
+        {
+            TMP_FontAsset fontAsset = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(customTmpFonts[0]);
+
+            if (IsUsableFontAsset(fontAsset))
+            {
+                Debug.Log($"Using TMP font asset for village dialogue UI: {customTmpFonts[0]}");
+                return fontAsset;
+            }
+        }
+
+        if (customTmpFonts.Count > 1)
+        {
+            Debug.LogWarning(
+                $"Multiple custom TMP font candidates found. Font assignment skipped: {string.Join(", ", customTmpFonts)}");
+            return null;
+        }
+
+        List<string> customFontFiles = FindCustomAssetPaths("t:Font");
+        customFontFiles.Remove(PreferredFontSourcePath);
+
+        if (customFontFiles.Count != 1)
+        {
+            if (customFontFiles.Count > 1)
+            {
+                Debug.LogWarning(
+                    $"Multiple custom font files found. TMP font creation skipped: {string.Join(", ", customFontFiles)}");
+            }
+
+            return null;
+        }
+
+        Font font = AssetDatabase.LoadAssetAtPath<Font>(customFontFiles[0]);
+
+        if (font == null)
+        {
+            return null;
+        }
+
+        string folder = Path.GetDirectoryName(customFontFiles[0]).Replace('\\', '/');
+        string fontName = Path.GetFileNameWithoutExtension(customFontFiles[0]);
+        string assetPath = AssetDatabase.GenerateUniqueAssetPath($"{folder}/{fontName} SDF.asset");
+        TMP_FontAsset createdFontAsset = TMP_FontAsset.CreateFontAsset(
+            font,
+            128,
+            12,
+            GlyphRenderMode.SDFAA,
+            2048,
+            2048,
+            AtlasPopulationMode.Dynamic);
+
+        if (createdFontAsset == null)
+        {
+            return null;
+        }
+
+        AssetDatabase.CreateAsset(createdFontAsset, assetPath);
+        AddFontSubAssets(createdFontAsset);
+        EditorUtility.SetDirty(createdFontAsset);
+        Debug.Log($"Created TMP font asset for village dialogue UI: {assetPath}");
+        return createdFontAsset;
+    }
+
+    private static Font ResolveProjectSourceFont()
+    {
+        Font sourceFont = AssetDatabase.LoadAssetAtPath<Font>(PreferredFontSourcePath);
+
+        if (sourceFont == null)
+        {
+            Debug.LogWarning($"Village UI source font was not found: {PreferredFontSourcePath}");
+        }
+
+        return sourceFont;
+    }
+
+    private static TMP_FontAsset RebuildPreferredFontAssetIfPossible(TMP_FontAsset existing)
+    {
+        Font sourceFont = AssetDatabase.LoadAssetAtPath<Font>(PreferredFontSourcePath);
+
+        if (sourceFont == null)
+        {
+            Debug.LogWarning(
+                $"Preferred village UI font source was not found: {PreferredFontSourcePath}");
+            return existing;
+        }
+
+        EnsureFolder("Assets/Fonts");
+
+        string metaPath = PreferredFontAssetPath + ".meta";
+        string meta = File.Exists(metaPath) ? File.ReadAllText(metaPath) : null;
+
+        if (existing != null)
+        {
+            AssetDatabase.DeleteAsset(PreferredFontAssetPath);
+
+            if (!string.IsNullOrEmpty(meta))
+            {
+                File.WriteAllText(metaPath, meta);
+            }
+
+            AssetDatabase.Refresh();
+        }
+
+        TMP_FontAsset fontAsset = TMP_FontAsset.CreateFontAsset(
+            sourceFont,
+            128,
+            12,
+            GlyphRenderMode.SDFAA,
+            2048,
+            2048,
+            AtlasPopulationMode.Dynamic);
+
+        if (fontAsset == null)
+        {
+            return null;
+        }
+
+        fontAsset.name = "artist_nouveau SDF";
+        fontAsset.TryAddCharacters(DialogueFontCharacters, out _, false);
+
+        AssetDatabase.CreateAsset(fontAsset, PreferredFontAssetPath);
+        AddFontSubAssets(fontAsset);
+        EditorUtility.SetDirty(fontAsset);
+        AssetDatabase.SaveAssets();
+        AssetDatabase.ImportAsset(PreferredFontAssetPath, ImportAssetOptions.ForceUpdate);
+        return AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(PreferredFontAssetPath);
+    }
+
+    private static void AddFontSubAssets(TMP_FontAsset fontAsset)
+    {
+        if (fontAsset == null)
+        {
+            return;
+        }
+
+        if (fontAsset.material != null)
+        {
+            AssetDatabase.AddObjectToAsset(fontAsset.material, fontAsset);
+        }
+
+        if (fontAsset.atlasTextures == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < fontAsset.atlasTextures.Length; i++)
+        {
+            Texture2D texture = fontAsset.atlasTextures[i];
+
+            if (texture != null)
+            {
+                AssetDatabase.AddObjectToAsset(texture, fontAsset);
+            }
+        }
+    }
+
+    private static bool IsUsableFontAsset(TMP_FontAsset fontAsset)
+    {
+        if (fontAsset == null)
+        {
+            return false;
+        }
+
+        try
+        {
+            return fontAsset.material != null
+                && fontAsset.atlasTextures != null
+                && fontAsset.atlasTextures.Length > 0
+                && fontAsset.atlasTextures[0] != null;
+        }
+        catch (UnassignedReferenceException)
+        {
+            return false;
+        }
+    }
+
+    private static List<string> FindCustomAssetPaths(string filter)
+    {
+        string[] guids = AssetDatabase.FindAssets(filter, new[] { "Assets" });
+        List<string> paths = new List<string>();
+
+        for (int i = 0; i < guids.Length; i++)
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guids[i]).Replace('\\', '/');
+
+            if (path.StartsWith("Assets/TextMesh Pro/"))
+            {
+                continue;
+            }
+
+            paths.Add(path);
+        }
+
+        return paths;
+    }
+
+    private static void ApplyFontToDialogueManager(
+        DialogueManager dialogueManager,
+        TMP_FontAsset fontAsset,
+        Font sourceFont)
+    {
+        if (dialogueManager == null)
+        {
+            return;
+        }
+
+        SerializedObject serializedManager = new SerializedObject(dialogueManager);
+        SetSerializedObjectReference(serializedManager, "uiSourceFont", sourceFont);
+        SetSerializedObjectReference(serializedManager, "uiFontAsset", fontAsset);
+        serializedManager.ApplyModifiedPropertiesWithoutUndo();
+
+        if (fontAsset == null)
+        {
+            return;
+        }
+
+        ApplyFontToTextProperty(serializedManager, "speakerNameText", fontAsset);
+        ApplyFontToTextProperty(serializedManager, "bodyText", fontAsset);
+
+        SerializedProperty continueHintProperty =
+            serializedManager.FindProperty("continueHintObject");
+        GameObject continueHintObject = continueHintProperty != null
+            ? continueHintProperty.objectReferenceValue as GameObject
+            : null;
+
+        if (continueHintObject != null)
+        {
+            ApplyFontToTmpChildren(continueHintObject, fontAsset);
+        }
+    }
+
+    private static void ApplyFontToTextProperty(
+        SerializedObject serializedObject,
+        string propertyName,
+        TMP_FontAsset fontAsset)
+    {
+        SerializedProperty property = serializedObject.FindProperty(propertyName);
+        TextMeshProUGUI text = property != null
+            ? property.objectReferenceValue as TextMeshProUGUI
+            : null;
+
+        if (text != null)
+        {
+            text.font = fontAsset;
+            EditorUtility.SetDirty(text);
+        }
+    }
+
+    private static void ApplyFontToTmpChildren(GameObject root, TMP_FontAsset fontAsset)
+    {
+        TextMeshProUGUI[] texts = root.GetComponentsInChildren<TextMeshProUGUI>(true);
+
+        for (int i = 0; i < texts.Length; i++)
+        {
+            texts[i].font = fontAsset;
+            EditorUtility.SetDirty(texts[i]);
+        }
     }
 
     private static Camera CreateCamera(string name, Vector3 position, float orthographicSize)
@@ -264,7 +950,7 @@ public static class OrigamiFoldVillageLevelBuilder
         }
     }
 
-    private static void CreateNpcPlaceholder(string name, Transform parent, Vector3 position)
+    private static GameObject CreateNpcPlaceholder(string name, Transform parent, Vector3 position)
     {
         GameObject npc = CreateEmpty(name, parent);
         npc.transform.position = position;
@@ -277,6 +963,159 @@ public static class OrigamiFoldVillageLevelBuilder
             new Color(1f, 0.92f, 0.15f),
             30,
             false);
+
+        return npc;
+    }
+
+    private static bool ConfigureNpcInteractable(
+        GameObject npc,
+        DialogueData dialogueData,
+        Transform player,
+        string debugName)
+    {
+        if (npc == null)
+        {
+            Debug.LogWarning($"Could not configure NPC dialogue for {debugName}: NPC is missing.");
+            return false;
+        }
+
+        if (dialogueData == null)
+        {
+            Debug.LogWarning($"Could not configure NPC dialogue for {debugName}: dialogue data is missing.");
+            return false;
+        }
+
+        if (player == null)
+        {
+            Debug.LogWarning($"Could not configure NPC dialogue for {debugName}: player is missing.");
+            return false;
+        }
+
+        NPCInteractable interactable = npc.GetComponent<NPCInteractable>();
+
+        if (interactable == null)
+        {
+            interactable = npc.AddComponent<NPCInteractable>();
+        }
+
+        GameObject hint = CreateNpcInteractionHint(npc.transform);
+
+        SerializedObject serializedInteractable = new SerializedObject(interactable);
+        SetSerializedObjectReference(serializedInteractable, "dialogueData", dialogueData);
+        SetSerializedObjectReference(serializedInteractable, "player", player);
+        SetSerializedFloat(serializedInteractable, "interactionDistance", 1.5f);
+        SetSerializedEnum(serializedInteractable, "interactKey", KeyCode.E);
+        SetSerializedObjectReference(serializedInteractable, "interactionHint", hint);
+        SetSerializedBool(serializedInteractable, "useGlobalInteractionPrompt", true);
+        SetSerializedString(
+            serializedInteractable,
+            "interactionPromptText",
+            InteractionPromptMessage);
+        serializedInteractable.ApplyModifiedPropertiesWithoutUndo();
+
+        hint.SetActive(false);
+        EditorUtility.SetDirty(interactable);
+        return true;
+    }
+
+    private static GameObject CreateNpcInteractionHint(Transform parent)
+    {
+        GameObject hint = CreateEmpty("InteractionHint", parent);
+        hint.transform.localPosition = new Vector3(0f, 0.65f, 0f);
+
+        CreateSpriteVisual(
+            "Backplate",
+            hint.transform,
+            Vector3.zero,
+            new Vector2(0.3f, 0.3f),
+            new Color(0f, 0f, 0f, 0.72f),
+            65,
+            true);
+
+        GameObject labelObject = CreateEmpty("Label", hint.transform);
+        labelObject.transform.localPosition = new Vector3(0f, -0.06f, 0f);
+
+        TextMesh label = labelObject.AddComponent<TextMesh>();
+        label.text = "E";
+        label.characterSize = 0.16f;
+        label.fontSize = 34;
+        label.anchor = TextAnchor.MiddleCenter;
+        label.alignment = TextAlignment.Center;
+        label.color = Color.white;
+
+        Renderer renderer = labelObject.GetComponent<Renderer>();
+
+        if (renderer != null)
+        {
+            renderer.sortingOrder = 70;
+        }
+
+        return hint;
+    }
+
+    private static void SetSerializedObjectReference(
+        SerializedObject serializedObject,
+        string propertyName,
+        UnityEngine.Object value)
+    {
+        SerializedProperty property = serializedObject.FindProperty(propertyName);
+
+        if (property != null)
+        {
+            property.objectReferenceValue = value;
+        }
+    }
+
+    private static void SetSerializedFloat(
+        SerializedObject serializedObject,
+        string propertyName,
+        float value)
+    {
+        SerializedProperty property = serializedObject.FindProperty(propertyName);
+
+        if (property != null)
+        {
+            property.floatValue = value;
+        }
+    }
+
+    private static void SetSerializedEnum(
+        SerializedObject serializedObject,
+        string propertyName,
+        KeyCode value)
+    {
+        SerializedProperty property = serializedObject.FindProperty(propertyName);
+
+        if (property != null)
+        {
+            property.intValue = (int)value;
+        }
+    }
+
+    private static void SetSerializedBool(
+        SerializedObject serializedObject,
+        string propertyName,
+        bool value)
+    {
+        SerializedProperty property = serializedObject.FindProperty(propertyName);
+
+        if (property != null)
+        {
+            property.boolValue = value;
+        }
+    }
+
+    private static void SetSerializedString(
+        SerializedObject serializedObject,
+        string propertyName,
+        string value)
+    {
+        SerializedProperty property = serializedObject.FindProperty(propertyName);
+
+        if (property != null)
+        {
+            property.stringValue = value;
+        }
     }
 
     private static void CreateVillageExit(
@@ -463,7 +1302,7 @@ public static class OrigamiFoldVillageLevelBuilder
         return link;
     }
 
-    private static void CreatePlayer(
+    private static GameObject CreatePlayer(
         Transform parent,
         CellData startCell,
         LayerMask walkableMask)
@@ -501,6 +1340,8 @@ public static class OrigamiFoldVillageLevelBuilder
         passenger.probeRadius = 0.18f;
         passenger.currentStack = startCell.stack;
         passenger.disableWhileCarried = new Behaviour[] { mover };
+
+        return player;
     }
 
     private static void CreateInstructionText(Transform parent)

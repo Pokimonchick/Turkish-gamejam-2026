@@ -50,6 +50,8 @@ MonoBehaviour:
   bodyText: {fileID: 1896284361}
   portraitImage: {fileID: 1139074940}
   continueHintObject: {fileID: 1619447501}
+  uiSourceFont: {fileID: 12800000, guid: d6d185527b64a9e4fbb856b1cd858937, type: 3}
+  uiFontAsset: {fileID: 0}
   dialogOpenSound: {fileID: 0}
   dialogNextSound: {fileID: 0}
   dialogCloseSound: {fileID: 0}

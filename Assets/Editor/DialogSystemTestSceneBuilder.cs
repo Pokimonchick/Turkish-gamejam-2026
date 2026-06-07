@@ -6,7 +6,6 @@ using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-[InitializeOnLoad]
 public static class DialogSystemTestSceneBuilder
 {
     private const string ScenePath = "Assets/Scenes/Test/Test_DialogSystem.unity";
@@ -14,11 +13,6 @@ public static class DialogSystemTestSceneBuilder
     private const string TmpFontAssetPath =
         "Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF.asset";
     private const string ContinueHintText = "E / Enter / Click\nPress Space to Skip";
-
-    static DialogSystemTestSceneBuilder()
-    {
-        EditorApplication.delayCall += CreateTestSceneIfMissing;
-    }
 
     [MenuItem("Tools/Dialog/Create Test Dialog Scene")]
     public static void CreateTestSceneIfMissing()

@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a3a40b1ee4441518f69c26c62cb3cde, type: 3}
+  m_Name: Village_NPC_WallHint
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueData
+  dialogueId: Village_NPC_WallHint
+  lines:
+  - speakerName: "\u0416\u0438\u0442\u0435\u043B\u044C"
+    text: "\u0427\u0435\u0440\u043D\u044B\u0435 \u0442\u043E\u0447\u043A\u0438 \u043D\u0430
+      \u0441\u0442\u0435\u043D\u0435 \u043C\u043E\u0436\u043D\u043E \u0441\u0442\u044F\u043D\u0443\u0442\u044C.
+      \u0422\u0430\u043A \u0441\u0442\u0440\u0430\u043D\u0438\u0446\u0430 \u0441\u043B\u043E\u0436\u0438\u0442\u0441\u044F."
+    portrait: {fileID: 0}

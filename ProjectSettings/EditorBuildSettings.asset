@@ -17,6 +17,18 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Village_Prototype.unity
     guid: 52f2292a2ba220a4986b46c1139a79c2
+  - enabled: 1
+    path: Assets/Scenes/Book_Level_01_Greybox.unity
+    guid: 4db90dafac34759458b0a78afe29c446
+  - enabled: 1
+    path: Assets/Scenes/Prototype_OrigamiFold_Workbench.unity
+    guid: 2135edd380905494586e975b2af42443
+  - enabled: 1
+    path: Assets/Scenes/Village_Level_01_Greybox.unity
+    guid: c850f1ca7cd10934597c56b16fe5657f
+  - enabled: 1
+    path: Assets/Scenes/Village_Level_02_Stub.unity
+    guid: 694580ec36f55b444896187a6cd1ba5c
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0
