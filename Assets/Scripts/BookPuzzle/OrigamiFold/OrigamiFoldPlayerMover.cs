@@ -34,12 +34,14 @@ public class OrigamiFoldPlayerMover : MonoBehaviour
     private float footstepTimer;
     private int lastFootstepIndex = -1;
     private bool wasWalking;
+    private PaperDollWalkAnimator paperAnimator;
 
     private void Awake()
     {
         body = GetComponent<Rigidbody2D>();
         body.gravityScale = 0f;
         body.freezeRotation = true;
+        paperAnimator = GetComponentInChildren<PaperDollWalkAnimator>();
         ResetFootstepTimer();
     }
 
@@ -48,6 +50,7 @@ public class OrigamiFoldPlayerMover : MonoBehaviour
         if (OrigamiFoldDialogueGuard.IsDialogueActive())
         {
             moveInput = Vector2.zero;
+            SetPaperAnimatorWalking(false);
             return;
         }
 
@@ -57,6 +60,11 @@ public class OrigamiFoldPlayerMover : MonoBehaviour
         {
             moveInput.Normalize();
         }
+
+        if (paperAnimator != null)
+        {
+            paperAnimator.SetFacing(moveInput.x);
+        }
     }
 
     private void FixedUpdate()
@@ -65,12 +73,14 @@ public class OrigamiFoldPlayerMover : MonoBehaviour
         {
             moveInput = Vector2.zero;
             HandleFootsteps(false);
+            SetPaperAnimatorWalking(false);
             return;
         }
 
         if (moveInput == Vector2.zero)
         {
             HandleFootsteps(false);
+            SetPaperAnimatorWalking(false);
             return;
         }
 
@@ -84,6 +94,7 @@ public class OrigamiFoldPlayerMover : MonoBehaviour
             body.MovePosition(targetPosition);
             moved = true;
             HandleFootsteps(moved);
+            SetPaperAnimatorWalking(moved);
             return;
         }
 
@@ -113,6 +124,7 @@ public class OrigamiFoldPlayerMover : MonoBehaviour
         }
 
         HandleFootsteps(moved);
+        SetPaperAnimatorWalking(moved);
     }
 
     public bool CanOccupy(Vector2 targetPosition)
@@ -376,6 +388,16 @@ public class OrigamiFoldPlayerMover : MonoBehaviour
         float minInterval = Mathf.Max(0.02f, minFootstepInterval);
         float maxInterval = Mathf.Max(minInterval, maxFootstepInterval);
         footstepTimer = Random.Range(minInterval, maxInterval);
+    }
+
+    private void SetPaperAnimatorWalking(bool walking)
+    {
+        if (paperAnimator == null)
+        {
+            return;
+        }
+
+        paperAnimator.SetWalking(walking);
     }
 
     private void OnValidate()
