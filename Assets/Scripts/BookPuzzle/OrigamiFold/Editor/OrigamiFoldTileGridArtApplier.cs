@@ -19,6 +19,10 @@ public static class OrigamiFoldTileGridArtApplier
     private const string VillageTileFolder = "Assets/Art/Levels/Village_Level_01/Tiles";
     private const string VillageTileFallbackFolder =
         "Assets/Art/Levels/Village_Level_01_Greybox/Tiles";
+    private const string BookLevel02SceneFileName = "Book_Level_02_Greybox.unity";
+    private const string BookLevel02TileFolder = "Assets/Art/Levels/Book_Level_02/Tiles";
+    private const string BookLevel02TileFallbackFolder =
+        "Assets/Art/Levels/Book_Level_02_Greybox/Tiles";
 
     private static readonly Regex CellNameRegex =
         new Regex(@"^MapCell_(\d+)_(\d+)$", RegexOptions.Compiled);
@@ -74,7 +78,7 @@ public static class OrigamiFoldTileGridArtApplier
         int assignedCount = 0;
         int createdArtVisualCount = 0;
 
-        WarnIfVillageMapCellCountDoesNotMatchTiles(scene, cells.Count);
+        WarnIfMapCellCountDoesNotMatchTiles(cells.Count);
 
         foreach (KeyValuePair<Vector2Int, string> tile in tilePaths)
         {
@@ -169,20 +173,36 @@ public static class OrigamiFoldTileGridArtApplier
 
         if (sceneFileName == VillageSceneFileName)
         {
-            if (AssetDatabase.IsValidFolder(VillageTileFolder))
-            {
-                tileFolder = VillageTileFolder;
-                return true;
-            }
+            return TryUseFirstExistingFolder(
+                out tileFolder,
+                VillageTileFolder,
+                VillageTileFallbackFolder);
+        }
 
-            if (AssetDatabase.IsValidFolder(VillageTileFallbackFolder))
+        if (sceneFileName == BookLevel02SceneFileName)
+        {
+            return TryUseFirstExistingFolder(
+                out tileFolder,
+                BookLevel02TileFolder,
+                BookLevel02TileFallbackFolder);
+        }
+
+        tileFolder = null;
+        return false;
+    }
+
+    private static bool TryUseFirstExistingFolder(out string folder, params string[] candidates)
+    {
+        for (int i = 0; i < candidates.Length; i++)
+        {
+            if (AssetDatabase.IsValidFolder(candidates[i]))
             {
-                tileFolder = VillageTileFallbackFolder;
+                folder = candidates[i];
                 return true;
             }
         }
 
-        tileFolder = null;
+        folder = null;
         return false;
     }
 
@@ -513,16 +533,16 @@ public static class OrigamiFoldTileGridArtApplier
         return report.ToString();
     }
 
-    private static void WarnIfVillageMapCellCountDoesNotMatchTiles(Scene scene, int mapCellCount)
+    private static void WarnIfMapCellCountDoesNotMatchTiles(int mapCellCount)
     {
-        if (Path.GetFileName(scene.path) != VillageSceneFileName || mapCellCount == ExpectedTileCount)
+        if (mapCellCount == ExpectedTileCount)
         {
             return;
         }
 
         Debug.LogWarning(
-            $"Village map cell count does not match tile grid. Found {mapCellCount} MapCells, expected {ExpectedTileCount}. "
-            + "The current tile grid expectation is 12x9.");
+            $"Tile map cell count does not match tile grid. Found {mapCellCount} MapCells, expected {ExpectedTileCount}. "
+            + "Rebuild the level before applying 12x9 tile art.");
     }
 
     private static void AppendList(StringBuilder report, string title, List<string> values)

@@ -8,22 +8,24 @@ using UnityEngine.SceneManagement;
 public static class OrigamiFoldBookLevel02Builder
 {
     private const string LevelScenePath = "Assets/Scenes/Book_Level_02_Greybox.unity";
-    private const int MapWidth = 10;
-    private const int MapHeight = 7;
+    private const int MapWidth = 12;
+    private const int MapHeight = 9;
     private const float CellSize = 1f;
-    private const int CenterColumnFoldX = 4;
-    private const int TriadColumnFoldX = 6;
-    private const int TriadRowFoldY = 4;
+    private const int CenterColumnFoldX = 5;
+    private const int TriadColumnFoldX = 7;
+    private const int TriadRowFoldY = 5;
 
     private static readonly string[] LayoutTopToBottom =
     {
-        "....F.GBG.",
-        "...GFGGNG.",
-        "FGGGFGGFFF",
-        ".GGG..FB.P",
-        "GGGG..FBGG",
-        ".GG.GGFGGF",
-        "...SGG...."
+        "............",
+        ".....F.GBG..",
+        "....GFGGNG..",
+        ".FGGGFGGFFF.",
+        "..GGG..FB.P.",
+        ".GGGG..FBGG.",
+        "..GG.GGFGGF.",
+        "....SGG.....",
+        "............"
     };
 
     private class CellData
@@ -69,19 +71,19 @@ public static class OrigamiFoldBookLevel02Builder
         CreateWalkableAreas(cells, walkableLayer);
 
         OrigamiFoldStripSqueezeAction centerColumnAction = CreateColumnFoldAction(
-            "CenterColumnFold_x4",
+            "CenterColumnFold_x5",
             cells,
             actionsRoot.transform,
             CenterColumnFoldX,
             coordinator);
         OrigamiFoldStripSqueezeAction triadColumnAction = CreateColumnFoldAction(
-            "TriadColumnFold_x6",
+            "TriadColumnFold_x7",
             cells,
             actionsRoot.transform,
             TriadColumnFoldX,
             coordinator);
         OrigamiFoldStripSqueezeAction triadRowAction = CreateRowFoldAction(
-            "TriadRowFold_y4",
+            "TriadRowFold_y5",
             cells,
             actionsRoot.transform,
             TriadRowFoldY,
@@ -91,7 +93,7 @@ public static class OrigamiFoldBookLevel02Builder
             pointsRoot.transform,
             linksRoot.transform,
             centerColumnAction,
-            cells[CenterColumnFoldX, 2]);
+            cells[CenterColumnFoldX, 3]);
         CreateTriadFoldControls(
             pointsRoot.transform,
             linksRoot.transform,
@@ -103,14 +105,11 @@ public static class OrigamiFoldBookLevel02Builder
 
         OrigamiFoldLink[] links = linksRoot.GetComponentsInChildren<OrigamiFoldLink>(true);
         CreateDragController(foldSystemRoot.transform, mainCamera, links);
-        CreatePlayer(playerRoot.transform, cells[0, 2], walkableMask);
-        CreateRespawnPoint(playerRoot.transform, cells[0, 2]);
-        CreateNpcPlaceholder(npcsRoot.transform, cells[7, 5]);
-        CreateNpcZonePlaceholder(npcsRoot.transform, cells[9, 3]);
-        CreateExitPlaceholder(npcsRoot.transform, cells[9, 3]);
-        CreateGuides(debugRoot.transform);
-        CreateInstructionText(debugRoot.transform);
-
+        CreatePlayer(playerRoot.transform, cells[1, 3], walkableMask);
+        CreateRespawnPoint(playerRoot.transform, cells[1, 3]);
+        CreateNpcPlaceholder(npcsRoot.transform, cells[8, 6]);
+        CreateNpcZonePlaceholder(npcsRoot.transform, cells[10, 4]);
+        CreateExitPlaceholder(npcsRoot.transform, cells[10, 4]);
         AddSceneToBuildSettings(LevelScenePath);
         Selection.activeGameObject = levelRoot;
         EditorGUIUtility.PingObject(levelRoot);
@@ -170,15 +169,6 @@ public static class OrigamiFoldBookLevel02Builder
                     new Vector3(0.92f, 0.92f, 1f),
                     GetCellColor(tile),
                     0);
-
-                CreateText(
-                    $"Label_{x}_{y}",
-                    cellObject.transform,
-                    new Vector3(0f, -0.34f, -0.01f),
-                    $"{x},{y}",
-                    new Color(0.85f, 0.88f, 0.9f, 0.72f),
-                    0.075f,
-                    20);
 
                 cells[x, y] = new CellData
                 {
@@ -834,9 +824,9 @@ public static class OrigamiFoldBookLevel02Builder
                 35);
         }
 
-        CreateColumnGuide(parent, "CenterColumnFoldGuide_x4", CenterColumnFoldX);
-        CreateColumnGuide(parent, "TriadColumnFoldGuide_x6", TriadColumnFoldX);
-        CreateRowGuide(parent, "TriadRowFoldGuide_y4", TriadRowFoldY);
+        CreateColumnGuide(parent, "CenterColumnFoldGuide_x5", CenterColumnFoldX);
+        CreateColumnGuide(parent, "TriadColumnFoldGuide_x7", TriadColumnFoldX);
+        CreateRowGuide(parent, "TriadRowFoldGuide_y5", TriadRowFoldY);
     }
 
     private static void CreateColumnGuide(Transform parent, string name, int columnX)
