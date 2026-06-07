@@ -70,6 +70,7 @@ public static class DialogueArtAndPrologueBuilder
             elder,
             "Огонь исчез. Айсулу, найди путь за стеной.");
         UpdateDialogueSystemPrefab(art);
+        PrologueCutsceneBuilder.RebuildPrologueCutscene();
 
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();

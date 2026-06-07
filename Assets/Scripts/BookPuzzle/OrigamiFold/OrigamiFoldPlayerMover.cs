@@ -16,6 +16,7 @@ public class OrigamiFoldPlayerMover : MonoBehaviour
     [Header("Movement")]
     public float moveSpeed = 3.5f;
     public float bodyRadius = 0.18f;
+    public Vector2 bodyCenterOffset;
     public float sampleProbeRadius = 0.025f;
     public LayerMask walkableMask;
     public bool requireAllSamplesInsideWalkable = true;
@@ -165,6 +166,16 @@ public class OrigamiFoldPlayerMover : MonoBehaviour
         return requireAllSamplesInsideWalkable || hasValidSample;
     }
 
+    public Vector2 GetBodyCenter(Vector2 rootPosition)
+    {
+        return rootPosition + bodyCenterOffset;
+    }
+
+    public Vector2 GetRootPositionForBodyCenter(Vector2 bodyCenter)
+    {
+        return bodyCenter - bodyCenterOffset;
+    }
+
     private bool IsWalkableSample(Vector2 sample)
     {
         Collider2D[] hits = Physics2D.OverlapCircleAll(
@@ -199,19 +210,20 @@ public class OrigamiFoldPlayerMover : MonoBehaviour
 
     private Vector2[] GetSamplePositions(Vector2 center)
     {
+        Vector2 bodyCenter = GetBodyCenter(center);
         float diagonalOffset = bodyRadius * 0.70710678f;
 
         return new[]
         {
-            center,
-            center + Vector2.right * bodyRadius,
-            center + Vector2.left * bodyRadius,
-            center + Vector2.up * bodyRadius,
-            center + Vector2.down * bodyRadius,
-            center + new Vector2(diagonalOffset, diagonalOffset),
-            center + new Vector2(-diagonalOffset, diagonalOffset),
-            center + new Vector2(diagonalOffset, -diagonalOffset),
-            center + new Vector2(-diagonalOffset, -diagonalOffset)
+            bodyCenter,
+            bodyCenter + Vector2.right * bodyRadius,
+            bodyCenter + Vector2.left * bodyRadius,
+            bodyCenter + Vector2.up * bodyRadius,
+            bodyCenter + Vector2.down * bodyRadius,
+            bodyCenter + new Vector2(diagonalOffset, diagonalOffset),
+            bodyCenter + new Vector2(-diagonalOffset, diagonalOffset),
+            bodyCenter + new Vector2(diagonalOffset, -diagonalOffset),
+            bodyCenter + new Vector2(-diagonalOffset, -diagonalOffset)
         };
     }
 
@@ -473,7 +485,7 @@ public class OrigamiFoldPlayerMover : MonoBehaviour
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, bodyRadius);
+        Gizmos.DrawWireSphere(GetBodyCenter(transform.position), bodyRadius);
 
         if (!debugDrawSamples)
         {
