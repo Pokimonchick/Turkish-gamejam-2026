@@ -8,23 +8,27 @@ using UnityEngine.SceneManagement;
 public static class OrigamiFoldBookLevel03Builder
 {
     private const string LevelScenePath = "Assets/Scenes/Book_Level_03_Greybox.unity";
-    private const int MapWidth = 10;
-    private const int MapHeight = 8;
+    private const int MapWidth = 12;
+    private const int MapHeight = 9;
     private const float CellSize = 1f;
     private const int LeftRowFoldY = 2;
     private const int TriadColumnFoldX = 6;
     private const int TriadRowFoldY = 5;
+    private const string PlayerSpriteGuid = "77d3b28359b42e440905b56447f58511";
+    private static readonly Vector3 PlayerVisualLocalPosition = new Vector3(-0.53f, -1f, 0f);
+    private static readonly Vector3 PlayerVisualLocalScale = new Vector3(0.22f, 0.22f, 1f);
 
     private static readonly string[] LayoutTopToBottom =
     {
-        "......F...",
-        "..GGGGFG..",
-        "FFRRFGRGGF",
-        "G..G..FGG.",
-        "SGGG.GFGGG",
-        "FFGGFFFFFF",
-        ".....BF...",
-        "......F..."
+        "............",
+        "......F.....",
+        "..GGGGFG....",
+        "FFRRFGRGGF..",
+        "G..G..FGG...",
+        "SGGG.GFGGG..",
+        "FFGGFFFFFF..",
+        ".....BF.....",
+        "......F....."
     };
 
     private class CellData
@@ -106,9 +110,6 @@ public static class OrigamiFoldBookLevel03Builder
         CreatePlayer(playerRoot.transform, cells[0, 3], walkableMask);
         CreateRespawnPoint(playerRoot.transform, cells[0, 3]);
         CreateExitPlaceholder(debugRoot.transform, cells[9, 3]);
-        CreateGuides(debugRoot.transform);
-        CreateInstructionText(debugRoot.transform);
-
         AddSceneToBuildSettings(LevelScenePath);
         Selection.activeGameObject = levelRoot;
         EditorGUIUtility.PingObject(levelRoot);
@@ -169,15 +170,6 @@ public static class OrigamiFoldBookLevel03Builder
                     new Vector3(0.92f, 0.92f, 1f),
                     GetCellColor(tile),
                     0);
-
-                CreateText(
-                    $"Label_{x}_{y}",
-                    cellObject.transform,
-                    new Vector3(0f, -0.34f, -0.01f),
-                    $"{x},{y}",
-                    new Color(0.85f, 0.88f, 0.9f, 0.65f),
-                    0.072f,
-                    20);
 
                 cells[x, y] = new CellData
                 {
@@ -582,13 +574,7 @@ public static class OrigamiFoldBookLevel03Builder
         CircleCollider2D collider = player.AddComponent<CircleCollider2D>();
         collider.radius = 0.18f;
 
-        CreateQuad(
-            "Visual",
-            player.transform,
-            Vector3.zero,
-            new Vector3(0.34f, 0.34f, 1f),
-            new Color(1f, 0.68f, 0.22f, 1f),
-            80);
+        CreatePlayerVisual(player.transform);
 
         OrigamiFoldPlayerMover mover = player.AddComponent<OrigamiFoldPlayerMover>();
         mover.moveSpeed = 3.5f;
@@ -609,6 +595,88 @@ public static class OrigamiFoldBookLevel03Builder
         passenger.resolveMoveDuration = 0.1f;
 
         return player;
+    }
+
+    private static GameObject CreatePlayerVisual(Transform parent)
+    {
+        Sprite playerSprite = FindPlayerSprite();
+
+        if (playerSprite == null)
+        {
+            Debug.LogWarning("Aisulu player sprite was not found. Falling back to placeholder player square.");
+            return CreateQuad(
+                "Visual",
+                parent,
+                Vector3.zero,
+                new Vector3(0.34f, 0.34f, 1f),
+                new Color(1f, 0.68f, 0.22f, 1f),
+                80);
+        }
+
+        GameObject visual = CreateEmpty("Visual", parent);
+        visual.transform.localPosition = PlayerVisualLocalPosition;
+        visual.transform.localScale = PlayerVisualLocalScale;
+
+        SpriteRenderer renderer = visual.AddComponent<SpriteRenderer>();
+        renderer.sprite = playerSprite;
+        renderer.color = Color.white;
+        renderer.sortingOrder = 70;
+
+        PaperDollWalkAnimator animator = visual.AddComponent<PaperDollWalkAnimator>();
+        ConfigurePaperDollAnimator(animator, visual.transform, renderer);
+        return visual;
+    }
+
+    private static Sprite FindPlayerSprite()
+    {
+        string path = AssetDatabase.GUIDToAssetPath(PlayerSpriteGuid);
+
+        if (string.IsNullOrEmpty(path))
+        {
+            return null;
+        }
+
+        Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>(path);
+
+        if (sprite != null)
+        {
+            return sprite;
+        }
+
+        Object[] assets = AssetDatabase.LoadAllAssetsAtPath(path);
+
+        foreach (Object asset in assets)
+        {
+            if (asset is Sprite nestedSprite)
+            {
+                return nestedSprite;
+            }
+        }
+
+        return null;
+    }
+
+    private static void ConfigurePaperDollAnimator(
+        PaperDollWalkAnimator animator,
+        Transform visualRoot,
+        SpriteRenderer renderer)
+    {
+        SerializedObject serialized = new SerializedObject(animator);
+        serialized.FindProperty("visualRoot").objectReferenceValue = visualRoot;
+        serialized.FindProperty("spriteRenderer").objectReferenceValue = renderer;
+        serialized.FindProperty("idleRockTiltAmplitude").floatValue = 1.5f;
+        serialized.FindProperty("idleRockSpeed").floatValue = 3.46f;
+        serialized.FindProperty("walkRockTiltAmplitude").floatValue = 7f;
+        serialized.FindProperty("walkRockSpeed").floatValue = 7f;
+        serialized.FindProperty("walkBobHeight").floatValue = 0.05f;
+        serialized.FindProperty("walkSideOffset").floatValue = 0.03f;
+        serialized.FindProperty("steppedMotion").boolValue = true;
+        serialized.FindProperty("stepiness").floatValue = 1f;
+        serialized.FindProperty("stepsPerCycle").intValue = 4;
+        serialized.FindProperty("snapSteppedPoses").boolValue = true;
+        serialized.FindProperty("returnSmoothness").floatValue = 0f;
+        serialized.FindProperty("flipByDirection").boolValue = true;
+        serialized.ApplyModifiedPropertiesWithoutUndo();
     }
 
     private static GameObject CreateRespawnPoint(Transform parent, CellData startCell)

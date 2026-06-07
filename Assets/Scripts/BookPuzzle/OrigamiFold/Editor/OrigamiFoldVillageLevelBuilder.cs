@@ -199,8 +199,6 @@ public static class OrigamiFoldVillageLevelBuilder
             player.transform,
             "VillageWallHintNpc") ? 1 : 0;
 
-        CreateInstructionText(debugRoot.transform);
-
         Selection.activeGameObject = levelRoot;
         EditorSceneManager.SaveScene(scene, VillageScenePath);
         Debug.Log(

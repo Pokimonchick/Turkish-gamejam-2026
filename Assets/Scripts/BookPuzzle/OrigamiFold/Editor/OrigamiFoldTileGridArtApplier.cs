@@ -23,6 +23,10 @@ public static class OrigamiFoldTileGridArtApplier
     private const string BookLevel02TileFolder = "Assets/Art/Levels/Book_Level_02/Tiles";
     private const string BookLevel02TileFallbackFolder =
         "Assets/Art/Levels/Book_Level_02_Greybox/Tiles";
+    private const string BookLevel03SceneFileName = "Book_Level_03_Greybox.unity";
+    private const string BookLevel03TileFolder = "Assets/Art/Levels/Book_Level_03/Tiles";
+    private const string BookLevel03TileFallbackFolder =
+        "Assets/Art/Levels/Book_Level_03_Greybox/Tiles";
 
     private static readonly Regex CellNameRegex =
         new Regex(@"^MapCell_(\d+)_(\d+)$", RegexOptions.Compiled);
@@ -185,6 +189,14 @@ public static class OrigamiFoldTileGridArtApplier
                 out tileFolder,
                 BookLevel02TileFolder,
                 BookLevel02TileFallbackFolder);
+        }
+
+        if (sceneFileName == BookLevel03SceneFileName)
+        {
+            return TryUseFirstExistingFolder(
+                out tileFolder,
+                BookLevel03TileFolder,
+                BookLevel03TileFallbackFolder);
         }
 
         tileFolder = null;
