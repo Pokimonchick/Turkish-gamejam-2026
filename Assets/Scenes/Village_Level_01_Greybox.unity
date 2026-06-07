@@ -4276,7 +4276,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73699e79f7061164bacf9a39a976a4b0, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldSceneExit
-  nextSceneName: Village_Level_02_Stub
+  nextSceneName: Book_Level_02_Greybox
   loadSceneOnEnter: 1
   visualRoot: {fileID: 1324131675}
 --- !u!61 &278001183
@@ -6699,7 +6699,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73699e79f7061164bacf9a39a976a4b0, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldSceneExit
-  nextSceneName: Village_Level_02_Stub
+  nextSceneName: Book_Level_02_Greybox
   loadSceneOnEnter: 1
   visualRoot: {fileID: 1595583585}
 --- !u!61 &430498150
@@ -10351,7 +10351,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73699e79f7061164bacf9a39a976a4b0, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldSceneExit
-  nextSceneName: Village_Level_02_Stub
+  nextSceneName: Book_Level_02_Greybox
   loadSceneOnEnter: 1
   visualRoot: {fileID: 826633992}
 --- !u!61 &728602461
@@ -14299,7 +14299,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73699e79f7061164bacf9a39a976a4b0, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldSceneExit
-  nextSceneName: Village_Level_02_Stub
+  nextSceneName: Book_Level_02_Greybox
   loadSceneOnEnter: 1
   visualRoot: {fileID: 1102211940}
 --- !u!61 &910759161
@@ -17111,7 +17111,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73699e79f7061164bacf9a39a976a4b0, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldSceneExit
-  nextSceneName: Village_Level_02_Stub
+  nextSceneName: Book_Level_02_Greybox
   loadSceneOnEnter: 1
   visualRoot: {fileID: 804513659}
 --- !u!61 &1056143899
@@ -19584,7 +19584,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73699e79f7061164bacf9a39a976a4b0, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldSceneExit
-  nextSceneName: Village_Level_02_Stub
+  nextSceneName: Book_Level_02_Greybox
   loadSceneOnEnter: 1
   visualRoot: {fileID: 51372145}
 --- !u!61 &1151299600
@@ -24095,7 +24095,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73699e79f7061164bacf9a39a976a4b0, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldSceneExit
-  nextSceneName: Village_Level_02_Stub
+  nextSceneName: Book_Level_02_Greybox
   loadSceneOnEnter: 1
   visualRoot: {fileID: 1826717719}
 --- !u!61 &1396808353
@@ -25739,7 +25739,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73699e79f7061164bacf9a39a976a4b0, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldSceneExit
-  nextSceneName: Village_Level_02_Stub
+  nextSceneName: Book_Level_02_Greybox
   loadSceneOnEnter: 1
   visualRoot: {fileID: 127125010}
 --- !u!61 &1482238231
@@ -30391,7 +30391,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73699e79f7061164bacf9a39a976a4b0, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldSceneExit
-  nextSceneName: Village_Level_02_Stub
+  nextSceneName: Book_Level_02_Greybox
   loadSceneOnEnter: 1
   visualRoot: {fileID: 2024549328}
 --- !u!61 &1737626578

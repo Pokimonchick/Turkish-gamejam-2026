@@ -396,9 +396,9 @@ MonoBehaviour:
   sceneButtons:
   - button: {fileID: 230004}
     targetScene:
-      sceneAsset: {fileID: 102900000, guid: 34b4c8e2897e4fd4bb700bd3d3794a84, type: 3}
-      scenePath: Assets/Scenes/PrologueCutscene.unity
-      sceneName: PrologueCutscene
+      sceneAsset: {fileID: 102900000, guid: c850f1ca7cd10934597c56b16fe5657f, type: 3}
+      scenePath: Assets/Scenes/Village_Level_01_Greybox.unity
+      sceneName: Village_Level_01_Greybox
   settingsButton: {fileID: 231004}
   exitButton: {fileID: 232004}
   mainPanel: {fileID: 220000}

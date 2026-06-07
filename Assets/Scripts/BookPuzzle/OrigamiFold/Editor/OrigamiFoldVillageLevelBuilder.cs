@@ -15,7 +15,7 @@ public static class OrigamiFoldVillageLevelBuilder
     private const string LoadingScenePath = "Assets/Scenes/Loading.unity";
     private const string VillageScenePath = "Assets/Scenes/Village_Level_01_Greybox.unity";
     private const string StubScenePath = "Assets/Scenes/Village_Level_02_Stub.unity";
-    private const string StubSceneName = "Village_Level_02_Stub";
+    private const string NextGameplaySceneName = "Book_Level_02_Greybox";
     private const string DialogueSystemPrefabPath = "Assets/Prefabs/Dialog/DialogueSystem.prefab";
     private const string PreferredFontSourcePath = "Assets/artist_nouveau.ttf";
     private const string PreferredFontAssetPath = "Assets/Fonts/artist_nouveau SDF.asset";
@@ -1210,7 +1210,7 @@ public static class OrigamiFoldVillageLevelBuilder
             collider.size = new Vector2(0.92f, 0.92f);
 
             OrigamiFoldSceneExit sceneExit = exit.AddComponent<OrigamiFoldSceneExit>();
-            sceneExit.nextSceneName = StubSceneName;
+            sceneExit.nextSceneName = NextGameplaySceneName;
             sceneExit.loadSceneOnEnter = true;
             sceneExit.visualRoot = visual;
         }

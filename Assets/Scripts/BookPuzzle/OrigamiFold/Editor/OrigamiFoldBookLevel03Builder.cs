@@ -15,6 +15,7 @@ public static class OrigamiFoldBookLevel03Builder
     private const int TriadColumnFoldX = 6;
     private const int TriadRowFoldY = 5;
     private const string PlayerSpriteGuid = "77d3b28359b42e440905b56447f58511";
+    private const string NextSceneName = "FinalCutscene";
     private static readonly Vector3 PlayerVisualLocalPosition = new Vector3(-0.53f, -1f, 0f);
     private static readonly Vector3 PlayerVisualLocalScale = new Vector3(0.22f, 0.22f, 1f);
 
@@ -706,6 +707,15 @@ public static class OrigamiFoldBookLevel03Builder
             new Vector3(0.24f, 0.24f, 1f),
             new Color(0.2f, 1f, 0.35f, 1f),
             74);
+
+        BoxCollider2D collider = exit.AddComponent<BoxCollider2D>();
+        collider.isTrigger = true;
+        collider.size = new Vector2(0.65f, 0.65f);
+
+        OrigamiFoldSceneExit sceneExit = exit.AddComponent<OrigamiFoldSceneExit>();
+        sceneExit.nextSceneName = NextSceneName;
+        sceneExit.loadSceneOnEnter = true;
+        sceneExit.visualRoot = exit;
     }
 
     private static OrigamiFoldPoint CreateFoldPoint(
