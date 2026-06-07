@@ -12,7 +12,8 @@ public static class DialogSystemTestSceneBuilder
     private const string ScenePath = "Assets/Scenes/Test/Test_DialogSystem.unity";
     private const string DialogueDataPath = "Assets/ScriptableObjects/Dialogues/TestDialogue.asset";
     private const string TmpFontAssetPath =
-        "Assets/Fonts/artist_nouveau SDF.asset";
+        "Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF.asset";
+    private const string ContinueHintText = "E / Enter / Click\nPress Space to Skip";
 
     static DialogSystemTestSceneBuilder()
     {
@@ -31,6 +32,7 @@ public static class DialogSystemTestSceneBuilder
 
         if (AssetDatabase.LoadAssetAtPath<SceneAsset>(ScenePath) != null)
         {
+            EnsureExistingTestSceneUi();
             return;
         }
 
@@ -180,13 +182,13 @@ public static class DialogSystemTestSceneBuilder
         body.textWrappingMode = TextWrappingModes.Normal;
         body.color = new Color(0.94f, 0.92f, 0.86f);
 
-        var hint = CreateTmpText("Continue Hint Text", panel.transform, "E / Enter / Click    Space: Skip", 26f, FontStyles.Normal);
+        var hint = CreateTmpText("Continue Hint Text", panel.transform, ContinueHintText, 26f, FontStyles.Normal);
         var hintRect = hint.GetComponent<RectTransform>();
         hintRect.anchorMin = new Vector2(1f, 0f);
         hintRect.anchorMax = new Vector2(1f, 0f);
         hintRect.pivot = new Vector2(1f, 0f);
         hintRect.anchoredPosition = new Vector2(-36f, 26f);
-        hintRect.sizeDelta = new Vector2(220f, 42f);
+        hintRect.sizeDelta = new Vector2(420f, 68f);
         hint.alignment = TextAlignmentOptions.Right;
         hint.color = new Color(1f, 0.78f, 0.35f);
 
@@ -339,6 +341,89 @@ public static class DialogSystemTestSceneBuilder
 
         TMP_PackageResourceImporter.ImportResources(true, false, false);
         AssetDatabase.Refresh();
+    }
+
+    private static void EnsureExistingTestSceneUi()
+    {
+        var scene = GetLoadedScene(ScenePath);
+        var openedForUpdate = !scene.IsValid();
+        if (openedForUpdate)
+        {
+            scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Additive);
+        }
+
+        try
+        {
+            if (!scene.IsValid())
+            {
+                return;
+            }
+
+            var hint = FindInScene(scene, "Continue Hint Text");
+            if (hint == null)
+            {
+                return;
+            }
+
+            var hintText = hint.GetComponent<TextMeshProUGUI>();
+            if (hintText != null)
+            {
+                hintText.text = ContinueHintText;
+                hintText.alignment = TextAlignmentOptions.Right;
+                hintText.textWrappingMode = TextWrappingModes.Normal;
+                EditorUtility.SetDirty(hintText);
+            }
+
+            var hintRect = hint.GetComponent<RectTransform>();
+            if (hintRect != null)
+            {
+                hintRect.sizeDelta = new Vector2(420f, 68f);
+                hintRect.anchoredPosition = new Vector2(-36f, 26f);
+                EditorUtility.SetDirty(hintRect);
+            }
+
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene);
+        }
+        finally
+        {
+            if (openedForUpdate && scene.IsValid())
+            {
+                EditorSceneManager.CloseScene(scene, true);
+            }
+        }
+    }
+
+    private static Scene GetLoadedScene(string scenePath)
+    {
+        for (var i = 0; i < SceneManager.sceneCount; i++)
+        {
+            var scene = SceneManager.GetSceneAt(i);
+            if (scene.path == scenePath)
+            {
+                return scene;
+            }
+        }
+
+        return default;
+    }
+
+    private static GameObject FindInScene(Scene scene, string objectName)
+    {
+        var roots = scene.GetRootGameObjects();
+        foreach (var root in roots)
+        {
+            var transforms = root.GetComponentsInChildren<Transform>(true);
+            foreach (var item in transforms)
+            {
+                if (item.gameObject.name == objectName)
+                {
+                    return item.gameObject;
+                }
+            }
+        }
+
+        return null;
     }
 
     private static void EnsurePlayerTag()

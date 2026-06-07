@@ -31,6 +31,7 @@ public class DialogueManager : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
+            Debug.LogWarning("Duplicate DialogueManager found. The extra instance will be destroyed.", this);
             Destroy(gameObject);
             return;
         }
