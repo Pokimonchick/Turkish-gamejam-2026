@@ -36,11 +36,11 @@ public static class OrigamiFoldVillageLevelBuilder
         "\u0410\u0411\u0412\u0413\u0414\u0415\u0401\u0416\u0417\u0418\u0419\u041a\u041b\u041c\u041d\u041e\u041f\u0420\u0421\u0422\u0423\u0424\u0425\u0426\u0427\u0428\u0429\u042a\u042b\u042c\u042d\u042e\u042f" +
         "\u0430\u0431\u0432\u0433\u0434\u0435\u0451\u0436\u0437\u0438\u0439\u043a\u043b\u043c\u043d\u043e\u043f\u0440\u0441\u0442\u0443\u0444\u0445\u0446\u0447\u0448\u0449\u044a\u044b\u044c\u044d\u044e\u044f" +
         " .,!?;:-/()[]\"'\u00ab\u00bb\u2014";
-    private const int MapWidth = 11;
-    private const int VisibleVillageWidth = 10;
-    private const int MapHeight = 7;
-    private const int WallColumnX = 9;
-    private const int ExitBufferX = 10;
+    private const int MapWidth = 12;
+    private const int VisibleVillageWidth = 12;
+    private const int MapHeight = 9;
+    private const int WallColumnX = 10;
+    private const int ExitBufferX = 11;
     private const float CellSize = 1f;
 
     private enum VillageCellKind
@@ -103,7 +103,7 @@ public static class OrigamiFoldVillageLevelBuilder
         Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
         scene.name = "Village_Level_01_Greybox";
 
-        Camera camera = CreateCamera("Main Camera", new Vector3(0f, 0.25f, -10f), 5.15f);
+        Camera camera = CreateCamera("Main Camera", new Vector3(0f, 0f, -10f), 5f);
 
         GameObject levelRoot = CreateEmpty("LEVEL_ROOT", null);
         GameObject foldSystemRoot = CreateEmpty("ORIGAMI_FOLD_SYSTEM", levelRoot.transform);
@@ -131,6 +131,7 @@ public static class OrigamiFoldVillageLevelBuilder
             coordinatorObject.AddComponent<OrigamiFoldActionCoordinator>();
 
         CellData[,] cells = CreateCells(cellsRoot.transform);
+        Debug.Log($"Village map grid created: MapCells={MapWidth * MapHeight}, expected=108.");
         int walkableLayer = ResolveWalkableLayer();
         LayerMask walkableMask = new LayerMask
         {
@@ -138,8 +139,7 @@ public static class OrigamiFoldVillageLevelBuilder
         };
         CreateWalkableAreas(cells, walkableLayer);
 
-        OrigamiFoldTransformStack exitStack;
-        CreateVillageExit(exitRoot.transform, out exitStack);
+        OrigamiFoldTransformStack[] exitStacks = CreateVillageExit(exitRoot.transform);
 
         OrigamiFoldPoint leftPoint;
         OrigamiFoldPoint rightPoint;
@@ -154,7 +154,7 @@ public static class OrigamiFoldVillageLevelBuilder
         OrigamiFoldStripSqueezeAction wallAction = CreateWallColumnAction(
             actionsRoot.transform,
             cells,
-            exitStack,
+            exitStacks,
             coordinator,
             leftPoint,
             rightPoint,
@@ -1184,33 +1184,40 @@ public static class OrigamiFoldVillageLevelBuilder
         }
     }
 
-    private static void CreateVillageExit(
-        Transform parent,
-        out OrigamiFoldTransformStack exitStack)
+    private static OrigamiFoldTransformStack[] CreateVillageExit(Transform parent)
     {
-        GameObject exit = CreateEmpty("NextLevelExit", parent);
-        exit.transform.position = CellToWorld(ExitBufferX, 2);
+        GameObject lineRoot = CreateEmpty("NextLevelExitLine", parent);
+        List<OrigamiFoldTransformStack> stacks = new List<OrigamiFoldTransformStack>();
 
-        exitStack = exit.AddComponent<OrigamiFoldTransformStack>();
-        exitStack.CaptureBaseTransform();
+        for (int y = 0; y < MapHeight; y++)
+        {
+            GameObject exit = CreateEmpty($"NextLevelExit_{ExitBufferX}_{y}", lineRoot.transform);
+            exit.transform.position = CellToWorld(ExitBufferX, y);
 
-        GameObject visual = CreateSpriteVisual(
-            "Visual",
-            exit.transform,
-            Vector3.zero,
-            new Vector2(0.54f, 0.54f),
-            new Color(0.1f, 1f, 0.25f),
-            35,
-            false);
+            OrigamiFoldTransformStack stack = exit.AddComponent<OrigamiFoldTransformStack>();
+            stack.CaptureBaseTransform();
+            stacks.Add(stack);
 
-        BoxCollider2D collider = exit.AddComponent<BoxCollider2D>();
-        collider.isTrigger = true;
-        collider.size = new Vector2(0.62f, 0.62f);
+            GameObject visual = CreateSpriteVisual(
+                "Visual",
+                exit.transform,
+                Vector3.zero,
+                new Vector2(0.82f, 0.82f),
+                new Color(0.1f, 1f, 0.25f, 0.72f),
+                35,
+                false);
 
-        OrigamiFoldSceneExit sceneExit = exit.AddComponent<OrigamiFoldSceneExit>();
-        sceneExit.nextSceneName = StubSceneName;
-        sceneExit.loadSceneOnEnter = true;
-        sceneExit.visualRoot = visual;
+            BoxCollider2D collider = exit.AddComponent<BoxCollider2D>();
+            collider.isTrigger = true;
+            collider.size = new Vector2(0.92f, 0.92f);
+
+            OrigamiFoldSceneExit sceneExit = exit.AddComponent<OrigamiFoldSceneExit>();
+            sceneExit.nextSceneName = StubSceneName;
+            sceneExit.loadSceneOnEnter = true;
+            sceneExit.visualRoot = visual;
+        }
+
+        return stacks.ToArray();
     }
 
     private static void CreateWallFoldPoints(
@@ -1263,7 +1270,7 @@ public static class OrigamiFoldVillageLevelBuilder
     private static OrigamiFoldStripSqueezeAction CreateWallColumnAction(
         Transform parent,
         CellData[,] cells,
-        OrigamiFoldTransformStack exitStack,
+        OrigamiFoldTransformStack[] exitStacks,
         OrigamiFoldActionCoordinator coordinator,
         OrigamiFoldPoint leftPoint,
         OrigamiFoldPoint rightPoint,
@@ -1275,7 +1282,7 @@ public static class OrigamiFoldVillageLevelBuilder
         action.animationDuration = 0.3f;
         action.coordinator = coordinator;
         action.useCoordinator = true;
-        action.targets = CreateWallTargets(cells, exitStack);
+        action.targets = CreateWallTargets(cells, exitStacks);
         action.enableAfterActive = new[] { mergedPoint.gameObject };
         action.disableAfterActive = new[] { leftPoint.gameObject, rightPoint.gameObject };
         action.enableAfterInactive = action.disableAfterActive;
@@ -1285,7 +1292,7 @@ public static class OrigamiFoldVillageLevelBuilder
 
     private static OrigamiStripContributionTarget[] CreateWallTargets(
         CellData[,] cells,
-        OrigamiFoldTransformStack exitStack)
+        OrigamiFoldTransformStack[] exitStacks)
     {
         List<OrigamiStripContributionTarget> targets =
             new List<OrigamiStripContributionTarget>();
@@ -1305,12 +1312,25 @@ public static class OrigamiFoldVillageLevelBuilder
             }
         }
 
-        targets.Add(new OrigamiStripContributionTarget
+        if (exitStacks == null)
         {
-            stack = exitStack,
-            activeLocalPositionOffset = GetWallFoldOffset(ExitBufferX),
-            activeLocalScaleMultiplier = Vector3.one
-        });
+            return targets.ToArray();
+        }
+
+        foreach (OrigamiFoldTransformStack exitStack in exitStacks)
+        {
+            if (exitStack == null)
+            {
+                continue;
+            }
+
+            targets.Add(new OrigamiStripContributionTarget
+            {
+                stack = exitStack,
+                activeLocalPositionOffset = GetWallFoldOffset(ExitBufferX),
+                activeLocalScaleMultiplier = Vector3.one
+            });
+        }
 
         return targets.ToArray();
     }
@@ -1536,6 +1556,11 @@ public static class OrigamiFoldVillageLevelBuilder
             return VillageCellKind.ExitBuffer;
         }
 
+        if (y >= 7)
+        {
+            return VillageCellKind.Blocked;
+        }
+
         if (y == 6 && (x == 1 || x == 2 || x == 3 || x == 6 || x == 7 || x == 8))
         {
             return VillageCellKind.House;
@@ -1546,7 +1571,7 @@ public static class OrigamiFoldVillageLevelBuilder
             return VillageCellKind.Door;
         }
 
-        if ((x == 4 || x == 5) && (y == 2 || y == 3))
+        if ((x == 5 || x == 6) && (y == 3 || y == 4))
         {
             return VillageCellKind.Fire;
         }
@@ -1563,7 +1588,7 @@ public static class OrigamiFoldVillageLevelBuilder
     {
         if (x == ExitBufferX)
         {
-            return y == 2 || y == 3;
+            return true;
         }
 
         return kind == VillageCellKind.Walkable;
@@ -1600,7 +1625,9 @@ public static class OrigamiFoldVillageLevelBuilder
 
     private static Vector3 CellToWorld(int x, int y)
     {
-        return new Vector3((x - 5) * CellSize, (y - 3) * CellSize, 0f);
+        float worldX = (x - (MapWidth - 1) / 2f) * CellSize;
+        float worldY = (y - (MapHeight - 1) / 2f) * CellSize;
+        return new Vector3(worldX, worldY, 0f);
     }
 
     private static int ResolveWalkableLayer()
