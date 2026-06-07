@@ -94,9 +94,14 @@ public sealed class MainMenuController : MonoBehaviour
     [SerializeField] private Slider sfxVolumeSlider;
     [SerializeField] private TMP_Text sfxVolumeValueText;
 
+    private Text masterVolumeLegacyValueText;
+    private Text musicVolumeLegacyValueText;
+    private Text sfxVolumeLegacyValueText;
+
     private void Awake()
     {
         EnsureEventSystemInputModule();
+        ResolveVolumeLabels();
         RegisterButtons();
         LoadAudioSettings();
         ShowSettings(false);
@@ -159,9 +164,9 @@ public sealed class MainMenuController : MonoBehaviour
             sfxVolumeSlider.SetValueWithoutNotify(audioManager.SfxVolume);
         }
 
-        UpdateVolumeLabel(masterVolumeValueText, audioManager.MasterVolume);
-        UpdateVolumeLabel(musicVolumeValueText, audioManager.MusicVolume);
-        UpdateVolumeLabel(sfxVolumeValueText, audioManager.SfxVolume);
+        UpdateVolumeLabel(masterVolumeValueText, masterVolumeLegacyValueText, audioManager.MasterVolume);
+        UpdateVolumeLabel(musicVolumeValueText, musicVolumeLegacyValueText, audioManager.MusicVolume);
+        UpdateVolumeLabel(sfxVolumeValueText, sfxVolumeLegacyValueText, audioManager.SfxVolume);
     }
 
     private void LoadScene(string sceneKey)
@@ -191,29 +196,81 @@ public sealed class MainMenuController : MonoBehaviour
     private void SetMasterVolume(float volume)
     {
         GameAudioManager.Instance.SetMasterVolume(volume);
-        UpdateVolumeLabel(masterVolumeValueText, GameAudioManager.Instance.MasterVolume);
+        UpdateVolumeLabel(masterVolumeValueText, masterVolumeLegacyValueText, GameAudioManager.Instance.MasterVolume);
     }
 
     private void SetMusicVolume(float volume)
     {
         GameAudioManager.Instance.SetMusicVolume(volume);
-        UpdateVolumeLabel(musicVolumeValueText, GameAudioManager.Instance.MusicVolume);
+        UpdateVolumeLabel(musicVolumeValueText, musicVolumeLegacyValueText, GameAudioManager.Instance.MusicVolume);
     }
 
     private void SetSfxVolume(float volume)
     {
         GameAudioManager.Instance.SetSfxVolume(volume);
-        UpdateVolumeLabel(sfxVolumeValueText, GameAudioManager.Instance.SfxVolume);
+        UpdateVolumeLabel(sfxVolumeValueText, sfxVolumeLegacyValueText, GameAudioManager.Instance.SfxVolume);
     }
 
-    private void UpdateVolumeLabel(TMP_Text label, float volume)
+    private void ResolveVolumeLabels()
     {
-        if (label == null)
+        masterVolumeValueText = ResolveTmpLabel(masterVolumeValueText, "Master Volume Value");
+        musicVolumeValueText = ResolveTmpLabel(musicVolumeValueText, "Music Volume Value");
+        sfxVolumeValueText = ResolveTmpLabel(sfxVolumeValueText, "SFX Volume Value");
+
+        masterVolumeLegacyValueText = ResolveLegacyLabel(masterVolumeLegacyValueText, "Master Volume Value");
+        musicVolumeLegacyValueText = ResolveLegacyLabel(musicVolumeLegacyValueText, "Music Volume Value");
+        sfxVolumeLegacyValueText = ResolveLegacyLabel(sfxVolumeLegacyValueText, "SFX Volume Value");
+    }
+
+    private TMP_Text ResolveTmpLabel(TMP_Text current, string objectName)
+    {
+        if (current != null)
         {
-            return;
+            return current;
         }
 
-        label.text = $"{Mathf.RoundToInt(volume * 100f)}%";
+        var target = FindMenuObject(objectName);
+        return target != null ? target.GetComponent<TMP_Text>() : null;
+    }
+
+    private Text ResolveLegacyLabel(Text current, string objectName)
+    {
+        if (current != null)
+        {
+            return current;
+        }
+
+        var target = FindMenuObject(objectName);
+        return target != null ? target.GetComponent<Text>() : null;
+    }
+
+    private GameObject FindMenuObject(string objectName)
+    {
+        var transforms = GetComponentsInChildren<Transform>(true);
+        foreach (var item in transforms)
+        {
+            if (item.gameObject.name == objectName)
+            {
+                return item.gameObject;
+            }
+        }
+
+        return null;
+    }
+
+    private void UpdateVolumeLabel(TMP_Text tmpLabel, Text legacyLabel, float volume)
+    {
+        var text = $"{Mathf.RoundToInt(volume * 100f)}%";
+
+        if (tmpLabel != null)
+        {
+            tmpLabel.text = text;
+        }
+
+        if (legacyLabel != null)
+        {
+            legacyLabel.text = text;
+        }
     }
 
     private void QuitGame()
