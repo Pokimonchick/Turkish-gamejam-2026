@@ -8,13 +8,20 @@ public class OrigamiFoldPassenger : MonoBehaviour
     public OrigamiFoldTransformStack currentStack;
     public Behaviour[] disableWhileCarried;
     public bool refreshStackBeforeCarry = true;
+    public bool resolveToWalkableAfterCarry = true;
+    public float resolveSearchRadius = 1.25f;
+    public float resolveSearchStep = 0.08f;
+    public int resolveDirectionCount = 16;
+    public float resolveMoveDuration = 0.1f;
     public bool debugLogs = false;
 
     private Rigidbody2D body;
+    private OrigamiFoldPlayerMover playerMover;
 
     private void Awake()
     {
         body = GetComponent<Rigidbody2D>();
+        playerMover = GetComponent<OrigamiFoldPlayerMover>();
     }
 
     public void RefreshCurrentStack()
@@ -75,6 +82,7 @@ public class OrigamiFoldPassenger : MonoBehaviour
         {
             MoveTo(transform.position + worldOffset);
             RefreshCurrentStack();
+            ResolveToNearestWalkable(0f);
             return null;
         }
 
@@ -98,8 +106,196 @@ public class OrigamiFoldPassenger : MonoBehaviour
         }
 
         MoveTo(targetPosition);
-        SetCarriedBehavioursEnabled(true);
         RefreshCurrentStack();
+        yield return ResolveToNearestWalkableRoutine(resolveMoveDuration);
+        SetCarriedBehavioursEnabled(true);
+    }
+
+    public Coroutine ResolveToNearestWalkable(float duration)
+    {
+        if (!resolveToWalkableAfterCarry)
+        {
+            RefreshCurrentStack();
+            return null;
+        }
+
+        if (!TryFindNearestWalkablePosition(out Vector3 targetPosition))
+        {
+            RefreshCurrentStack();
+            return null;
+        }
+
+        if (duration <= 0f)
+        {
+            MoveTo(targetPosition);
+            RefreshCurrentStack();
+            return null;
+        }
+
+        return StartCoroutine(ResolveToNearestWalkableRoutine(duration));
+    }
+
+    public IEnumerator ResolveToNearestWalkableRoutine(float duration)
+    {
+        if (!resolveToWalkableAfterCarry)
+        {
+            RefreshCurrentStack();
+            yield break;
+        }
+
+        if (!TryFindNearestWalkablePosition(out Vector3 targetPosition))
+        {
+            RefreshCurrentStack();
+            yield break;
+        }
+
+        SetCarriedBehavioursEnabled(false);
+
+        Vector3 startPosition = transform.position;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            float t = duration <= 0f ? 1f : elapsed / duration;
+            MoveTo(Vector3.Lerp(startPosition, targetPosition, t));
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        MoveTo(targetPosition);
+        RefreshCurrentStack();
+        SetCarriedBehavioursEnabled(true);
+    }
+
+    private bool TryFindNearestWalkablePosition(out Vector3 position)
+    {
+        position = transform.position;
+
+        if (CanOccupy(position))
+        {
+            return false;
+        }
+
+        if (TryFindWalkableColliderCenter(out position))
+        {
+            return true;
+        }
+
+        float step = Mathf.Max(0.02f, resolveSearchStep);
+        int directionCount = Mathf.Max(8, resolveDirectionCount);
+
+        float searchRadius = GetResolveSearchRadius();
+
+        for (float radius = step; radius <= searchRadius; radius += step)
+        {
+            for (int i = 0; i < directionCount; i++)
+            {
+                float angle = (Mathf.PI * 2f * i) / directionCount;
+                Vector3 candidate = transform.position + new Vector3(
+                    Mathf.Cos(angle) * radius,
+                    Mathf.Sin(angle) * radius,
+                    0f);
+
+                if (CanOccupy(candidate))
+                {
+                    position = candidate;
+                    return true;
+                }
+            }
+        }
+
+        if (debugLogs)
+        {
+            Debug.Log($"{name}: no nearby walkable rescue position found.", this);
+        }
+
+        return false;
+    }
+
+    private bool TryFindWalkableColliderCenter(out Vector3 position)
+    {
+        position = transform.position;
+
+        Collider2D[] hits = Physics2D.OverlapCircleAll(
+            transform.position,
+            GetResolveSearchRadius(),
+            walkableMask);
+
+        float bestDistance = float.MaxValue;
+        bool found = false;
+
+        for (int i = 0; i < hits.Length; i++)
+        {
+            Collider2D hit = hits[i];
+
+            if (!IsWalkableHit(hit))
+            {
+                continue;
+            }
+
+            Vector3 candidate = hit.bounds.center;
+
+            if (!CanOccupy(candidate))
+            {
+                continue;
+            }
+
+            float distance = (candidate - transform.position).sqrMagnitude;
+
+            if (distance < bestDistance)
+            {
+                bestDistance = distance;
+                position = candidate;
+                found = true;
+            }
+        }
+
+        return found;
+    }
+
+    private float GetResolveSearchRadius()
+    {
+        return Mathf.Max(resolveSearchRadius, 1.25f);
+    }
+
+    private bool CanOccupy(Vector3 position)
+    {
+        if (playerMover != null)
+        {
+            return playerMover.CanOccupy(position);
+        }
+
+        Collider2D[] hits = Physics2D.OverlapCircleAll(
+            position,
+            probeRadius,
+            walkableMask);
+
+        for (int i = 0; i < hits.Length; i++)
+        {
+            if (IsWalkableHit(hits[i]))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool IsWalkableHit(Collider2D hit)
+    {
+        if (hit == null)
+        {
+            return false;
+        }
+
+        OrigamiFoldWalkableArea area = hit.GetComponent<OrigamiFoldWalkableArea>();
+
+        if (area == null)
+        {
+            area = hit.GetComponentInParent<OrigamiFoldWalkableArea>();
+        }
+
+        return area != null && area.isWalkable && area.ownerStack != null;
     }
 
     private void MoveTo(Vector3 position)

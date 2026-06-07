@@ -29,6 +29,12 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Village_Level_02_Stub.unity
     guid: 694580ec36f55b444896187a6cd1ba5c
+  - enabled: 1
+    path: Assets/Scenes/Book_Level_02_Greybox.unity
+    guid: 9cb2dbfc4a23d554fb88bc05acd7d9fe
+  - enabled: 1
+    path: Assets/Scenes/Book_Level_03_Greybox.unity
+    guid: 00000000000000000000000000000000
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0

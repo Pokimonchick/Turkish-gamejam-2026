@@ -30,6 +30,7 @@ public class OrigamiFoldPlayerMover : MonoBehaviour
     [SerializeField] private bool avoidRepeatingFootstepSound = true;
 
     private Rigidbody2D body;
+    private OrigamiFoldPassenger passenger;
     private Vector2 moveInput;
     private float footstepTimer;
     private int lastFootstepIndex = -1;
@@ -42,7 +43,10 @@ public class OrigamiFoldPlayerMover : MonoBehaviour
         body.gravityScale = 0f;
         body.freezeRotation = true;
         paperAnimator = GetComponentInChildren<PaperDollWalkAnimator>();
+        passenger = GetComponent<OrigamiFoldPassenger>();
+
         ResetFootstepTimer();
+
     }
 
     private void Update()
@@ -85,6 +89,18 @@ public class OrigamiFoldPlayerMover : MonoBehaviour
         }
 
         Vector2 currentPosition = body.position;
+
+        if (!CanOccupy(currentPosition))
+        {
+            if (passenger != null)
+            {
+                passenger.ResolveToNearestWalkable(passenger.resolveMoveDuration);
+            }
+
+            moveInput = Vector2.zero;
+            return;
+        }
+
         Vector2 moveDelta = moveInput * moveSpeed * Time.fixedDeltaTime;
         Vector2 targetPosition = currentPosition + moveDelta;
         bool moved = false;
