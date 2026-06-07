@@ -221,17 +221,9 @@ public static class DialogPrefabBuilder
 
         EnsureFolder("Assets/Fonts");
 
-        var metaPath = PreferredFontAssetPath + ".meta";
-        var meta = File.Exists(metaPath) ? File.ReadAllText(metaPath) : null;
-
         if (existing != null)
         {
             AssetDatabase.DeleteAsset(PreferredFontAssetPath);
-            if (!string.IsNullOrEmpty(meta))
-            {
-                File.WriteAllText(metaPath, meta);
-            }
-
             AssetDatabase.Refresh();
         }
 
@@ -322,6 +314,9 @@ public static class DialogPrefabBuilder
         serializedObject.FindProperty("bodyText").objectReferenceValue = bodyText;
         serializedObject.FindProperty("portraitImage").objectReferenceValue = portraitImage;
         serializedObject.FindProperty("continueHintObject").objectReferenceValue = continueHintObject;
+        serializedObject.FindProperty("uiSourceFont").objectReferenceValue =
+            AssetDatabase.LoadAssetAtPath<Font>(PreferredFontSourcePath);
+        serializedObject.FindProperty("uiFontAsset").objectReferenceValue = LoadPreferredFontAsset();
         serializedObject.ApplyModifiedPropertiesWithoutUndo();
     }
 

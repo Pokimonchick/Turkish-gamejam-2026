@@ -11,6 +11,11 @@ public class PlayerInteractor : MonoBehaviour
 
     private void Update()
     {
+        if (OrigamiFoldDialogueGuard.IsDialogueActive())
+        {
+            return;
+        }
+
         if (IsInteractPressed())
         {
             TryInteract();

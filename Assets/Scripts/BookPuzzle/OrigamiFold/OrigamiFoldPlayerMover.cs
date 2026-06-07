@@ -26,6 +26,12 @@ public class OrigamiFoldPlayerMover : MonoBehaviour
 
     private void Update()
     {
+        if (OrigamiFoldDialogueGuard.IsDialogueActive())
+        {
+            moveInput = Vector2.zero;
+            return;
+        }
+
         moveInput = ReadMoveInput();
 
         if (moveInput.sqrMagnitude > 1f)
@@ -36,6 +42,12 @@ public class OrigamiFoldPlayerMover : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (OrigamiFoldDialogueGuard.IsDialogueActive())
+        {
+            moveInput = Vector2.zero;
+            return;
+        }
+
         if (moveInput == Vector2.zero)
         {
             return;

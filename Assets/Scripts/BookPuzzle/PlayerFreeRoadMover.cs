@@ -24,6 +24,12 @@ public class PlayerFreeRoadMover : MonoBehaviour
 
     private void Update()
     {
+        if (OrigamiFoldDialogueGuard.IsDialogueActive())
+        {
+            moveInput = Vector2.zero;
+            return;
+        }
+
         if (IsReloadPressed())
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
@@ -40,6 +46,12 @@ public class PlayerFreeRoadMover : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (OrigamiFoldDialogueGuard.IsDialogueActive())
+        {
+            moveInput = Vector2.zero;
+            return;
+        }
+
         if (moveInput == Vector2.zero)
         {
             return;

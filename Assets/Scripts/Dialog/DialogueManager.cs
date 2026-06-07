@@ -1,7 +1,12 @@
 using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.TextCore.LowLevel;
 using UnityEngine.UI;
+
+#if ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem;
+#endif
 
 public class DialogueManager : MonoBehaviour
 {
@@ -10,6 +15,11 @@ public class DialogueManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI bodyText;
     [SerializeField] private Image portraitImage;
     [SerializeField] private GameObject continueHintObject;
+    [SerializeField] private Font uiSourceFont;
+    [SerializeField] private TMP_FontAsset uiFontAsset;
+    public Image dialogueFrameImage;
+    public Image topPatternImage;
+    public Image namePlateImage;
 
     [SerializeField] private AudioClip dialogOpenSound;
     [SerializeField] private AudioClip dialogNextSound;
@@ -17,6 +27,8 @@ public class DialogueManager : MonoBehaviour
 
     private DialogueData currentDialogue;
     private int currentLineIndex;
+    private int startedFrame = -1;
+    private TMP_FontAsset runtimeFontAsset;
 
     public static DialogueManager Instance { get; private set; }
 
@@ -37,11 +49,14 @@ public class DialogueManager : MonoBehaviour
         }
 
         Instance = this;
+        ApplyConfiguredFont();
 
         if (dialogRoot != null)
         {
             dialogRoot.SetActive(false);
         }
+
+        SetDialogueVisualsActive(false);
     }
 
     private void OnDestroy()
@@ -59,15 +74,18 @@ public class DialogueManager : MonoBehaviour
             return;
         }
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Time.frameCount == startedFrame)
+        {
+            return;
+        }
+
+        if (IsClosePressed())
         {
             EndDialogue();
             return;
         }
 
-        if (Input.GetKeyDown(KeyCode.E)
-            || Input.GetKeyDown(KeyCode.Return)
-            || Input.GetMouseButtonDown(0))
+        if (IsAdvancePressed())
         {
             AdvanceDialogue();
         }
@@ -83,11 +101,14 @@ public class DialogueManager : MonoBehaviour
         currentDialogue = data;
         currentLineIndex = 0;
         IsActive = true;
+        startedFrame = Time.frameCount;
 
         if (dialogRoot != null)
         {
             dialogRoot.SetActive(true);
         }
+
+        SetDialogueVisualsActive(true);
 
         if (continueHintObject != null)
         {
@@ -135,6 +156,8 @@ public class DialogueManager : MonoBehaviour
             dialogRoot.SetActive(false);
         }
 
+        SetDialogueVisualsActive(false);
+
         if (continueHintObject != null)
         {
             continueHintObject.SetActive(false);
@@ -154,11 +177,19 @@ public class DialogueManager : MonoBehaviour
             return;
         }
 
-        var line = currentDialogue.lines[currentLineIndex];
+        DialogueLine line = currentDialogue.lines[currentLineIndex];
+        string speakerName = line.speakerName;
+        Sprite portrait = line.portrait;
+
+        if (line.speakerProfile != null)
+        {
+            speakerName = line.speakerProfile.displayName;
+            portrait = line.speakerProfile.portrait;
+        }
 
         if (speakerNameText != null)
         {
-            speakerNameText.text = line.speakerName;
+            speakerNameText.text = speakerName;
         }
 
         if (bodyText != null)
@@ -171,15 +202,33 @@ public class DialogueManager : MonoBehaviour
             return;
         }
 
-        if (line.portrait == null)
+        if (portrait == null)
         {
             portraitImage.gameObject.SetActive(false);
             portraitImage.sprite = null;
             return;
         }
 
-        portraitImage.sprite = line.portrait;
+        portraitImage.sprite = portrait;
         portraitImage.gameObject.SetActive(true);
+    }
+
+    private void SetDialogueVisualsActive(bool active)
+    {
+        if (topPatternImage != null)
+        {
+            topPatternImage.gameObject.SetActive(active);
+        }
+
+        if (dialogueFrameImage != null)
+        {
+            dialogueFrameImage.gameObject.SetActive(active);
+        }
+
+        if (namePlateImage != null)
+        {
+            namePlateImage.gameObject.SetActive(active);
+        }
     }
 
     private static void PlaySfx(AudioClip clip)
@@ -190,5 +239,84 @@ public class DialogueManager : MonoBehaviour
         }
 
         GameAudioManager.Instance.PlaySfx(clip);
+    }
+
+    private void ApplyConfiguredFont()
+    {
+        TMP_FontAsset fontAsset = uiFontAsset;
+
+        if (fontAsset == null && uiSourceFont != null)
+        {
+            runtimeFontAsset = TMP_FontAsset.CreateFontAsset(
+                uiSourceFont,
+                128,
+                12,
+                GlyphRenderMode.SDFAA,
+                2048,
+                2048,
+                AtlasPopulationMode.Dynamic);
+
+            if (runtimeFontAsset != null)
+            {
+                fontAsset = runtimeFontAsset;
+            }
+        }
+
+        if (fontAsset == null)
+        {
+            return;
+        }
+
+        ApplyFont(speakerNameText, fontAsset);
+        ApplyFont(bodyText, fontAsset);
+
+        if (continueHintObject == null)
+        {
+            return;
+        }
+
+        TextMeshProUGUI[] continueTexts =
+            continueHintObject.GetComponentsInChildren<TextMeshProUGUI>(true);
+
+        for (int i = 0; i < continueTexts.Length; i++)
+        {
+            ApplyFont(continueTexts[i], fontAsset);
+        }
+    }
+
+    private static void ApplyFont(TextMeshProUGUI text, TMP_FontAsset fontAsset)
+    {
+        if (text != null && fontAsset != null)
+        {
+            text.font = fontAsset;
+        }
+    }
+
+    private static bool IsClosePressed()
+    {
+#if ENABLE_INPUT_SYSTEM
+        Keyboard keyboard = Keyboard.current;
+        return keyboard != null && keyboard.spaceKey.wasPressedThisFrame;
+#else
+        return Input.GetKeyDown(KeyCode.Space);
+#endif
+    }
+
+    private static bool IsAdvancePressed()
+    {
+#if ENABLE_INPUT_SYSTEM
+        Keyboard keyboard = Keyboard.current;
+        Mouse mouse = Mouse.current;
+        bool keyboardPressed = keyboard != null
+            && (keyboard.eKey.wasPressedThisFrame
+                || keyboard.enterKey.wasPressedThisFrame
+                || keyboard.numpadEnterKey.wasPressedThisFrame);
+        bool mousePressed = mouse != null && mouse.leftButton.wasPressedThisFrame;
+        return keyboardPressed || mousePressed;
+#else
+        return Input.GetKeyDown(KeyCode.E)
+            || Input.GetKeyDown(KeyCode.Return)
+            || Input.GetMouseButtonDown(0);
+#endif
     }
 }
