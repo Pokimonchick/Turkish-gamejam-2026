@@ -15213,7 +15213,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73699e79f7061164bacf9a39a976a4b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldSceneExit
-  nextSceneName: FinalCutscene
+  nextSceneName: Book_Level_04_Greybox
   loadSceneOnEnter: 1
   visualRoot: {fileID: 307434745}
 --- !u!61 &307434748

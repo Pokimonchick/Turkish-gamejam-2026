@@ -16,7 +16,7 @@ public static class OrigamiFoldBookLevel03Builder
     private const int TriadColumnFoldX = 6;
     private const int TriadRowFoldY = 5;
     private const string PlayerSpriteGuid = "77d3b28359b42e440905b56447f58511";
-    private const string NextSceneName = "FinalCutscene";
+    private const string NextSceneName = "Book_Level_04_Greybox";
     private const float FoldNodeVisualSize = 0.55f;
     private const float FoldNodeGlowSize = 0.9f;
     private const float FoldNodeColliderRadius = 0.5f;
