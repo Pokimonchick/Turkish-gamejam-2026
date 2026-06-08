@@ -8,6 +8,7 @@ using UnityEngine.SceneManagement;
 public static class OrigamiFoldBookLevel03Builder
 {
     private const string LevelScenePath = "Assets/Scenes/Book_Level_03_Greybox.unity";
+    private const string FoldNodeSpritePath = "Assets/Art/UI/Node.PNG";
     private const int MapWidth = 12;
     private const int MapHeight = 9;
     private const float CellSize = 1f;
@@ -16,6 +17,10 @@ public static class OrigamiFoldBookLevel03Builder
     private const int TriadRowFoldY = 5;
     private const string PlayerSpriteGuid = "77d3b28359b42e440905b56447f58511";
     private const string NextSceneName = "FinalCutscene";
+    private const float FoldNodeVisualSize = 0.55f;
+    private const float FoldNodeGlowSize = 0.9f;
+    private const float FoldNodeColliderRadius = 0.5f;
+    private const int FoldNodeSortingOrder = 95;
     private static readonly Vector3 PlayerVisualLocalPosition = new Vector3(-0.53f, -1f, 0f);
     private static readonly Vector3 PlayerVisualLocalScale = new Vector3(0.22f, 0.22f, 1f);
 
@@ -725,24 +730,49 @@ public static class OrigamiFoldBookLevel03Builder
         Color color,
         float size)
     {
-        GameObject pointObject = CreateQuad(
-            name,
-            parent,
-            position,
-            new Vector3(size, size, 1f),
-            color,
-            90);
+        GameObject pointObject = CreateEmpty(name, parent);
+        pointObject.transform.position = position;
 
         CircleCollider2D collider = pointObject.AddComponent<CircleCollider2D>();
         collider.isTrigger = true;
-        collider.radius = 0.58f;
+        collider.radius = FoldNodeColliderRadius;
+
+        Renderer visualRenderer = CreateFoldPointVisual(pointObject);
 
         OrigamiFoldPoint point = pointObject.AddComponent<OrigamiFoldPoint>();
         point.pointId = name;
-        point.visualRenderer = pointObject.GetComponent<Renderer>();
+        point.visualRenderer = visualRenderer;
         point.normalColor = color;
         point.highlightColor = Color.yellow;
         return point;
+    }
+
+    private static Renderer CreateFoldPointVisual(GameObject pointObject)
+    {
+        OrigamiFoldPointVisual visual = pointObject.AddComponent<OrigamiFoldPointVisual>();
+        Sprite nodeSprite = AssetDatabase.LoadAssetAtPath<Sprite>(FoldNodeSpritePath);
+
+        SerializedObject serialized = new SerializedObject(visual);
+        serialized.FindProperty("nodeSprite").objectReferenceValue = nodeSprite;
+        serialized.FindProperty("normalColor").colorValue = Color.white;
+        serialized.FindProperty("highlightedColor").colorValue = new Color(1f, 0.92f, 0.25f, 1f);
+        serialized.FindProperty("glowColor").colorValue = new Color(0.12f, 0.85f, 1f, 0.32f);
+        serialized.FindProperty("highlightedGlowColor").colorValue = new Color(1f, 0.72f, 0.18f, 0.62f);
+        serialized.FindProperty("visualSize").floatValue = FoldNodeVisualSize;
+        serialized.FindProperty("glowSize").floatValue = FoldNodeGlowSize;
+        serialized.FindProperty("sortingOrder").intValue = FoldNodeSortingOrder;
+        serialized.FindProperty("hideLegacyRenderer").boolValue = true;
+        serialized.FindProperty("pulseSpeed").floatValue = 2.2f;
+        serialized.FindProperty("pulseAmount").floatValue = 0.18f;
+        serialized.ApplyModifiedPropertiesWithoutUndo();
+
+        if (nodeSprite == null)
+        {
+            Debug.LogWarning($"Fold node sprite was not found at {FoldNodeSpritePath}.", pointObject);
+        }
+
+        visual.EnsureVisuals();
+        return visual.MainRenderer;
     }
 
     private static OrigamiFoldPoint CreateAttachedFoldPoint(
