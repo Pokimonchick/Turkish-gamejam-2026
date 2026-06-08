@@ -3,6 +3,7 @@ using System.IO;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 
 public static class OrigamiFoldBookLevel04Builder
@@ -12,6 +13,10 @@ public static class OrigamiFoldBookLevel04Builder
     private const string FinalCutsceneSceneName = "FinalCutscene";
     private const string FoldNodeSpritePath = "Assets/Art/UI/Node.PNG";
     private const string CrowSpritePath = "Assets/Art/crow.PNG";
+    private const string DialogueSystemPrefabPath = "Assets/Prefabs/Dialog/DialogueSystem.prefab";
+    private const string RavenIntroDialoguePath = "Assets/ScriptableObjects/Dialogues/Book_Level_04_Raven_Intro.asset";
+    private const string AisuluSpeakerProfilePath = "Assets/ScriptableObjects/Dialogues/Speakers/Speaker_Aisulu.asset";
+    private const string RavenSpeakerProfilePath = "Assets/ScriptableObjects/Dialogues/Speakers/Speaker_Raven.asset";
     private const int MapWidth = 12;
     private const int MapHeight = 9;
     private const float CellSize = 1f;
@@ -68,6 +73,7 @@ public static class OrigamiFoldBookLevel04Builder
         scene.name = "Book_Level_04_Greybox";
 
         Camera mainCamera = CreateMainCamera();
+        DialogueData ravenIntroDialogue = EnsureRavenIntroDialogueData();
 
         GameObject levelRoot = CreateEmpty("LEVEL_ROOT", null);
         GameObject foldSystemRoot = CreateEmpty("ORIGAMI_FOLD_SYSTEM", levelRoot.transform);
@@ -160,6 +166,9 @@ public static class OrigamiFoldBookLevel04Builder
             patrols);
         AssignHazards(enemiesRoot.transform, puzzleState);
         CreateFinalCutsceneTrigger(goalRoot.transform, cells[1, 1]);
+        CreateDialogueSystem(levelRoot.transform);
+        CreateEventSystemIfMissing();
+        CreateRavenIntroAutoStart(levelRoot.transform, ravenIntroDialogue);
         AddSceneToBuildSettings(LevelScenePath);
         AddSceneToBuildSettings(FinalCutsceneScenePath);
         Selection.activeGameObject = levelRoot;
@@ -231,6 +240,36 @@ public static class OrigamiFoldBookLevel04Builder
         EditorSceneManager.MarkSceneDirty(scene);
         Debug.Log(
             $"Book Level 04 crow visuals applied. Scene={scene.path}, updatedEnemies={updatedCount}, sprite={CrowSpritePath}");
+    }
+
+    [MenuItem("Tools/PANINI/Origami Fold/Apply Book Level 04 Raven Intro Dialogue")]
+    public static void ApplyBookLevel04RavenIntroDialogue()
+    {
+        if (EditorApplication.isPlayingOrWillChangePlaymode)
+        {
+            Debug.LogWarning("Cannot update Book Level 04 raven intro dialogue while Unity is in Play Mode.");
+            return;
+        }
+
+        if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
+        {
+            return;
+        }
+
+        Scene scene = EditorSceneManager.OpenScene(LevelScenePath, OpenSceneMode.Single);
+        DialogueData ravenIntroDialogue = EnsureRavenIntroDialogueData();
+        Transform levelRoot = FindOrCreateRoot("LEVEL_ROOT");
+        CreateDialogueSystem(levelRoot);
+        CreateEventSystemIfMissing();
+        DestroySceneObjectsNamed("RavenIntroAutoStart");
+        CreateRavenIntroAutoStart(levelRoot, ravenIntroDialogue);
+
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene, LevelScenePath);
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+
+        Debug.Log("Book Level 04 raven intro dialogue applied.");
     }
 
     private static Camera CreateMainCamera()
@@ -1638,6 +1677,171 @@ public static class OrigamiFoldBookLevel04Builder
         return material;
     }
 
+    private static DialogueData EnsureRavenIntroDialogueData()
+    {
+        EnsureFolder("Assets/ScriptableObjects");
+        EnsureFolder("Assets/ScriptableObjects/Dialogues");
+        EnsureFolder("Assets/ScriptableObjects/Dialogues/Speakers");
+
+        DialogueSpeakerProfile aisuluProfile =
+            AssetDatabase.LoadAssetAtPath<DialogueSpeakerProfile>(AisuluSpeakerProfilePath);
+        DialogueSpeakerProfile ravenProfile = EnsureSpeakerProfile(
+            RavenSpeakerProfilePath,
+            "raven",
+            "Raven",
+            null);
+
+        DialogueData dialogue =
+            AssetDatabase.LoadAssetAtPath<DialogueData>(RavenIntroDialoguePath);
+
+        if (dialogue == null)
+        {
+            dialogue = ScriptableObject.CreateInstance<DialogueData>();
+            AssetDatabase.CreateAsset(dialogue, RavenIntroDialoguePath);
+        }
+
+        dialogue.dialogueId = "book_level_04_raven_intro";
+        dialogue.lines = new List<DialogueLine>
+        {
+            CreateDialogueLine(
+                ravenProfile,
+                "Raven",
+                "Daughter of the steppe, I saw the smoke of your fires long before it turned black. At first, people warmed their hands by the flame. Then they began to warm their pride with it."),
+            CreateDialogueLine(
+                aisuluProfile,
+                "Aisulu",
+                "I am not walking this path to justify people. I am walking it to understand whether light can be returned to those who have forgotten its price."),
+            CreateDialogueLine(
+                ravenProfile,
+                "Raven",
+                "The price of fire is not in brushwood, nor in the spark. Its price is in the memory that people lose faster than ash cools in the wind."),
+            CreateDialogueLine(
+                aisuluProfile,
+                "Aisulu",
+                "Then if I find the fire, I must bring home not only the flame, but also the memory of why it was given."),
+            CreateDialogueLine(
+                ravenProfile,
+                "Raven",
+                "Fine words, daughter of the steppe. But words rarely win where shadow has already made its home. Fly on, if you can... but this time, victory will not choose you.")
+        };
+
+        EditorUtility.SetDirty(dialogue);
+        AssetDatabase.SaveAssets();
+        return dialogue;
+    }
+
+    private static DialogueLine CreateDialogueLine(
+        DialogueSpeakerProfile speakerProfile,
+        string fallbackSpeakerName,
+        string text)
+    {
+        return new DialogueLine
+        {
+            speakerProfile = speakerProfile,
+            speakerName = fallbackSpeakerName,
+            text = text,
+            portrait = null
+        };
+    }
+
+    private static DialogueSpeakerProfile EnsureSpeakerProfile(
+        string path,
+        string speakerId,
+        string displayName,
+        Sprite portrait)
+    {
+        DialogueSpeakerProfile profile =
+            AssetDatabase.LoadAssetAtPath<DialogueSpeakerProfile>(path);
+
+        if (profile == null)
+        {
+            profile = ScriptableObject.CreateInstance<DialogueSpeakerProfile>();
+            AssetDatabase.CreateAsset(profile, path);
+        }
+
+        profile.speakerId = speakerId;
+        profile.displayName = displayName;
+        profile.portrait = portrait;
+        EditorUtility.SetDirty(profile);
+        return profile;
+    }
+
+    private static DialogueManager CreateDialogueSystem(Transform parent)
+    {
+        DialogueManager existing =
+            Object.FindFirstObjectByType<DialogueManager>(FindObjectsInactive.Include);
+
+        if (existing != null)
+        {
+            return existing;
+        }
+
+        GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(DialogueSystemPrefabPath);
+
+        if (prefab == null)
+        {
+            Debug.LogWarning($"DialogueSystem prefab was not found: {DialogueSystemPrefabPath}");
+            return null;
+        }
+
+        GameObject instance = PrefabUtility.InstantiatePrefab(prefab) as GameObject;
+
+        if (instance == null)
+        {
+            Debug.LogWarning($"Could not instantiate DialogueSystem prefab: {DialogueSystemPrefabPath}");
+            return null;
+        }
+
+        instance.name = "DialogueSystem";
+        instance.transform.SetParent(parent, false);
+        return instance.GetComponentInChildren<DialogueManager>(true);
+    }
+
+    private static void CreateRavenIntroAutoStart(Transform parent, DialogueData dialogueData)
+    {
+        if (dialogueData == null)
+        {
+            Debug.LogWarning("Could not create RavenIntroAutoStart: dialogue data is missing.");
+            return;
+        }
+
+        GameObject autoStartObject = CreateEmpty("RavenIntroAutoStart", parent);
+        DialogueAutoStart autoStart = autoStartObject.AddComponent<DialogueAutoStart>();
+        autoStart.dialogueData = dialogueData;
+        autoStart.delaySeconds = 0.35f;
+        autoStart.playOnStart = true;
+        autoStart.onlyIfNoDialogueActive = true;
+    }
+
+    private static void CreateEventSystemIfMissing()
+    {
+        if (Object.FindFirstObjectByType<EventSystem>(FindObjectsInactive.Include) != null)
+        {
+            return;
+        }
+
+        GameObject eventSystemObject = new GameObject("EventSystem");
+        eventSystemObject.AddComponent<EventSystem>();
+    }
+
+    private static void EnsureFolder(string path)
+    {
+        if (AssetDatabase.IsValidFolder(path))
+        {
+            return;
+        }
+
+        string parent = Path.GetDirectoryName(path);
+        string folder = Path.GetFileName(path);
+
+        if (!string.IsNullOrEmpty(parent))
+        {
+            EnsureFolder(parent.Replace("\\", "/"));
+        }
+
+        AssetDatabase.CreateFolder(parent, folder);
+    }
+
     private static GameObject CreateEmpty(string name, Transform parent)
     {
         GameObject gameObject = new GameObject(name);
@@ -1648,6 +1852,47 @@ public static class OrigamiFoldBookLevel04Builder
         }
 
         return gameObject;
+    }
+
+    private static Transform FindOrCreateRoot(string rootName)
+    {
+        GameObject existing = GameObject.Find(rootName);
+
+        if (existing != null)
+        {
+            return existing.transform;
+        }
+
+        return CreateEmpty(rootName, null).transform;
+    }
+
+    private static void DestroySceneObjectsNamed(string objectName)
+    {
+        GameObject[] allObjects = Object.FindObjectsByType<GameObject>(
+            FindObjectsInactive.Include,
+            FindObjectsSortMode.None);
+        List<GameObject> objectsToDestroy = new List<GameObject>();
+
+        for (int i = 0; i < allObjects.Length; i++)
+        {
+            if (allObjects[i] == null)
+            {
+                continue;
+            }
+
+            if (allObjects[i].name == objectName)
+            {
+                objectsToDestroy.Add(allObjects[i]);
+            }
+        }
+
+        for (int i = 0; i < objectsToDestroy.Count; i++)
+        {
+            if (objectsToDestroy[i] != null)
+            {
+                Object.DestroyImmediate(objectsToDestroy[i]);
+            }
+        }
     }
 
     private static GameObject FindGameObjectInScene(Scene scene, string objectName)

@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a3a40b1ee4441518f69c26c62cb3cde, type: 3}
+  m_Name: Book_Level_04_Raven_Intro
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueData
+  dialogueId: book_level_04_raven_intro
+  lines:
+  - speakerProfile: {fileID: 11400000, guid: 12d337519c78aa44cb9dca67ae4afc03, type: 2}
+    speakerName: Raven
+    text: Daughter of the steppe, I saw the smoke of your fires long before it turned
+      black. At first, people warmed their hands by the flame. Then they began to
+      warm their pride with it.
+    portrait: {fileID: 0}
+  - speakerProfile: {fileID: 11400000, guid: 6992f1ad55b7805439d6200abb695e15, type: 2}
+    speakerName: Aisulu
+    text: I am not walking this path to justify people. I am walking it to understand
+      whether light can be returned to those who have forgotten its price.
+    portrait: {fileID: 0}
+  - speakerProfile: {fileID: 11400000, guid: 12d337519c78aa44cb9dca67ae4afc03, type: 2}
+    speakerName: Raven
+    text: The price of fire is not in brushwood, nor in the spark. Its price is in
+      the memory that people lose faster than ash cools in the wind.
+    portrait: {fileID: 0}
+  - speakerProfile: {fileID: 11400000, guid: 6992f1ad55b7805439d6200abb695e15, type: 2}
+    speakerName: Aisulu
+    text: Then if I find the fire, I must bring home not only the flame, but also
+      the memory of why it was given.
+    portrait: {fileID: 0}
+  - speakerProfile: {fileID: 11400000, guid: 12d337519c78aa44cb9dca67ae4afc03, type: 2}
+    speakerName: Raven
+    text: Fine words, daughter of the steppe. But words rarely win where shadow has
+      already made its home. Fly on, if you can... but this time, victory will not
+      choose you.
+    portrait: {fileID: 0}
