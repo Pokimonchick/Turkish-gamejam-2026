@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a3a40b1ee4441518f69c26c62cb3cde, type: 3}
+  m_Name: Book_Level_03_Wolf_Intro
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueData
+  dialogueId: book_level_03_wolf_intro
+  lines:
+  - speakerProfile: {fileID: 11400000, guid: 48ccf4465e991aa438795fe697d34f7a, type: 2}
+    speakerName: Wolf
+    text: Daughter of the steppe, your steps are light, but a heavy trail follows
+      your people.
+    portrait: {fileID: 0}
+  - speakerProfile: {fileID: 11400000, guid: 6992f1ad55b7805439d6200abb695e15, type: 2}
+    speakerName: Aisulu
+    text: I did not come to cut down trees, and I did not come to hunt. I am searching
+      for the road to Umay and trying to understand where our guilt began.
+    portrait: {fileID: 0}
+  - speakerProfile: {fileID: 11400000, guid: 48ccf4465e991aa438795fe697d34f7a, type: 2}
+    speakerName: Wolf
+    text: 'Guilt rarely begins with a loud cry. More often, it begins with a small
+      thought: "This can be taken, because it does not speak."'
+    portrait: {fileID: 0}
+  - speakerProfile: {fileID: 11400000, guid: 6992f1ad55b7805439d6200abb695e15, type: 2}
+    speakerName: Aisulu
+    text: If the forest can remember, then fire can remember too. And if fire remembers,
+      then Umay took it not out of cruelty, but out of pain.
+    portrait: {fileID: 0}
+  - speakerProfile: {fileID: 11400000, guid: 48ccf4465e991aa438795fe697d34f7a, type: 2}
+    speakerName: Wolf
+    text: While I stand here, daughter of the steppe, you shall go no further. Not
+      everyone who seeks Umay is worthy of approaching her fire.
+    portrait: {fileID: 0}

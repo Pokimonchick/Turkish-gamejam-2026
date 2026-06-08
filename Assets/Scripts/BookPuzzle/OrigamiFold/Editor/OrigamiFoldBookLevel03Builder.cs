@@ -3,6 +3,7 @@ using System.IO;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 
 public static class OrigamiFoldBookLevel03Builder
@@ -19,6 +20,10 @@ public static class OrigamiFoldBookLevel03Builder
     private const string DefaultFootstepProfilePath = "Assets/Resources/Audio/DefaultFootstepAudioProfile.asset";
     private const string WolfSpritePath = "Assets/Art/wolf.PNG";
     private const string NextSceneName = "Book_Level_04_Greybox";
+    private const string DialogueSystemPrefabPath = "Assets/Prefabs/Dialog/DialogueSystem.prefab";
+    private const string WolfIntroDialoguePath = "Assets/ScriptableObjects/Dialogues/Book_Level_03_Wolf_Intro.asset";
+    private const string AisuluSpeakerProfilePath = "Assets/ScriptableObjects/Dialogues/Speakers/Speaker_Aisulu.asset";
+    private const string WolfSpeakerProfilePath = "Assets/ScriptableObjects/Dialogues/Speakers/Speaker_Wolf.asset";
     private const float FoldNodeVisualSize = 0.55f;
     private const float FoldNodeGlowSize = 0.9f;
     private const float FoldNodeColliderRadius = 0.5f;
@@ -64,6 +69,7 @@ public static class OrigamiFoldBookLevel03Builder
         scene.name = "Book_Level_03_Greybox";
 
         Camera mainCamera = CreateMainCamera();
+        DialogueData wolfIntroDialogue = EnsureWolfIntroDialogueData();
 
         GameObject levelRoot = CreateEmpty("LEVEL_ROOT", null);
         GameObject foldSystemRoot = CreateEmpty("ORIGAMI_FOLD_SYSTEM", levelRoot.transform);
@@ -126,6 +132,9 @@ public static class OrigamiFoldBookLevel03Builder
         OrigamiFoldTrapTarget wolfTrap =
             CreateWolfTrapEnemy(cells[11, 2], puzzleState);
         ConfigureWolfGate(leftRowAction, wolfTrap, exit);
+        CreateDialogueSystem(levelRoot.transform);
+        CreateEventSystemIfMissing();
+        CreateWolfIntroAutoStart(levelRoot.transform, wolfIntroDialogue);
         AddSceneToBuildSettings(LevelScenePath);
         Selection.activeGameObject = levelRoot;
         EditorGUIUtility.PingObject(levelRoot);
@@ -158,6 +167,7 @@ public static class OrigamiFoldBookLevel03Builder
         }
 
         Scene scene = EditorSceneManager.OpenScene(LevelScenePath, OpenSceneMode.Single);
+        DialogueData wolfIntroDialogue = EnsureWolfIntroDialogueData();
         int walkableLayer = ResolveWalkableLayer();
         int walkableCount = 0;
         int blockedCount = 0;
@@ -221,6 +231,10 @@ public static class OrigamiFoldBookLevel03Builder
         }
 
         ConfigureWolfGate(leftRowAction, wolfTrap, exit);
+        CreateDialogueSystem(levelRoot);
+        CreateEventSystemIfMissing();
+        DestroySceneObjectsNamed("WolfIntroAutoStart");
+        CreateWolfIntroAutoStart(levelRoot, wolfIntroDialogue);
 
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene, LevelScenePath);
@@ -254,6 +268,36 @@ public static class OrigamiFoldBookLevel03Builder
         AssetDatabase.Refresh();
 
         Debug.Log("Book Level 03 presentation debug cleaned: grid, coordinate labels, and walkable highlights removed.");
+    }
+
+    [MenuItem("Tools/PANINI/Origami Fold/Apply Book Level 03 Wolf Intro Dialogue")]
+    public static void ApplyBookLevel03WolfIntroDialogue()
+    {
+        if (EditorApplication.isPlayingOrWillChangePlaymode)
+        {
+            Debug.LogWarning("Cannot update Book Level 03 wolf intro dialogue while Unity is in Play Mode.");
+            return;
+        }
+
+        if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
+        {
+            return;
+        }
+
+        Scene scene = EditorSceneManager.OpenScene(LevelScenePath, OpenSceneMode.Single);
+        DialogueData wolfIntroDialogue = EnsureWolfIntroDialogueData();
+        Transform levelRoot = FindOrCreateRoot("LEVEL_ROOT");
+        CreateDialogueSystem(levelRoot);
+        CreateEventSystemIfMissing();
+        DestroySceneObjectsNamed("WolfIntroAutoStart");
+        CreateWolfIntroAutoStart(levelRoot, wolfIntroDialogue);
+
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene, LevelScenePath);
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+
+        Debug.Log("Book Level 03 wolf intro dialogue applied.");
     }
 
     private static char GetLayoutTile(int x, int y)
@@ -406,6 +450,171 @@ public static class OrigamiFoldBookLevel03Builder
         DestroyExtraDirectChildrenNamed(cell, "Grid_Left", 0);
         DestroyExtraDirectChildrenNamed(cell, "Grid_Right", 0);
         DestroyExtraDirectChildrenNamed(cell, "CoordinateLabel", 0);
+    }
+
+    private static DialogueData EnsureWolfIntroDialogueData()
+    {
+        EnsureFolder("Assets/ScriptableObjects");
+        EnsureFolder("Assets/ScriptableObjects/Dialogues");
+        EnsureFolder("Assets/ScriptableObjects/Dialogues/Speakers");
+
+        DialogueSpeakerProfile aisuluProfile =
+            AssetDatabase.LoadAssetAtPath<DialogueSpeakerProfile>(AisuluSpeakerProfilePath);
+        DialogueSpeakerProfile wolfProfile = EnsureSpeakerProfile(
+            WolfSpeakerProfilePath,
+            "wolf",
+            "Wolf",
+            null);
+
+        DialogueData dialogue =
+            AssetDatabase.LoadAssetAtPath<DialogueData>(WolfIntroDialoguePath);
+
+        if (dialogue == null)
+        {
+            dialogue = ScriptableObject.CreateInstance<DialogueData>();
+            AssetDatabase.CreateAsset(dialogue, WolfIntroDialoguePath);
+        }
+
+        dialogue.dialogueId = "book_level_03_wolf_intro";
+        dialogue.lines = new List<DialogueLine>
+        {
+            CreateDialogueLine(
+                wolfProfile,
+                "Wolf",
+                "Daughter of the steppe, your steps are light, but a heavy trail follows your people."),
+            CreateDialogueLine(
+                aisuluProfile,
+                "Aisulu",
+                "I did not come to cut down trees, and I did not come to hunt. I am searching for the road to Umay and trying to understand where our guilt began."),
+            CreateDialogueLine(
+                wolfProfile,
+                "Wolf",
+                "Guilt rarely begins with a loud cry. More often, it begins with a small thought: \"This can be taken, because it does not speak.\""),
+            CreateDialogueLine(
+                aisuluProfile,
+                "Aisulu",
+                "If the forest can remember, then fire can remember too. And if fire remembers, then Umay took it not out of cruelty, but out of pain."),
+            CreateDialogueLine(
+                wolfProfile,
+                "Wolf",
+                "While I stand here, daughter of the steppe, you shall go no further. Not everyone who seeks Umay is worthy of approaching her fire.")
+        };
+
+        EditorUtility.SetDirty(dialogue);
+        AssetDatabase.SaveAssets();
+        return dialogue;
+    }
+
+    private static DialogueLine CreateDialogueLine(
+        DialogueSpeakerProfile speakerProfile,
+        string fallbackSpeakerName,
+        string text)
+    {
+        return new DialogueLine
+        {
+            speakerProfile = speakerProfile,
+            speakerName = fallbackSpeakerName,
+            text = text,
+            portrait = null
+        };
+    }
+
+    private static DialogueSpeakerProfile EnsureSpeakerProfile(
+        string path,
+        string speakerId,
+        string displayName,
+        Sprite portrait)
+    {
+        DialogueSpeakerProfile profile =
+            AssetDatabase.LoadAssetAtPath<DialogueSpeakerProfile>(path);
+
+        if (profile == null)
+        {
+            profile = ScriptableObject.CreateInstance<DialogueSpeakerProfile>();
+            AssetDatabase.CreateAsset(profile, path);
+        }
+
+        profile.speakerId = speakerId;
+        profile.displayName = displayName;
+        profile.portrait = portrait;
+        EditorUtility.SetDirty(profile);
+        return profile;
+    }
+
+    private static DialogueManager CreateDialogueSystem(Transform parent)
+    {
+        DialogueManager existing =
+            Object.FindFirstObjectByType<DialogueManager>(FindObjectsInactive.Include);
+
+        if (existing != null)
+        {
+            return existing;
+        }
+
+        GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(DialogueSystemPrefabPath);
+
+        if (prefab == null)
+        {
+            Debug.LogWarning($"DialogueSystem prefab was not found: {DialogueSystemPrefabPath}");
+            return null;
+        }
+
+        GameObject instance = PrefabUtility.InstantiatePrefab(prefab) as GameObject;
+
+        if (instance == null)
+        {
+            Debug.LogWarning($"Could not instantiate DialogueSystem prefab: {DialogueSystemPrefabPath}");
+            return null;
+        }
+
+        instance.name = "DialogueSystem";
+        instance.transform.SetParent(parent, false);
+        return instance.GetComponentInChildren<DialogueManager>(true);
+    }
+
+    private static void CreateWolfIntroAutoStart(Transform parent, DialogueData dialogueData)
+    {
+        if (dialogueData == null)
+        {
+            Debug.LogWarning("Could not create WolfIntroAutoStart: dialogue data is missing.");
+            return;
+        }
+
+        GameObject autoStartObject = CreateEmpty("WolfIntroAutoStart", parent);
+        DialogueAutoStart autoStart = autoStartObject.AddComponent<DialogueAutoStart>();
+        autoStart.dialogueData = dialogueData;
+        autoStart.delaySeconds = 0.35f;
+        autoStart.playOnStart = true;
+        autoStart.onlyIfNoDialogueActive = true;
+    }
+
+    private static void CreateEventSystemIfMissing()
+    {
+        if (Object.FindFirstObjectByType<EventSystem>(FindObjectsInactive.Include) != null)
+        {
+            return;
+        }
+
+        GameObject eventSystemObject = new GameObject("EventSystem");
+        eventSystemObject.AddComponent<EventSystem>();
+    }
+
+    private static void EnsureFolder(string path)
+    {
+        if (AssetDatabase.IsValidFolder(path))
+        {
+            return;
+        }
+
+        string parent = Path.GetDirectoryName(path);
+        string folder = Path.GetFileName(path);
+
+        if (!string.IsNullOrEmpty(parent))
+        {
+            EnsureFolder(parent.Replace("\\", "/"));
+        }
+
+        AssetDatabase.CreateFolder(parent, folder);
     }
 
     private static Transform FindDirectChild(Transform parent, string childName)
