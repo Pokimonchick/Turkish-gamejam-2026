@@ -23,6 +23,7 @@ public static class OrigamiFoldBookLevel03Builder
     private const float FoldNodeGlowSize = 0.9f;
     private const float FoldNodeColliderRadius = 0.5f;
     private const int FoldNodeSortingOrder = 95;
+    private const bool ShowCellDebugOverlay = false;
     private const float PlayerFootprintRadius = 0.12f;
     private const float PlayerVisualFootYOffset = 0.02f;
     private static readonly Vector3 PlayerVisualLocalScale = new Vector3(0.22f, 0.22f, 1f);
@@ -178,7 +179,7 @@ public static class OrigamiFoldBookLevel03Builder
                 bool isWalkable = IsWalkableTile(tile);
                 SyncGreyboxVisual(cell.transform, tile);
                 SyncWalkableArea(cell, isWalkable, walkableLayer);
-                SyncWalkableDebugHighlight(cell.transform, isWalkable);
+                SyncCellDebugOverlay(cell.transform, isWalkable);
 
                 if (isWalkable)
                 {
@@ -190,6 +191,8 @@ public static class OrigamiFoldBookLevel03Builder
                 }
             }
         }
+
+        CleanupPresentationDebugObjects();
 
         Transform levelRoot = FindOrCreateRoot("LEVEL_ROOT");
         Transform enemiesRoot = FindOrCreateChild(levelRoot, "BOOK_LEVEL_ENEMIES");
@@ -227,6 +230,30 @@ public static class OrigamiFoldBookLevel03Builder
         Debug.Log(
             $"Updated Book Level 03 walkability layout. "
             + $"Walkable cells: {walkableCount}, blocked cells: {blockedCount}, missing cells: {missingCells}.");
+    }
+
+    [MenuItem("Tools/PANINI/Origami Fold/Clean Book Level 03 Presentation Debug")]
+    public static void CleanBookLevel03PresentationDebug()
+    {
+        if (EditorApplication.isPlayingOrWillChangePlaymode)
+        {
+            Debug.LogWarning("Cannot clean Book Level 03 presentation debug while Unity is in Play Mode.");
+            return;
+        }
+
+        if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
+        {
+            return;
+        }
+
+        Scene scene = EditorSceneManager.OpenScene(LevelScenePath, OpenSceneMode.Single);
+        CleanupPresentationDebugObjects();
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene, LevelScenePath);
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+
+        Debug.Log("Book Level 03 presentation debug cleaned: grid, coordinate labels, and walkable highlights removed.");
     }
 
     private static char GetLayoutTile(int x, int y)
@@ -301,6 +328,17 @@ public static class OrigamiFoldBookLevel03Builder
         area.isWalkable = true;
     }
 
+    private static void SyncCellDebugOverlay(Transform cell, bool isWalkable)
+    {
+        if (!ShowCellDebugOverlay)
+        {
+            RemoveCellDebugOverlay(cell);
+            return;
+        }
+
+        SyncWalkableDebugHighlight(cell, isWalkable);
+    }
+
     private static void SyncWalkableDebugHighlight(Transform cell, bool isWalkable)
     {
         DestroyExtraDirectChildrenNamed(cell, "WalkableDebugHighlight", isWalkable ? 1 : 0);
@@ -340,6 +378,34 @@ public static class OrigamiFoldBookLevel03Builder
             renderer.sharedMaterial = CreateMaterial(new Color(0.1f, 1f, 0.42f, 0.28f));
             renderer.sortingOrder = 62;
         }
+    }
+
+    private static void CleanupPresentationDebugObjects()
+    {
+        for (int y = 0; y < MapHeight; y++)
+        {
+            for (int x = 0; x < MapWidth; x++)
+            {
+                Transform cell = FindMapCellTransform(x, y);
+
+                if (cell != null)
+                {
+                    RemoveCellDebugOverlay(cell);
+                }
+            }
+        }
+
+        DestroySceneObjectsNamed("GridGuides");
+    }
+
+    private static void RemoveCellDebugOverlay(Transform cell)
+    {
+        DestroyExtraDirectChildrenNamed(cell, "WalkableDebugHighlight", 0);
+        DestroyExtraDirectChildrenNamed(cell, "Grid_Top", 0);
+        DestroyExtraDirectChildrenNamed(cell, "Grid_Bottom", 0);
+        DestroyExtraDirectChildrenNamed(cell, "Grid_Left", 0);
+        DestroyExtraDirectChildrenNamed(cell, "Grid_Right", 0);
+        DestroyExtraDirectChildrenNamed(cell, "CoordinateLabel", 0);
     }
 
     private static Transform FindDirectChild(Transform parent, string childName)
@@ -758,7 +824,10 @@ public static class OrigamiFoldBookLevel03Builder
                     new Vector3(0.92f, 0.92f, 1f),
                     GetCellColor(tile),
                     0);
-                CreateCellDebugOverlay(cellObject.transform, x, y, IsWalkableTile(tile));
+                if (ShowCellDebugOverlay)
+                {
+                    CreateCellDebugOverlay(cellObject.transform, x, y, IsWalkableTile(tile));
+                }
 
                 cells[x, y] = new CellData
                 {
