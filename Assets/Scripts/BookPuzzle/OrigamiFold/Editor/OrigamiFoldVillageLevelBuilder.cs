@@ -25,6 +25,10 @@ public static class OrigamiFoldVillageLevelBuilder
         "Assets/ScriptableObjects/Dialogues/Village_NPC_WallHint.asset";
     private const string PrologueDialoguePath =
         "Assets/ScriptableObjects/Dialogues/Prologue_Fire_Remembers.asset";
+    private const string MechanicsIntroDialoguePath =
+        "Assets/ScriptableObjects/Dialogues/Village_Start_Mechanics.asset";
+    private const string MechanicsIntroText =
+        "To continue your journey and find the goddess Umay, you must connect the marked nodes so that the space between them folds shut. We advise you to speak with the elder.";
     private const string MotherSpeakerProfilePath =
         "Assets/ScriptableObjects/Dialogues/Speakers/Speaker_Mother.asset";
     private const string ElderSpeakerProfilePath =
@@ -96,6 +100,52 @@ public static class OrigamiFoldVillageLevelBuilder
         Debug.Log($"Created village greybox scenes: {VillageScenePath}, {StubScenePath}");
     }
 
+    [MenuItem("Tools/PANINI/Origami Fold/Apply Village Level 01 Mechanics Intro Dialogue")]
+    public static void ApplyVillageLevel01MechanicsIntroDialogue()
+    {
+        if (EditorApplication.isPlayingOrWillChangePlaymode)
+        {
+            Debug.LogWarning("Cannot apply Village Level 01 intro dialogue while Unity is in Play Mode.");
+            return;
+        }
+
+        if (AssetDatabase.LoadAssetAtPath<SceneAsset>(VillageScenePath) == null)
+        {
+            Debug.LogWarning($"Village scene was not found: {VillageScenePath}");
+            return;
+        }
+
+        DialogueData mechanicsIntro = EnsureMechanicsIntroDialogueData();
+        Scene scene = EditorSceneManager.OpenScene(VillageScenePath, OpenSceneMode.Single);
+        GameObject levelRoot = FindOrCreateRootObject("LEVEL_ROOT");
+
+        DialogueManager dialogueManager =
+            UnityEngine.Object.FindFirstObjectByType<DialogueManager>(FindObjectsInactive.Include);
+
+        if (dialogueManager == null)
+        {
+            dialogueManager = CreateDialogueSystem(levelRoot.transform);
+        }
+
+        TMP_FontAsset uiFont = ResolveProjectTmpFontAsset();
+        Font uiSourceFont = ResolveProjectSourceFont();
+        ApplyFontToDialogueManager(dialogueManager, uiFont, uiSourceFont);
+        Canvas dialogueCanvas = FindOrCreateDialogueCanvas(dialogueManager, levelRoot.transform);
+        CreateInteractionPromptUI(dialogueCanvas, uiFont, uiSourceFont);
+        CreateEventSystemIfMissing();
+
+        DestroySceneObjectsNamed("PrologueAutoStart");
+        DestroySceneObjectsNamed("MechanicsIntroAutoStart");
+        CreateMechanicsIntroAutoStart(levelRoot.transform, mechanicsIntro);
+
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene, VillageScenePath);
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+
+        Debug.Log($"Applied Village Level 01 mechanics intro dialogue: {MechanicsIntroDialoguePath}");
+    }
+
     private static void CreateVillageScene(
         DialogueData introDialogue,
         DialogueData wallHintDialogue)
@@ -124,7 +174,7 @@ public static class OrigamiFoldVillageLevelBuilder
         Canvas dialogueCanvas = FindOrCreateDialogueCanvas(dialogueManager, levelRoot.transform);
         CreateInteractionPromptUI(dialogueCanvas, uiFont, uiSourceFont);
         CreateEventSystemIfMissing();
-        CreatePrologueAutoStart(levelRoot.transform);
+        CreateMechanicsIntroAutoStart(levelRoot.transform, EnsureMechanicsIntroDialogueData());
 
         GameObject coordinatorObject = CreateEmpty("OrigamiFoldActionCoordinator", foldSystemRoot.transform);
         OrigamiFoldActionCoordinator coordinator =
@@ -219,6 +269,51 @@ public static class OrigamiFoldVillageLevelBuilder
         GameObject autoStartObject = CreateEmpty("PrologueAutoStart", parent);
         DialogueAutoStart autoStart = autoStartObject.AddComponent<DialogueAutoStart>();
         autoStart.dialogueData = prologue;
+        autoStart.delaySeconds = 0.3f;
+        autoStart.playOnStart = true;
+        autoStart.onlyIfNoDialogueActive = true;
+    }
+
+    private static DialogueData EnsureMechanicsIntroDialogueData()
+    {
+        EnsureFolder("Assets/ScriptableObjects");
+        EnsureFolder("Assets/ScriptableObjects/Dialogues");
+
+        DialogueData data = AssetDatabase.LoadAssetAtPath<DialogueData>(MechanicsIntroDialoguePath);
+
+        if (data == null)
+        {
+            data = ScriptableObject.CreateInstance<DialogueData>();
+            AssetDatabase.CreateAsset(data, MechanicsIntroDialoguePath);
+        }
+
+        data.dialogueId = "village_start_mechanics";
+        data.lines = new List<DialogueLine>
+        {
+            new DialogueLine
+            {
+                speakerProfile = null,
+                speakerName = string.Empty,
+                text = MechanicsIntroText,
+                portrait = null
+            }
+        };
+
+        EditorUtility.SetDirty(data);
+        return data;
+    }
+
+    private static void CreateMechanicsIntroAutoStart(Transform parent, DialogueData dialogueData)
+    {
+        if (dialogueData == null)
+        {
+            Debug.LogWarning($"Village mechanics intro dialogue was not found: {MechanicsIntroDialoguePath}");
+            return;
+        }
+
+        GameObject autoStartObject = CreateEmpty("MechanicsIntroAutoStart", parent);
+        DialogueAutoStart autoStart = autoStartObject.AddComponent<DialogueAutoStart>();
+        autoStart.dialogueData = dialogueData;
         autoStart.delaySeconds = 0.3f;
         autoStart.playOnStart = true;
         autoStart.onlyIfNoDialogueActive = true;
@@ -1651,6 +1746,49 @@ public static class OrigamiFoldVillageLevelBuilder
         }
 
         return gameObject;
+    }
+
+    private static GameObject FindOrCreateRootObject(string name)
+    {
+        Scene activeScene = SceneManager.GetActiveScene();
+        GameObject[] rootObjects = activeScene.GetRootGameObjects();
+
+        for (int i = 0; i < rootObjects.Length; i++)
+        {
+            if (rootObjects[i].name == name)
+            {
+                return rootObjects[i];
+            }
+        }
+
+        return CreateEmpty(name, null);
+    }
+
+    private static void DestroySceneObjectsNamed(string name)
+    {
+        Scene activeScene = SceneManager.GetActiveScene();
+        GameObject[] allObjects = Resources.FindObjectsOfTypeAll<GameObject>();
+        List<GameObject> matches = new List<GameObject>();
+
+        for (int i = 0; i < allObjects.Length; i++)
+        {
+            GameObject candidate = allObjects[i];
+
+            if (candidate == null
+                || candidate.name != name
+                || EditorUtility.IsPersistent(candidate)
+                || candidate.scene != activeScene)
+            {
+                continue;
+            }
+
+            matches.Add(candidate);
+        }
+
+        for (int i = 0; i < matches.Count; i++)
+        {
+            UnityEngine.Object.DestroyImmediate(matches[i]);
+        }
     }
 
     private static void TrySetTag(GameObject gameObject, string tagName)

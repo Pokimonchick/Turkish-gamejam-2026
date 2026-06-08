@@ -349,6 +349,12 @@ public class DialogueManager : MonoBehaviour
         if (speakerNameText != null)
         {
             speakerNameText.text = speakerName;
+            speakerNameText.gameObject.SetActive(!string.IsNullOrWhiteSpace(speakerName));
+        }
+
+        if (namePlateImage != null)
+        {
+            namePlateImage.gameObject.SetActive(!string.IsNullOrWhiteSpace(speakerName));
         }
 
         if (bodyText != null)
