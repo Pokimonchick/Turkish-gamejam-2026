@@ -11,6 +11,7 @@ public static class OrigamiFoldBookLevel04Builder
     private const string FinalCutsceneScenePath = "Assets/Scenes/FinalCutscene.unity";
     private const string FinalCutsceneSceneName = "FinalCutscene";
     private const string FoldNodeSpritePath = "Assets/Art/UI/Node.PNG";
+    private const string CrowSpritePath = "Assets/Art/crow.PNG";
     private const int MapWidth = 12;
     private const int MapHeight = 9;
     private const float CellSize = 1f;
@@ -23,6 +24,8 @@ public static class OrigamiFoldBookLevel04Builder
     private const float FoldNodeGlowSize = 0.9f;
     private const float FoldNodeColliderRadius = 0.5f;
     private const int FoldNodeSortingOrder = 95;
+    private const float CrowEnemyVisualSize = 0.46f;
+    private const int CrowEnemySortingOrder = 82;
     private static readonly Vector3 CellContentLocalOffset = Vector3.zero;
     private const float PlayerVisualScale = 0.14f;
     private const float PlayerVisualFootYOffset = 0.02f;
@@ -172,6 +175,60 @@ public static class OrigamiFoldBookLevel04Builder
             + "Fold links: MiddleLeft<->MiddleCenter, MiddleCenter<->MiddleRight, "
             + "RightTop<->RightCorner, RightCorner<->RightRight. "
             + "No MiddleLeft<->MiddleRight or RightTop<->RightRight diagonal/skip link was created.");
+    }
+
+    [MenuItem("Tools/PANINI/Art/Apply Book Level 04 Crow Enemy Visuals")]
+    [MenuItem("Tools/PANINI/Origami Fold/Apply Book Level 04 Crow Enemy Visuals")]
+    public static void ApplyBookLevel04CrowEnemyVisuals()
+    {
+        if (EditorApplication.isPlayingOrWillChangePlaymode)
+        {
+            Debug.LogWarning("Cannot apply Book Level 04 crow visuals while Unity is in Play Mode.");
+            return;
+        }
+
+        Scene scene = SceneManager.GetActiveScene();
+
+        if (!scene.IsValid())
+        {
+            Debug.LogWarning("No active scene found for Book Level 04 crow visual update.");
+            return;
+        }
+
+        Sprite crowSprite = FindCrowSprite();
+
+        if (crowSprite == null)
+        {
+            Debug.LogWarning($"Crow sprite was not found or could not be imported as a Sprite: {CrowSpritePath}");
+            return;
+        }
+
+        string[] enemyNames =
+        {
+            "TopSkyEnemy",
+            "MiddleSkyEnemy",
+            "LowerSkyEnemy"
+        };
+
+        int updatedCount = 0;
+
+        for (int i = 0; i < enemyNames.Length; i++)
+        {
+            GameObject enemy = FindGameObjectInScene(scene, enemyNames[i]);
+
+            if (enemy == null)
+            {
+                Debug.LogWarning($"Book Level 04 enemy was not found in active scene: {enemyNames[i]}");
+                continue;
+            }
+
+            ConfigureCrowEnemyVisual(enemy, crowSprite);
+            updatedCount++;
+        }
+
+        EditorSceneManager.MarkSceneDirty(scene);
+        Debug.Log(
+            $"Book Level 04 crow visuals applied. Scene={scene.path}, updatedEnemies={updatedCount}, sprite={CrowSpritePath}");
     }
 
     private static Camera CreateMainCamera()
@@ -739,6 +796,77 @@ public static class OrigamiFoldBookLevel04Builder
         return null;
     }
 
+    private static Sprite FindCrowSprite()
+    {
+        EnsureTextureImportedAsSprite(CrowSpritePath);
+
+        Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>(CrowSpritePath);
+
+        if (sprite != null)
+        {
+            return sprite;
+        }
+
+        Object[] assets = AssetDatabase.LoadAllAssetsAtPath(CrowSpritePath);
+
+        foreach (Object asset in assets)
+        {
+            if (asset is Sprite nestedSprite)
+            {
+                return nestedSprite;
+            }
+        }
+
+        return null;
+    }
+
+    private static void EnsureTextureImportedAsSprite(string path)
+    {
+        TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
+
+        if (importer == null)
+        {
+            return;
+        }
+
+        bool changed = false;
+
+        if (importer.textureType != TextureImporterType.Sprite)
+        {
+            importer.textureType = TextureImporterType.Sprite;
+            changed = true;
+        }
+
+        if (importer.spriteImportMode != SpriteImportMode.Single)
+        {
+            importer.spriteImportMode = SpriteImportMode.Single;
+            changed = true;
+        }
+
+        if (importer.mipmapEnabled)
+        {
+            importer.mipmapEnabled = false;
+            changed = true;
+        }
+
+        if (!importer.alphaIsTransparency)
+        {
+            importer.alphaIsTransparency = true;
+            changed = true;
+        }
+
+        if (importer.textureCompression != TextureImporterCompression.Uncompressed)
+        {
+            importer.textureCompression = TextureImporterCompression.Uncompressed;
+            changed = true;
+        }
+
+        if (changed)
+        {
+            importer.SaveAndReimport();
+        }
+    }
+
     private static void ConfigurePaperDollAnimator(
         PaperDollWalkAnimator animator,
         Transform visualRoot,
@@ -879,13 +1007,7 @@ public static class OrigamiFoldBookLevel04Builder
         GameObject enemy = CreateEmpty(name, parentCell.gameObject.transform);
         enemy.transform.localPosition = localStartOffset;
 
-        GameObject activeVisual = CreateQuad(
-            "Visual",
-            enemy.transform,
-            Vector3.zero,
-            new Vector3(0.28f, 0.28f, 1f),
-            new Color(1f, 0.08f, 0.32f, 1f),
-            82);
+        GameObject activeVisual = CreateCrowEnemyVisual(enemy.transform);
 
         CircleCollider2D collider = enemy.AddComponent<CircleCollider2D>();
         collider.isTrigger = true;
@@ -920,6 +1042,103 @@ public static class OrigamiFoldBookLevel04Builder
         trapTarget.pausePatrolWhenTrapped = true;
 
         return patrol;
+    }
+
+    private static GameObject CreateCrowEnemyVisual(Transform parent)
+    {
+        Sprite crowSprite = FindCrowSprite();
+
+        if (crowSprite == null)
+        {
+            Debug.LogWarning(
+                $"Crow sprite was not found at {CrowSpritePath}. Falling back to red enemy marker.");
+            return CreateQuad(
+                "Visual",
+                parent,
+                Vector3.zero,
+                new Vector3(0.28f, 0.28f, 1f),
+                new Color(1f, 0.08f, 0.32f, 1f),
+                CrowEnemySortingOrder);
+        }
+
+        GameObject visual = CreateEmpty("Visual", parent);
+        ConfigureCrowVisualObject(visual, crowSprite);
+        return visual;
+    }
+
+    private static void ConfigureCrowEnemyVisual(GameObject enemy, Sprite crowSprite)
+    {
+        Transform visualTransform = enemy.transform.Find("Visual");
+        GameObject visual = visualTransform != null
+            ? visualTransform.gameObject
+            : CreateEmpty("Visual", enemy.transform);
+
+        ConfigureCrowVisualObject(visual, crowSprite);
+
+        OrigamiFoldTrapTarget trapTarget = enemy.GetComponent<OrigamiFoldTrapTarget>();
+
+        if (trapTarget != null)
+        {
+            trapTarget.activeRoot = visual;
+
+            Collider2D hazardCollider = enemy.GetComponent<Collider2D>();
+
+            if (hazardCollider != null)
+            {
+                trapTarget.hazardColliders = new[] { hazardCollider };
+            }
+        }
+
+        OrigamiFoldHazard hazard = enemy.GetComponent<OrigamiFoldHazard>();
+
+        if (hazard != null)
+        {
+            hazard.visualRoot = visual;
+        }
+    }
+
+    private static void ConfigureCrowVisualObject(GameObject visual, Sprite crowSprite)
+    {
+        visual.name = "Visual";
+        visual.transform.localPosition = Vector3.zero;
+        visual.transform.localRotation = Quaternion.identity;
+
+        MeshRenderer meshRenderer = visual.GetComponent<MeshRenderer>();
+
+        if (meshRenderer != null)
+        {
+            Object.DestroyImmediate(meshRenderer);
+        }
+
+        MeshFilter meshFilter = visual.GetComponent<MeshFilter>();
+
+        if (meshFilter != null)
+        {
+            Object.DestroyImmediate(meshFilter);
+        }
+
+        Collider collider = visual.GetComponent<Collider>();
+
+        if (collider != null)
+        {
+            Object.DestroyImmediate(collider);
+        }
+
+        SpriteRenderer spriteRenderer = visual.GetComponent<SpriteRenderer>();
+
+        if (spriteRenderer == null)
+        {
+            spriteRenderer = visual.AddComponent<SpriteRenderer>();
+        }
+
+        spriteRenderer.sprite = crowSprite;
+        spriteRenderer.color = Color.white;
+        spriteRenderer.sortingOrder = CrowEnemySortingOrder;
+
+        Bounds bounds = crowSprite.bounds;
+        float largestSide = Mathf.Max(bounds.size.x, bounds.size.y);
+        float scale = largestSide > 0f ? CrowEnemyVisualSize / largestSide : 1f;
+        visual.transform.localScale = new Vector3(scale, scale, 1f);
     }
 
     private static void ConfigureSkyEnemyTraps(
@@ -1404,6 +1623,43 @@ public static class OrigamiFoldBookLevel04Builder
         }
 
         return gameObject;
+    }
+
+    private static GameObject FindGameObjectInScene(Scene scene, string objectName)
+    {
+        GameObject[] rootObjects = scene.GetRootGameObjects();
+
+        for (int i = 0; i < rootObjects.Length; i++)
+        {
+            Transform found = FindChildRecursive(rootObjects[i].transform, objectName);
+
+            if (found != null)
+            {
+                return found.gameObject;
+            }
+        }
+
+        return null;
+    }
+
+    private static Transform FindChildRecursive(Transform root, string objectName)
+    {
+        if (root.name == objectName)
+        {
+            return root;
+        }
+
+        for (int i = 0; i < root.childCount; i++)
+        {
+            Transform found = FindChildRecursive(root.GetChild(i), objectName);
+
+            if (found != null)
+            {
+                return found;
+            }
+        }
+
+        return null;
     }
 
     private static bool IsWalkableTile(char tile)
