@@ -14,16 +14,16 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/PrologueCutscene.unity
     guid: 34b4c8e2897e4fd4bb700bd3d3794a84
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Prototype_BookPuzzle.unity
     guid: 90ee537e5c287ec47b2a6eebe455d3ff
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Village_Prototype.unity
     guid: 52f2292a2ba220a4986b46c1139a79c2
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Book_Level_01_Greybox.unity
     guid: 4db90dafac34759458b0a78afe29c446
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Prototype_OrigamiFold_Workbench.unity
     guid: 2135edd380905494586e975b2af42443
   - enabled: 1
@@ -40,7 +40,7 @@ EditorBuildSettings:
     guid: 7bcc78d0ecbffe543b44f6c81960e0de
   - enabled: 1
     path: Assets/Scenes/Book_Level_04_Greybox.unity
-    guid: 00000000000000000000000000000000
+    guid: 2c47684e4982ab44781b01d20f347f42
   - enabled: 1
     path: Assets/Scenes/FinalCutscene.unity
     guid: c6a97e9a473149fc8eb97b804fe16103

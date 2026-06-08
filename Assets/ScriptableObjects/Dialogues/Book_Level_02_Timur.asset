@@ -15,17 +15,58 @@ MonoBehaviour:
   dialogueId: book_level_02_timur
   lines:
   - speakerProfile: {fileID: 0}
-    speakerName: "\u0422\u0438\u043C\u0443\u0440"
-    text: "\u0410\u0439\u0441\u0443\u043B\u0443, \u0437\u0430 \u044D\u0442\u043E\u0439
-      \u0434\u043E\u0440\u043E\u0433\u043E\u0439 \u043D\u0430\u0447\u0438\u043D\u0430\u0435\u0442\u0441\u044F
-      \u043D\u043E\u0432\u044B\u0439 \u043F\u0443\u0442\u044C. \u0421\u043B\u0443\u0448\u0430\u0439
-      \u043E\u0433\u043E\u043D\u044C \u0438 \u043D\u0435 \u0441\u043F\u043E\u0440\u044C
-      \u0441\u043E \u0441\u043A\u043B\u0430\u0434\u043A\u0430\u043C\u0438 \u0441\u0442\u0440\u0430\u043D\u0438\u0446\u044B."
+    speakerName: Timur
+    text: "Mother... Where is the village?.. I don't want to stay here alone..."
     portrait: {fileID: 21300000, guid: 212602d44758dc7449bccf3813163026, type: 3}
+  - speakerProfile: {fileID: 11400000, guid: 6992f1ad55b7805439d6200abb695e15, type: 2}
+    speakerName: Aisulu
+    text: "Don't be afraid. I'm here. What is your name?"
+    portrait: {fileID: 21300000, guid: 39e15864a50fa1c4098c5a8759a13577, type: 3}
   - speakerProfile: {fileID: 0}
-    speakerName: "\u0422\u0438\u043C\u0443\u0440"
-    text: "\u041A\u043E\u0433\u0434\u0430 \u0431\u0443\u0434\u0435\u0448\u044C \u0433\u043E\u0442\u043E\u0432\u0430,
-      \u0438\u0434\u0438 \u043A \u0437\u0435\u043B\u0435\u043D\u043E\u043C\u0443
-      \u043E\u0433\u043E\u043D\u044C\u043A\u0443 \u0443 \u043D\u0438\u0436\u043D\u0435\u0439
-      \u0442\u0440\u043E\u043F\u044B."
+    speakerName: Timur
+    text: "Timur. I wanted to reach the far pen, but then the paths got mixed up. I thought I remembered the way, but now everything looks the same."
     portrait: {fileID: 21300000, guid: 212602d44758dc7449bccf3813163026, type: 3}
+  - speakerProfile: {fileID: 11400000, guid: 6992f1ad55b7805439d6200abb695e15, type: 2}
+    speakerName: Aisulu
+    text: "When the heart is frightened, even familiar land can seem strange. But the road has not disappeared, Timur. It is only waiting for us to find it again."
+    portrait: {fileID: 21300000, guid: 39e15864a50fa1c4098c5a8759a13577, type: 3}
+  - speakerProfile: {fileID: 0}
+    speakerName: Timur
+    text: "Do you know where to go?"
+    portrait: {fileID: 21300000, guid: 212602d44758dc7449bccf3813163026, type: 3}
+  - speakerProfile: {fileID: 11400000, guid: 6992f1ad55b7805439d6200abb695e15, type: 2}
+    speakerName: Aisulu
+    text: "I will try. Tell me, what do you remember about your village?"
+    portrait: {fileID: 21300000, guid: 39e15864a50fa1c4098c5a8759a13577, type: 3}
+  - speakerProfile: {fileID: 0}
+    speakerName: Timur
+    text: "There is a tall pole at the entrance with a blue scarf tied to it. Mother says it looks like a piece of the sky. And near our yurt, there is an old cracked jug."
+    portrait: {fileID: 21300000, guid: 212602d44758dc7449bccf3813163026, type: 3}
+  - speakerProfile: {fileID: 11400000, guid: 6992f1ad55b7805439d6200abb695e15, type: 2}
+    speakerName: Aisulu
+    text: "Then we will look for the blue scarf and the old jug. Home always leaves signs for those who want to return."
+    portrait: {fileID: 21300000, guid: 39e15864a50fa1c4098c5a8759a13577, type: 3}
+  - speakerProfile: {fileID: 0}
+    speakerName: Timur
+    text: "What if Mother is angry with me?"
+    portrait: {fileID: 21300000, guid: 212602d44758dc7449bccf3813163026, type: 3}
+  - speakerProfile: {fileID: 11400000, guid: 6992f1ad55b7805439d6200abb695e15, type: 2}
+    speakerName: Aisulu
+    text: "A mother's heart can become so frightened that her voice turns stern. But when her child returns, the fear in her heart becomes joy."
+    portrait: {fileID: 21300000, guid: 39e15864a50fa1c4098c5a8759a13577, type: 3}
+  - speakerProfile: {fileID: 0}
+    speakerName: Timur
+    text: "Will you take me home?"
+    portrait: {fileID: 21300000, guid: 212602d44758dc7449bccf3813163026, type: 3}
+  - speakerProfile: {fileID: 11400000, guid: 6992f1ad55b7805439d6200abb695e15, type: 2}
+    speakerName: Aisulu
+    text: "Yes. We'll go together. Stay close and don't let go of my hand."
+    portrait: {fileID: 21300000, guid: 39e15864a50fa1c4098c5a8759a13577, type: 3}
+  - speakerProfile: {fileID: 0}
+    speakerName: Timur
+    text: "I can see the village! There's the blue scarf! That's our home!"
+    portrait: {fileID: 21300000, guid: 212602d44758dc7449bccf3813163026, type: 3}
+  - speakerProfile: {fileID: 11400000, guid: 6992f1ad55b7805439d6200abb695e15, type: 2}
+    speakerName: Aisulu
+    text: "You see, Timur? The road did not lose you. It was only waiting for you to stop being afraid."
+    portrait: {fileID: 21300000, guid: 39e15864a50fa1c4098c5a8759a13577, type: 3}
