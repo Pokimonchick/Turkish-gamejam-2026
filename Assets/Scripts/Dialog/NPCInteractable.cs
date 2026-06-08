@@ -14,6 +14,8 @@ public class NPCInteractable : MonoBehaviour
     public bool useGlobalInteractionPrompt = true;
     public string interactionPromptText = "E \u2014 \u0432\u0437\u0430\u0438\u043c\u043e\u0434\u0435\u0439\u0441\u0442\u0432\u0438\u0435";
 
+    public event System.Action DialogueStartedByThisNpc;
+
     private bool isPlayerInRange;
 
     private void Start()
@@ -72,6 +74,7 @@ public class NPCInteractable : MonoBehaviour
         }
 
         DialogueManager.Instance.StartDialogue(dialogueData);
+        DialogueStartedByThisNpc?.Invoke();
     }
 
     private void OnDisable()

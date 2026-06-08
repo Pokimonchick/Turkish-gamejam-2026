@@ -1,9 +1,12 @@
 using System.Collections.Generic;
 using System.IO;
+using TMPro;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public static class OrigamiFoldBookLevel02Builder
 {
@@ -17,6 +20,11 @@ public static class OrigamiFoldBookLevel02Builder
     private const int TriadRowFoldY = 5;
     private const string PlayerSpriteGuid = "77d3b28359b42e440905b56447f58511";
     private const string DefaultFootstepProfilePath = "Assets/Resources/Audio/DefaultFootstepAudioProfile.asset";
+    private const string DialogueSystemPrefabPath = "Assets/Prefabs/Dialog/DialogueSystem.prefab";
+    private const string InteractionPromptMessage = "E \u2014 \u0432\u0437\u0430\u0438\u043c\u043e\u0434\u0435\u0439\u0441\u0442\u0432\u0438\u0435";
+    private const string PreferredFontAssetPath = "Assets/Fonts/artist_nouveau SDF.asset";
+    private const string TimurDialoguePath = "Assets/ScriptableObjects/Dialogues/Book_Level_02_Timur.asset";
+    private const string TimurSpriteSearchName = "\u0422\u0438\u043c\u0443\u0440";
     private const string NextSceneName = "Book_Level_03_Greybox";
     private const float FoldNodeVisualSize = 0.55f;
     private const float FoldNodeGlowSize = 0.9f;
@@ -33,8 +41,8 @@ public static class OrigamiFoldBookLevel02Builder
         "..GGGFGGNG..",
         ".GGGGFGGFFF.",
         "GGGGG..FB.P.",
-        "GG.....FBGG.",
-        ".....GGFGGF.",
+        "GG.....GBGG.",
+        ".....GGGGGF.",
         "....SGG.....",
         "............"
     };
@@ -62,6 +70,7 @@ public static class OrigamiFoldBookLevel02Builder
         scene.name = "Book_Level_02_Greybox";
 
         Camera mainCamera = CreateMainCamera();
+        DialogueData timurDialogue = EnsureTimurDialogueData();
 
         GameObject levelRoot = CreateEmpty("LEVEL_ROOT", null);
         GameObject foldSystemRoot = CreateEmpty("ORIGAMI_FOLD_SYSTEM", levelRoot.transform);
@@ -116,11 +125,16 @@ public static class OrigamiFoldBookLevel02Builder
 
         OrigamiFoldLink[] links = linksRoot.GetComponentsInChildren<OrigamiFoldLink>(true);
         CreateDragController(foldSystemRoot.transform, mainCamera, links);
-        CreatePlayer(playerRoot.transform, cells[1, 3], walkableMask);
+        GameObject player = CreatePlayer(playerRoot.transform, cells[1, 3], walkableMask);
         CreateRespawnPoint(playerRoot.transform, cells[1, 3]);
+        DialogueManager dialogueManager = CreateDialogueSystem(levelRoot.transform);
+        EnsureInteractionPromptUi(dialogueManager);
+        CreateEventSystemIfMissing();
         CreateNpcPlaceholder(npcsRoot.transform, cells[8, 6]);
         CreateNpcZonePlaceholder(npcsRoot.transform, cells[10, 4]);
-        CreateExitPlaceholder(npcsRoot.transform, cells[10, 4]);
+        GameObject finish = CreateExitPlaceholder(npcsRoot.transform, cells[5, 1]);
+        finish.SetActive(false);
+        CreateTimurNpc(npcsRoot.transform, cells[10, 3], player.transform, timurDialogue, finish);
         AddSceneToBuildSettings(LevelScenePath);
         Selection.activeGameObject = levelRoot;
         EditorGUIUtility.PingObject(levelRoot);
@@ -136,6 +150,7 @@ public static class OrigamiFoldBookLevel02Builder
             + "No TriadA<->TriadC diagonal link was created.");
     }
 
+    [MenuItem("Tools/PANINI/Origami Fold/Apply Book Level 02 Gameplay Update")]
     [MenuItem("Tools/PANINI/Origami Fold/Apply Book Level 02 Walkability Layout")]
     public static void ApplyBookLevel02WalkabilityLayoutToScene()
     {
@@ -151,6 +166,7 @@ public static class OrigamiFoldBookLevel02Builder
         }
 
         Scene scene = EditorSceneManager.OpenScene(LevelScenePath, OpenSceneMode.Single);
+        DialogueData timurDialogue = EnsureTimurDialogueData();
         int walkableLayer = ResolveWalkableLayer();
         int walkableCount = 0;
         int blockedCount = 0;
@@ -185,14 +201,47 @@ public static class OrigamiFoldBookLevel02Builder
             }
         }
 
+        Transform levelRoot = FindOrCreateRoot("LEVEL_ROOT");
+        Transform npcsRoot = FindOrCreateChild(levelRoot, "BOOK_LEVEL_NPCS");
+        Transform player = FindPlayerTransform();
+        DialogueManager dialogueManager = CreateDialogueSystem(levelRoot);
+        EnsureInteractionPromptUi(dialogueManager);
+        CreateEventSystemIfMissing();
+
+        DestroySceneObjectsNamed("Timur_NPC");
+        DestroySceneObjectsNamed("ExitPlaceholder");
+        Transform timurCell = FindMapCellTransform(10, 3);
+        Transform finishCell = FindMapCellTransform(5, 1);
+
+        GameObject finish = null;
+        if (finishCell != null)
+        {
+            finish = CreateExitPlaceholder(npcsRoot, finishCell);
+            finish.SetActive(false);
+        }
+        else
+        {
+            Debug.LogWarning("Could not create Book Level 02 finish: MapCell_5_1 is missing.");
+        }
+
+        if (timurCell != null)
+        {
+            CreateTimurNpc(npcsRoot, timurCell, player, timurDialogue, finish);
+        }
+        else
+        {
+            Debug.LogWarning("Could not create Timur NPC: MapCell_10_3 is missing.");
+        }
+
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene, LevelScenePath);
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
 
         Debug.Log(
-            $"Updated Book Level 02 walkability layout. "
-            + $"Walkable cells: {walkableCount}, blocked cells: {blockedCount}, missing cells: {missingCells}.");
+            $"Updated Book Level 02 gameplay layout. "
+            + $"Walkable cells: {walkableCount}, blocked cells: {blockedCount}, missing cells: {missingCells}. "
+            + "Timur NPC target: 10,3. Finish target: 5,1.");
     }
 
     private static char GetLayoutTile(int x, int y)
@@ -341,6 +390,507 @@ public static class OrigamiFoldBookLevel02Builder
             if (seen > keepCount)
             {
                 Object.DestroyImmediate(child.gameObject);
+            }
+        }
+    }
+
+    private static DialogueData EnsureTimurDialogueData()
+    {
+        EnsureFolder("Assets/ScriptableObjects");
+        EnsureFolder("Assets/ScriptableObjects/Dialogues");
+
+        DialogueData dialogue = AssetDatabase.LoadAssetAtPath<DialogueData>(TimurDialoguePath);
+
+        if (dialogue == null)
+        {
+            dialogue = ScriptableObject.CreateInstance<DialogueData>();
+            AssetDatabase.CreateAsset(dialogue, TimurDialoguePath);
+        }
+
+        Sprite timurPortrait = FindTimurSprite();
+        dialogue.dialogueId = "book_level_02_timur";
+        dialogue.lines = new List<DialogueLine>
+        {
+            new DialogueLine
+            {
+                speakerName = "Тимур",
+                text = "Айсулу, за этой дорогой начинается новый путь. Слушай огонь и не спорь со складками страницы.",
+                portrait = timurPortrait
+            },
+            new DialogueLine
+            {
+                speakerName = "Тимур",
+                text = "Когда будешь готова, иди к зеленому огоньку у нижней тропы.",
+                portrait = timurPortrait
+            }
+        };
+
+        EditorUtility.SetDirty(dialogue);
+        return dialogue;
+    }
+
+    private static void EnsureFolder(string folderPath)
+    {
+        if (AssetDatabase.IsValidFolder(folderPath))
+        {
+            return;
+        }
+
+        string parent = Path.GetDirectoryName(folderPath)?.Replace("\\", "/");
+        string folderName = Path.GetFileName(folderPath);
+
+        if (!string.IsNullOrEmpty(parent))
+        {
+            EnsureFolder(parent);
+            AssetDatabase.CreateFolder(parent, folderName);
+        }
+    }
+
+    private static Sprite FindTimurSprite()
+    {
+        string[] guids = AssetDatabase.FindAssets(TimurSpriteSearchName);
+
+        for (int i = 0; i < guids.Length; i++)
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guids[i]);
+
+            if (!IsSpriteTexturePath(path))
+            {
+                continue;
+            }
+
+            EnsureTextureIsSprite(path);
+            Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>(path);
+
+            if (sprite != null)
+            {
+                return sprite;
+            }
+
+            Object[] assets = AssetDatabase.LoadAllAssetsAtPath(path);
+
+            for (int assetIndex = 0; assetIndex < assets.Length; assetIndex++)
+            {
+                if (assets[assetIndex] is Sprite nestedSprite)
+                {
+                    return nestedSprite;
+                }
+            }
+        }
+
+        Debug.LogWarning("Timur sprite was not found. Expected an asset named Тимур.");
+        return null;
+    }
+
+    private static bool IsSpriteTexturePath(string path)
+    {
+        string extension = Path.GetExtension(path).ToLowerInvariant();
+        return extension == ".png"
+            || extension == ".jpg"
+            || extension == ".jpeg"
+            || extension == ".psd";
+    }
+
+    private static void EnsureTextureIsSprite(string path)
+    {
+        TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
+
+        if (importer == null)
+        {
+            return;
+        }
+
+        bool changed = false;
+
+        if (importer.textureType != TextureImporterType.Sprite)
+        {
+            importer.textureType = TextureImporterType.Sprite;
+            changed = true;
+        }
+
+        if (importer.spriteImportMode != SpriteImportMode.Single)
+        {
+            importer.spriteImportMode = SpriteImportMode.Single;
+            changed = true;
+        }
+
+        if (!importer.alphaIsTransparency)
+        {
+            importer.alphaIsTransparency = true;
+            changed = true;
+        }
+
+        if (importer.mipmapEnabled)
+        {
+            importer.mipmapEnabled = false;
+            changed = true;
+        }
+
+        if (changed)
+        {
+            importer.SaveAndReimport();
+        }
+    }
+
+    private static DialogueManager CreateDialogueSystem(Transform parent)
+    {
+        DialogueManager existing =
+            Object.FindFirstObjectByType<DialogueManager>(FindObjectsInactive.Include);
+
+        if (existing != null)
+        {
+            return existing;
+        }
+
+        GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(DialogueSystemPrefabPath);
+        GameObject dialogueObject = null;
+
+        if (prefab != null)
+        {
+            dialogueObject = PrefabUtility.InstantiatePrefab(prefab) as GameObject;
+
+            if (dialogueObject != null)
+            {
+                dialogueObject.name = "DialogueSystem";
+                dialogueObject.transform.SetParent(parent, false);
+            }
+        }
+
+        if (dialogueObject == null)
+        {
+            Debug.LogWarning("DialogueSystem prefab was not found. Creating a minimal dialogue UI for Book Level 02.");
+            dialogueObject = CreateMinimalDialogueSystem(parent);
+        }
+
+        return dialogueObject.GetComponentInChildren<DialogueManager>(true);
+    }
+
+    private static GameObject CreateMinimalDialogueSystem(Transform parent)
+    {
+        GameObject dialogueObject = CreateEmpty("DialogueSystem", parent);
+        Canvas canvas = CreateCanvas(dialogueObject.transform);
+        GameObject dialogRoot = CreateUiObject("DialogRoot", canvas.transform);
+        Image panel = dialogRoot.AddComponent<Image>();
+        panel.color = new Color(0f, 0f, 0f, 0.72f);
+
+        RectTransform panelRect = dialogRoot.GetComponent<RectTransform>();
+        panelRect.anchorMin = new Vector2(0.18f, 0.05f);
+        panelRect.anchorMax = new Vector2(0.82f, 0.28f);
+        panelRect.offsetMin = Vector2.zero;
+        panelRect.offsetMax = Vector2.zero;
+
+        TextMeshProUGUI speakerText = CreateUiText("SpeakerNameText", dialogRoot.transform, 34, TextAlignmentOptions.Center);
+        RectTransform speakerRect = speakerText.rectTransform;
+        speakerRect.anchorMin = new Vector2(0f, 0.68f);
+        speakerRect.anchorMax = new Vector2(1f, 1f);
+        speakerRect.offsetMin = new Vector2(20f, 0f);
+        speakerRect.offsetMax = new Vector2(-20f, -10f);
+
+        TextMeshProUGUI bodyText = CreateUiText("BodyText", dialogRoot.transform, 30, TextAlignmentOptions.Center);
+        RectTransform bodyRect = bodyText.rectTransform;
+        bodyRect.anchorMin = new Vector2(0f, 0f);
+        bodyRect.anchorMax = new Vector2(1f, 0.72f);
+        bodyRect.offsetMin = new Vector2(42f, 22f);
+        bodyRect.offsetMax = new Vector2(-42f, -8f);
+
+        DialogueManager manager = dialogueObject.AddComponent<DialogueManager>();
+        SerializedObject serialized = new SerializedObject(manager);
+        serialized.FindProperty("dialogRoot").objectReferenceValue = dialogRoot;
+        serialized.FindProperty("speakerNameText").objectReferenceValue = speakerText;
+        serialized.FindProperty("bodyText").objectReferenceValue = bodyText;
+        serialized.FindProperty("uiFontAsset").objectReferenceValue =
+            AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(PreferredFontAssetPath);
+        serialized.ApplyModifiedPropertiesWithoutUndo();
+
+        dialogRoot.SetActive(false);
+        return dialogueObject;
+    }
+
+    private static void EnsureInteractionPromptUi(DialogueManager dialogueManager)
+    {
+        InteractionPromptUI existing =
+            Object.FindFirstObjectByType<InteractionPromptUI>(FindObjectsInactive.Include);
+
+        if (existing != null)
+        {
+            return;
+        }
+
+        Canvas canvas = null;
+
+        if (dialogueManager != null)
+        {
+            canvas = dialogueManager.GetComponentInChildren<Canvas>(true);
+        }
+
+        if (canvas == null)
+        {
+            GameObject uiRoot = CreateEmpty("BookLevel02DialogueCanvas", null);
+            canvas = CreateCanvas(uiRoot.transform);
+        }
+
+        GameObject promptOwner = CreateUiObject("InteractionPromptUI", canvas.transform);
+        InteractionPromptUI prompt = promptOwner.AddComponent<InteractionPromptUI>();
+
+        GameObject root = CreateUiObject("InteractionPrompt", promptOwner.transform);
+        Image background = root.AddComponent<Image>();
+        background.color = new Color(0f, 0f, 0f, 0.55f);
+
+        RectTransform rootRect = root.GetComponent<RectTransform>();
+        rootRect.anchorMin = new Vector2(0.5f, 1f);
+        rootRect.anchorMax = new Vector2(0.5f, 1f);
+        rootRect.pivot = new Vector2(0.5f, 1f);
+        rootRect.anchoredPosition = new Vector2(0f, -70f);
+        rootRect.sizeDelta = new Vector2(360f, 58f);
+
+        TextMeshProUGUI promptText = CreateUiText("PromptText", root.transform, 28, TextAlignmentOptions.Center);
+        promptText.text = InteractionPromptMessage;
+        promptText.color = Color.white;
+        promptText.font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(PreferredFontAssetPath);
+
+        RectTransform textRect = promptText.rectTransform;
+        textRect.anchorMin = Vector2.zero;
+        textRect.anchorMax = Vector2.one;
+        textRect.offsetMin = new Vector2(18f, 6f);
+        textRect.offsetMax = new Vector2(-18f, -6f);
+
+        prompt.root = root;
+        prompt.promptText = promptText;
+        prompt.defaultMessage = InteractionPromptMessage;
+        prompt.uiFontAsset = promptText.font;
+        root.SetActive(false);
+    }
+
+    private static Canvas CreateCanvas(Transform parent)
+    {
+        GameObject canvasObject = CreateEmpty("Canvas", parent);
+        Canvas canvas = canvasObject.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = 100;
+
+        CanvasScaler scaler = canvasObject.AddComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1920f, 1080f);
+        scaler.matchWidthOrHeight = 0.5f;
+
+        canvasObject.AddComponent<GraphicRaycaster>();
+        return canvas;
+    }
+
+    private static GameObject CreateUiObject(string name, Transform parent)
+    {
+        GameObject uiObject = new GameObject(name, typeof(RectTransform));
+        uiObject.transform.SetParent(parent, false);
+        return uiObject;
+    }
+
+    private static TextMeshProUGUI CreateUiText(
+        string name,
+        Transform parent,
+        float fontSize,
+        TextAlignmentOptions alignment)
+    {
+        GameObject textObject = CreateUiObject(name, parent);
+        TextMeshProUGUI text = textObject.AddComponent<TextMeshProUGUI>();
+        text.fontSize = fontSize;
+        text.alignment = alignment;
+        text.enableWordWrapping = true;
+        text.color = Color.white;
+        text.font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(PreferredFontAssetPath);
+        return text;
+    }
+
+    private static void CreateEventSystemIfMissing()
+    {
+        if (Object.FindFirstObjectByType<EventSystem>(FindObjectsInactive.Include) != null)
+        {
+            return;
+        }
+
+        GameObject eventSystemObject = new GameObject("EventSystem");
+        eventSystemObject.AddComponent<EventSystem>();
+    }
+
+    private static GameObject CreateTimurNpc(
+        Transform parent,
+        CellData parentCell,
+        Transform player,
+        DialogueData dialogueData,
+        GameObject enableAfterDialogue)
+    {
+        return CreateTimurNpc(parent, parentCell.gameObject.transform, player, dialogueData, enableAfterDialogue);
+    }
+
+    private static GameObject CreateTimurNpc(
+        Transform parent,
+        Transform parentCell,
+        Transform player,
+        DialogueData dialogueData,
+        GameObject enableAfterDialogue)
+    {
+        GameObject npc = CreateEmpty("Timur_NPC", parent);
+        npc.transform.position = parentCell.position + new Vector3(0f, 0.04f, 0f);
+
+        SpriteRenderer visual = CreateTimurVisual(npc.transform);
+        CircleCollider2D trigger = npc.AddComponent<CircleCollider2D>();
+        trigger.isTrigger = true;
+        trigger.radius = 0.62f;
+        trigger.offset = new Vector2(0f, 0.26f);
+
+        NPCInteractable interactable = npc.AddComponent<NPCInteractable>();
+        ConfigureNpcInteractable(interactable, dialogueData, player);
+
+        DialogueFadeOutOnCompletion fadeOut = npc.AddComponent<DialogueFadeOutOnCompletion>();
+        fadeOut.targetRoot = npc;
+        fadeOut.fadeDuration = 0.75f;
+        fadeOut.spriteRenderers = visual == null ? new SpriteRenderer[0] : new[] { visual };
+        fadeOut.collidersToDisable = new Collider2D[] { trigger };
+        fadeOut.behavioursToDisable = new Behaviour[] { interactable };
+        fadeOut.enableAfterFade = enableAfterDialogue == null
+            ? new GameObject[0]
+            : new[] { enableAfterDialogue };
+
+        return npc;
+    }
+
+    private static SpriteRenderer CreateTimurVisual(Transform parent)
+    {
+        Sprite timurSprite = FindTimurSprite();
+        GameObject visualObject = CreateEmpty("Visual", parent);
+        SpriteRenderer renderer = visualObject.AddComponent<SpriteRenderer>();
+        renderer.sprite = timurSprite;
+        renderer.color = Color.white;
+        renderer.sortingOrder = 76;
+
+        if (timurSprite != null)
+        {
+            float targetHeight = 1.2f;
+            float scale = timurSprite.bounds.size.y > 0f
+                ? targetHeight / timurSprite.bounds.size.y
+                : 1f;
+            visualObject.transform.localScale = new Vector3(scale, scale, 1f);
+            visualObject.transform.localPosition =
+                new Vector3(
+                    -timurSprite.bounds.center.x * scale,
+                    -timurSprite.bounds.min.y * scale - 0.5f,
+                    0f);
+        }
+        else
+        {
+            renderer.enabled = false;
+            CreateQuad(
+                "FallbackVisual",
+                parent,
+                new Vector3(0f, 0.05f, 0f),
+                new Vector3(0.42f, 0.42f, 1f),
+                new Color(0.95f, 0.78f, 0.18f, 1f),
+                76);
+        }
+
+        return renderer;
+    }
+
+    private static void ConfigureNpcInteractable(
+        NPCInteractable interactable,
+        DialogueData dialogueData,
+        Transform player)
+    {
+        SerializedObject serialized = new SerializedObject(interactable);
+        serialized.FindProperty("dialogueData").objectReferenceValue = dialogueData;
+        serialized.FindProperty("player").objectReferenceValue = player;
+        serialized.FindProperty("interactionDistance").floatValue = 1.65f;
+        SetEnumPropertyByName(serialized.FindProperty("interactKey"), nameof(KeyCode.E));
+        serialized.FindProperty("useGlobalInteractionPrompt").boolValue = true;
+        serialized.FindProperty("interactionPromptText").stringValue = InteractionPromptMessage;
+        serialized.ApplyModifiedPropertiesWithoutUndo();
+    }
+
+    private static void SetEnumPropertyByName(SerializedProperty property, string enumName)
+    {
+        if (property == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < property.enumNames.Length; i++)
+        {
+            if (property.enumNames[i] == enumName)
+            {
+                property.enumValueIndex = i;
+                return;
+            }
+        }
+    }
+
+    private static Transform FindOrCreateRoot(string rootName)
+    {
+        GameObject root = GameObject.Find(rootName);
+
+        if (root != null)
+        {
+            return root.transform;
+        }
+
+        return CreateEmpty(rootName, null).transform;
+    }
+
+    private static Transform FindOrCreateChild(Transform parent, string childName)
+    {
+        Transform child = parent.Find(childName);
+
+        if (child != null)
+        {
+            return child;
+        }
+
+        return CreateEmpty(childName, parent).transform;
+    }
+
+    private static Transform FindPlayerTransform()
+    {
+        GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
+
+        if (playerObject != null)
+        {
+            return playerObject.transform;
+        }
+
+        OrigamiFoldPlayerMover mover =
+            Object.FindFirstObjectByType<OrigamiFoldPlayerMover>(FindObjectsInactive.Include);
+        return mover == null ? null : mover.transform;
+    }
+
+    private static Transform FindMapCellTransform(int x, int y)
+    {
+        GameObject cell = GameObject.Find($"MapCell_{x}_{y}");
+        return cell == null ? null : cell.transform;
+    }
+
+    private static void DestroySceneObjectsNamed(string objectName)
+    {
+        GameObject[] allObjects = Object.FindObjectsByType<GameObject>(
+            FindObjectsInactive.Include,
+            FindObjectsSortMode.None);
+        List<GameObject> objectsToDestroy = new List<GameObject>();
+
+        for (int i = 0; i < allObjects.Length; i++)
+        {
+            if (allObjects[i] == null)
+            {
+                continue;
+            }
+
+            if (allObjects[i].name == objectName)
+            {
+                objectsToDestroy.Add(allObjects[i]);
+            }
+        }
+
+        for (int i = 0; i < objectsToDestroy.Count; i++)
+        {
+            if (objectsToDestroy[i] != null)
+            {
+                Object.DestroyImmediate(objectsToDestroy[i]);
             }
         }
     }
@@ -1021,10 +1571,15 @@ public static class OrigamiFoldBookLevel02Builder
         zone.transform.position = parentCell.gameObject.transform.position + new Vector3(0f, 0.23f, 0f);
     }
 
-    private static void CreateExitPlaceholder(Transform parent, CellData parentCell)
+    private static GameObject CreateExitPlaceholder(Transform parent, CellData parentCell)
+    {
+        return CreateExitPlaceholder(parent, parentCell.gameObject.transform);
+    }
+
+    private static GameObject CreateExitPlaceholder(Transform parent, Transform parentCell)
     {
         GameObject exit = CreateEmpty("ExitPlaceholder", parent);
-        exit.transform.position = parentCell.gameObject.transform.position + new Vector3(0.25f, -0.22f, 0f);
+        exit.transform.position = parentCell.position + new Vector3(0.25f, -0.22f, 0f);
         CreateQuad(
             "Visual",
             exit.transform,
@@ -1041,6 +1596,7 @@ public static class OrigamiFoldBookLevel02Builder
         sceneExit.nextSceneName = NextSceneName;
         sceneExit.loadSceneOnEnter = true;
         sceneExit.visualRoot = exit;
+        return exit;
     }
 
     private static OrigamiFoldPoint CreateFoldPoint(
