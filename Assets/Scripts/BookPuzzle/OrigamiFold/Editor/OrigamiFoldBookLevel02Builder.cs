@@ -16,6 +16,7 @@ public static class OrigamiFoldBookLevel02Builder
     private const int TriadColumnFoldX = 7;
     private const int TriadRowFoldY = 5;
     private const string PlayerSpriteGuid = "77d3b28359b42e440905b56447f58511";
+    private const string DefaultFootstepProfilePath = "Assets/Resources/Audio/DefaultFootstepAudioProfile.asset";
     private const string NextSceneName = "Book_Level_03_Greybox";
     private const float FoldNodeVisualSize = 0.55f;
     private const float FoldNodeGlowSize = 0.9f;
@@ -145,6 +146,7 @@ public static class OrigamiFoldBookLevel02Builder
         camera.clearFlags = CameraClearFlags.SolidColor;
         cameraObject.transform.position = new Vector3(0f, 0.12f, -10f);
         cameraObject.tag = "MainCamera";
+        cameraObject.AddComponent<AudioListener>();
         return camera;
     }
 
@@ -650,6 +652,7 @@ public static class OrigamiFoldBookLevel02Builder
         mover.sampleProbeRadius = 0.025f;
         mover.walkableMask = walkableMask;
         mover.requireAllSamplesInsideWalkable = true;
+        ConfigurePlayerFootsteps(mover);
 
         OrigamiFoldPassenger passenger = player.AddComponent<OrigamiFoldPassenger>();
         passenger.walkableMask = walkableMask;
@@ -663,6 +666,25 @@ public static class OrigamiFoldBookLevel02Builder
         passenger.resolveMoveDuration = 0.1f;
 
         return player;
+    }
+
+    private static void ConfigurePlayerFootsteps(OrigamiFoldPlayerMover mover)
+    {
+        FootstepAudioProfile profile =
+            AssetDatabase.LoadAssetAtPath<FootstepAudioProfile>(DefaultFootstepProfilePath);
+
+        SerializedObject serialized = new SerializedObject(mover);
+        serialized.FindProperty("defaultFootstepProfile").objectReferenceValue = profile;
+        serialized.FindProperty("minFootstepInterval").floatValue = 0.28f;
+        serialized.FindProperty("maxFootstepInterval").floatValue = 0.42f;
+        serialized.FindProperty("footstepVolume").floatValue = 0.8f;
+        serialized.FindProperty("avoidRepeatingFootstepSound").boolValue = true;
+        serialized.ApplyModifiedPropertiesWithoutUndo();
+
+        if (profile == null)
+        {
+            Debug.LogWarning($"Default footstep profile was not found at {DefaultFootstepProfilePath}.");
+        }
     }
 
     private static GameObject CreatePlayerVisual(Transform parent)
