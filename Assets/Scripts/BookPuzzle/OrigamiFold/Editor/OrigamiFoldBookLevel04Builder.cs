@@ -8,6 +8,9 @@ using UnityEngine.SceneManagement;
 public static class OrigamiFoldBookLevel04Builder
 {
     private const string LevelScenePath = "Assets/Scenes/Book_Level_04_Greybox.unity";
+    private const string FinalCutsceneScenePath = "Assets/Scenes/FinalCutscene.unity";
+    private const string FinalCutsceneSceneName = "FinalCutscene";
+    private const string FoldNodeSpritePath = "Assets/Art/UI/Node.PNG";
     private const int MapWidth = 12;
     private const int MapHeight = 9;
     private const float CellSize = 1f;
@@ -16,9 +19,11 @@ public static class OrigamiFoldBookLevel04Builder
     private const int RightRowFoldY = 3;
     private const int RightColumnFoldX = 8;
     private const string PlayerSpriteGuid = "77d3b28359b42e440905b56447f58511";
+    private const float FoldNodeVisualSize = 0.55f;
+    private const float FoldNodeGlowSize = 0.9f;
+    private const float FoldNodeColliderRadius = 0.5f;
+    private const int FoldNodeSortingOrder = 95;
     private static readonly Vector3 CellContentLocalOffset = Vector3.zero;
-    private static readonly Vector3 DiagnosticLabelLocalOffset =
-        CellContentLocalOffset + new Vector3(0f, 0f, -0.02f);
     private const float PlayerVisualScale = 0.14f;
     private const float PlayerVisualFootYOffset = 0.02f;
 
@@ -149,8 +154,9 @@ public static class OrigamiFoldBookLevel04Builder
             resetter,
             patrols);
         AssignHazards(enemiesRoot.transform, puzzleState);
-        CreateExitPlaceholder(goalRoot.transform, cells[8, 8]);
+        CreateFinalCutsceneTrigger(goalRoot.transform, cells[1, 1]);
         AddSceneToBuildSettings(LevelScenePath);
+        AddSceneToBuildSettings(FinalCutsceneScenePath);
         Selection.activeGameObject = levelRoot;
         EditorGUIUtility.PingObject(levelRoot);
 
@@ -212,8 +218,6 @@ public static class OrigamiFoldBookLevel04Builder
                     new Vector3(0.92f, 0.92f, 1f),
                     GetCellColor(tile),
                     0);
-                CreateCoordinateLabel(cellObject.transform, x, y);
-
                 cells[x, y] = new CellData
                 {
                     gameObject = cellObject,
@@ -1022,28 +1026,28 @@ public static class OrigamiFoldBookLevel04Builder
         }
     }
 
-    private static void CreateExitPlaceholder(Transform parent, CellData parentCell)
+    private static void CreateFinalCutsceneTrigger(Transform parent, CellData parentCell)
     {
-        GameObject exit = CreateEmpty("ExitPlaceholder", parent);
+        GameObject exit = CreateEmpty("FinalCutsceneTrigger", parent);
         exit.transform.position =
             parentCell.gameObject.transform.TransformPoint(CellContentLocalOffset)
-            + new Vector3(0.22f, 0.22f, 0f);
+            + new Vector3(0f, 0f, 0f);
 
         CreateQuad(
             "Visual",
             exit.transform,
             Vector3.zero,
-            new Vector3(0.3f, 0.3f, 1f),
+            new Vector3(0.34f, 0.34f, 1f),
             new Color(0.2f, 1f, 0.9f, 1f),
             74);
 
         BoxCollider2D collider = exit.AddComponent<BoxCollider2D>();
         collider.isTrigger = true;
-        collider.size = new Vector2(0.35f, 0.35f);
+        collider.size = new Vector2(0.62f, 0.62f);
 
         OrigamiFoldSceneExit sceneExit = exit.AddComponent<OrigamiFoldSceneExit>();
-        sceneExit.nextSceneName = "MainMenu";
-        sceneExit.loadSceneOnEnter = false;
+        sceneExit.nextSceneName = FinalCutsceneSceneName;
+        sceneExit.loadSceneOnEnter = true;
         sceneExit.visualRoot = exit;
     }
 
@@ -1054,24 +1058,49 @@ public static class OrigamiFoldBookLevel04Builder
         Color color,
         float size)
     {
-        GameObject pointObject = CreateQuad(
-            name,
-            parent,
-            position,
-            new Vector3(size, size, 1f),
-            color,
-            90);
+        GameObject pointObject = CreateEmpty(name, parent);
+        pointObject.transform.position = position;
 
         CircleCollider2D collider = pointObject.AddComponent<CircleCollider2D>();
         collider.isTrigger = true;
-        collider.radius = 0.58f;
+        collider.radius = FoldNodeColliderRadius;
+
+        Renderer visualRenderer = CreateFoldPointVisual(pointObject);
 
         OrigamiFoldPoint point = pointObject.AddComponent<OrigamiFoldPoint>();
         point.pointId = name;
-        point.visualRenderer = pointObject.GetComponent<Renderer>();
+        point.visualRenderer = visualRenderer;
         point.normalColor = color;
         point.highlightColor = Color.yellow;
         return point;
+    }
+
+    private static Renderer CreateFoldPointVisual(GameObject pointObject)
+    {
+        OrigamiFoldPointVisual visual = pointObject.AddComponent<OrigamiFoldPointVisual>();
+        Sprite nodeSprite = AssetDatabase.LoadAssetAtPath<Sprite>(FoldNodeSpritePath);
+
+        SerializedObject serialized = new SerializedObject(visual);
+        serialized.FindProperty("nodeSprite").objectReferenceValue = nodeSprite;
+        serialized.FindProperty("normalColor").colorValue = Color.white;
+        serialized.FindProperty("highlightedColor").colorValue = new Color(1f, 0.92f, 0.25f, 1f);
+        serialized.FindProperty("glowColor").colorValue = new Color(0.12f, 0.85f, 1f, 0.32f);
+        serialized.FindProperty("highlightedGlowColor").colorValue = new Color(1f, 0.72f, 0.18f, 0.62f);
+        serialized.FindProperty("visualSize").floatValue = FoldNodeVisualSize;
+        serialized.FindProperty("glowSize").floatValue = FoldNodeGlowSize;
+        serialized.FindProperty("sortingOrder").intValue = FoldNodeSortingOrder;
+        serialized.FindProperty("hideLegacyRenderer").boolValue = true;
+        serialized.FindProperty("pulseSpeed").floatValue = 2.2f;
+        serialized.FindProperty("pulseAmount").floatValue = 0.18f;
+        serialized.ApplyModifiedPropertiesWithoutUndo();
+
+        if (nodeSprite == null)
+        {
+            Debug.LogWarning($"Fold node sprite was not found at {FoldNodeSpritePath}.", pointObject);
+        }
+
+        visual.EnsureVisuals();
+        return visual.MainRenderer;
     }
 
     private static OrigamiFoldPoint CreateAttachedFoldPoint(
@@ -1260,18 +1289,6 @@ public static class OrigamiFoldBookLevel04Builder
             new Color(0.95f, 0.96f, 1f, 1f),
             0.145f,
             100);
-    }
-
-    private static GameObject CreateCoordinateLabel(Transform parent, int x, int y)
-    {
-        return CreateText(
-            "CoordinateLabel",
-            parent,
-            DiagnosticLabelLocalOffset,
-            $"{x},{y}",
-            new Color(0.02f, 0.02f, 0.03f, 0.78f),
-            0.105f,
-            96);
     }
 
     private static GameObject CreateText(
