@@ -21,7 +21,8 @@ public static class OrigamiFoldBookLevel03Builder
     private const float FoldNodeGlowSize = 0.9f;
     private const float FoldNodeColliderRadius = 0.5f;
     private const int FoldNodeSortingOrder = 95;
-    private static readonly Vector3 PlayerVisualLocalPosition = new Vector3(-0.53f, -1f, 0f);
+    private const float PlayerFootprintRadius = 0.12f;
+    private const float PlayerVisualFootYOffset = 0.02f;
     private static readonly Vector3 PlayerVisualLocalScale = new Vector3(0.22f, 0.22f, 1f);
 
     private static readonly string[] LayoutTopToBottom =
@@ -176,6 +177,7 @@ public static class OrigamiFoldBookLevel03Builder
                     new Vector3(0.92f, 0.92f, 1f),
                     GetCellColor(tile),
                     0);
+                CreateCellDebugOverlay(cellObject.transform, x, y, IsWalkableTile(tile));
 
                 cells[x, y] = new CellData
                 {
@@ -213,6 +215,65 @@ public static class OrigamiFoldBookLevel03Builder
                 area.isWalkable = true;
             }
         }
+    }
+
+    private static void CreateCellDebugOverlay(Transform parent, int x, int y, bool isWalkable)
+    {
+        if (isWalkable)
+        {
+            CreateQuad(
+                "WalkableDebugHighlight",
+                parent,
+                new Vector3(0f, 0f, -0.045f),
+                new Vector3(0.86f, 0.86f, 1f),
+                new Color(0.1f, 1f, 0.42f, 0.28f),
+                62);
+        }
+
+        CreateCellGridLine(
+            "Grid_Top",
+            parent,
+            new Vector3(0f, 0.5f, -0.04f),
+            new Vector3(1f, 0.018f, 1f));
+        CreateCellGridLine(
+            "Grid_Bottom",
+            parent,
+            new Vector3(0f, -0.5f, -0.04f),
+            new Vector3(1f, 0.018f, 1f));
+        CreateCellGridLine(
+            "Grid_Left",
+            parent,
+            new Vector3(-0.5f, 0f, -0.04f),
+            new Vector3(0.018f, 1f, 1f));
+        CreateCellGridLine(
+            "Grid_Right",
+            parent,
+            new Vector3(0.5f, 0f, -0.04f),
+            new Vector3(0.018f, 1f, 1f));
+
+        CreateText(
+            "CoordinateLabel",
+            parent,
+            new Vector3(0f, 0f, -0.05f),
+            $"{x},{y}",
+            new Color(0.02f, 0.02f, 0.03f, 0.72f),
+            0.135f,
+            86);
+    }
+
+    private static void CreateCellGridLine(
+        string name,
+        Transform parent,
+        Vector3 localPosition,
+        Vector3 localScale)
+    {
+        CreateQuad(
+            name,
+            parent,
+            localPosition,
+            localScale,
+            new Color(1f, 1f, 1f, 0.38f),
+            84);
     }
 
     private static OrigamiFoldStripSqueezeAction CreateColumnFoldAction(
@@ -578,20 +639,20 @@ public static class OrigamiFoldBookLevel03Builder
         body.freezeRotation = true;
 
         CircleCollider2D collider = player.AddComponent<CircleCollider2D>();
-        collider.radius = 0.18f;
+        collider.radius = PlayerFootprintRadius;
 
         CreatePlayerVisual(player.transform);
 
         OrigamiFoldPlayerMover mover = player.AddComponent<OrigamiFoldPlayerMover>();
         mover.moveSpeed = 3.5f;
-        mover.bodyRadius = 0.18f;
+        mover.bodyRadius = PlayerFootprintRadius;
         mover.sampleProbeRadius = 0.025f;
         mover.walkableMask = walkableMask;
         mover.requireAllSamplesInsideWalkable = true;
 
         OrigamiFoldPassenger passenger = player.AddComponent<OrigamiFoldPassenger>();
         passenger.walkableMask = walkableMask;
-        passenger.probeRadius = 0.18f;
+        passenger.probeRadius = PlayerFootprintRadius;
         passenger.currentStack = startCell.stack;
         passenger.disableWhileCarried = new Behaviour[] { mover };
         passenger.resolveToWalkableAfterCarry = true;
@@ -620,8 +681,8 @@ public static class OrigamiFoldBookLevel03Builder
         }
 
         GameObject visual = CreateEmpty("Visual", parent);
-        visual.transform.localPosition = PlayerVisualLocalPosition;
         visual.transform.localScale = PlayerVisualLocalScale;
+        visual.transform.localPosition = GetFootAnchoredPlayerVisualPosition(playerSprite, PlayerVisualLocalScale.x);
 
         SpriteRenderer renderer = visual.AddComponent<SpriteRenderer>();
         renderer.sprite = playerSprite;
@@ -631,6 +692,14 @@ public static class OrigamiFoldBookLevel03Builder
         PaperDollWalkAnimator animator = visual.AddComponent<PaperDollWalkAnimator>();
         ConfigurePaperDollAnimator(animator, visual.transform, renderer);
         return visual;
+    }
+
+    private static Vector3 GetFootAnchoredPlayerVisualPosition(Sprite sprite, float visualScale)
+    {
+        Bounds bounds = sprite.bounds;
+        float xOffset = -bounds.center.x * visualScale;
+        float yOffset = PlayerVisualFootYOffset - bounds.min.y * visualScale;
+        return new Vector3(xOffset, yOffset, 0f);
     }
 
     private static Sprite FindPlayerSprite()
