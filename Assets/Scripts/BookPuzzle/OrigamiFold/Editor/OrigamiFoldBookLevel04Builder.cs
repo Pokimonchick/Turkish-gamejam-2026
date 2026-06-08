@@ -24,8 +24,10 @@ public static class OrigamiFoldBookLevel04Builder
     private const float FoldNodeGlowSize = 0.9f;
     private const float FoldNodeColliderRadius = 0.5f;
     private const int FoldNodeSortingOrder = 95;
-    private const float CrowEnemyVisualSize = 0.46f;
+    private const float CrowEnemyVisualSize = 0.58f;
     private const int CrowEnemySortingOrder = 82;
+    private const float CrowEnemyRockTiltAmplitude = 3.2f;
+    private const float CrowEnemyRockSpeed = 3.4f;
     private static readonly Vector3 CellContentLocalOffset = Vector3.zero;
     private const float PlayerVisualScale = 0.14f;
     private const float PlayerVisualFootYOffset = 0.02f;
@@ -1008,6 +1010,7 @@ public static class OrigamiFoldBookLevel04Builder
         enemy.transform.localPosition = localStartOffset;
 
         GameObject activeVisual = CreateCrowEnemyVisual(enemy.transform);
+        ConfigureCrowVisualAnimator(enemy, activeVisual);
 
         CircleCollider2D collider = enemy.AddComponent<CircleCollider2D>();
         collider.isTrigger = true;
@@ -1095,6 +1098,8 @@ public static class OrigamiFoldBookLevel04Builder
         {
             hazard.visualRoot = visual;
         }
+
+        ConfigureCrowVisualAnimator(enemy, visual);
     }
 
     private static void ConfigureCrowVisualObject(GameObject visual, Sprite crowSprite)
@@ -1139,6 +1144,26 @@ public static class OrigamiFoldBookLevel04Builder
         float largestSide = Mathf.Max(bounds.size.x, bounds.size.y);
         float scale = largestSide > 0f ? CrowEnemyVisualSize / largestSide : 1f;
         visual.transform.localScale = new Vector3(scale, scale, 1f);
+    }
+
+    private static void ConfigureCrowVisualAnimator(GameObject enemy, GameObject visual)
+    {
+        OrigamiFoldPatrolVisualAnimator animator =
+            enemy.GetComponent<OrigamiFoldPatrolVisualAnimator>();
+
+        if (animator == null)
+        {
+            animator = enemy.AddComponent<OrigamiFoldPatrolVisualAnimator>();
+        }
+
+        animator.visualRoot = visual.transform;
+        animator.spriteRenderer = visual.GetComponent<SpriteRenderer>();
+        animator.spriteFacesRight = true;
+        animator.flipByHorizontalMovement = true;
+        animator.directionThreshold = 0.0005f;
+        animator.rockTiltAmplitude = CrowEnemyRockTiltAmplitude;
+        animator.rockSpeed = CrowEnemyRockSpeed;
+        animator.CaptureBasePose();
     }
 
     private static void ConfigureSkyEnemyTraps(
