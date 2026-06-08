@@ -7,8 +7,17 @@ public class OrigamiFoldPoint : MonoBehaviour
     public Color normalColor = Color.white;
     public Color highlightColor = Color.yellow;
 
+    private OrigamiFoldPointVisual visualEffect;
+
     private void Awake()
     {
+        visualEffect = GetComponent<OrigamiFoldPointVisual>();
+        if (visualEffect != null)
+        {
+            visualEffect.EnsureVisuals();
+            visualRenderer = visualEffect.MainRenderer;
+        }
+
         if (visualRenderer == null)
         {
             visualRenderer = GetComponentInChildren<Renderer>();
@@ -24,7 +33,12 @@ public class OrigamiFoldPoint : MonoBehaviour
 
     public void SetHighlighted(bool highlighted)
     {
-        if (visualRenderer == null)
+        if (visualEffect != null)
+        {
+            visualEffect.SetHighlighted(highlighted);
+        }
+
+        if (visualRenderer == null || visualEffect != null)
         {
             return;
         }

@@ -20950,6 +20950,7 @@ GameObject:
   - component: {fileID: 1246102704}
   - component: {fileID: 1246102703}
   - component: {fileID: 1246102702}
+  - component: {fileID: 1246102705}
   m_Layer: 0
   m_Name: Wall_Point_Left
   m_TagString: Untagged
@@ -20973,6 +20974,29 @@ MonoBehaviour:
   visualRenderer: {fileID: 1962433602}
   normalColor: {r: 0, g: 0, b: 0, a: 1}
   highlightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+--- !u!114 &1246102705
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1246102701}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e54a8c2bd5c4d9498f5f86d9c8e4cb1, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldPointVisual
+  nodeSprite: {fileID: 21300000, guid: d9abedb1af684a2488d9c1777e1df8a2, type: 3}
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
+  highlightedColor: {r: 1, g: 0.92, b: 0.25, a: 1}
+  glowColor: {r: 0.12, g: 0.85, b: 1, a: 0.32}
+  highlightedGlowColor: {r: 1, g: 0.72, b: 0.18, a: 0.62}
+  visualSize: 0.55
+  glowSize: 0.9
+  sortingOrder: 95
+  hideLegacyRenderer: 1
+  pulseSpeed: 2.2
+  pulseAmount: 0.18
 --- !u!58 &1246102703
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -22515,6 +22539,7 @@ GameObject:
   - component: {fileID: 1328211220}
   - component: {fileID: 1328211219}
   - component: {fileID: 1328211218}
+  - component: {fileID: 1328211221}
   m_Layer: 0
   m_Name: Wall_Point_Right
   m_TagString: Untagged
@@ -22538,6 +22563,29 @@ MonoBehaviour:
   visualRenderer: {fileID: 721361964}
   normalColor: {r: 0, g: 0, b: 0, a: 1}
   highlightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+--- !u!114 &1328211221
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1328211217}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e54a8c2bd5c4d9498f5f86d9c8e4cb1, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldPointVisual
+  nodeSprite: {fileID: 21300000, guid: d9abedb1af684a2488d9c1777e1df8a2, type: 3}
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
+  highlightedColor: {r: 1, g: 0.92, b: 0.25, a: 1}
+  glowColor: {r: 0.12, g: 0.85, b: 1, a: 0.32}
+  highlightedGlowColor: {r: 1, g: 0.72, b: 0.18, a: 0.62}
+  visualSize: 0.55
+  glowSize: 0.9
+  sortingOrder: 95
+  hideLegacyRenderer: 1
+  pulseSpeed: 2.2
+  pulseAmount: 0.18
 --- !u!58 &1328211219
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -31725,6 +31773,7 @@ GameObject:
   - component: {fileID: 1818373541}
   - component: {fileID: 1818373540}
   - component: {fileID: 1818373539}
+  - component: {fileID: 1818373543}
   m_Layer: 0
   m_Name: Wall_Point_Merged
   m_TagString: Untagged
@@ -31769,6 +31818,29 @@ MonoBehaviour:
   visualRenderer: {fileID: 1043233346}
   normalColor: {r: 0, g: 1, b: 1, a: 1}
   highlightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+--- !u!114 &1818373543
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1818373538}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e54a8c2bd5c4d9498f5f86d9c8e4cb1, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldPointVisual
+  nodeSprite: {fileID: 21300000, guid: d9abedb1af684a2488d9c1777e1df8a2, type: 3}
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
+  highlightedColor: {r: 1, g: 0.92, b: 0.25, a: 1}
+  glowColor: {r: 0.12, g: 0.85, b: 1, a: 0.32}
+  highlightedGlowColor: {r: 1, g: 0.72, b: 0.18, a: 0.62}
+  visualSize: 0.55
+  glowSize: 0.9
+  sortingOrder: 95
+  hideLegacyRenderer: 1
+  pulseSpeed: 2.2
+  pulseAmount: 0.18
 --- !u!58 &1818373541
 CircleCollider2D:
   m_ObjectHideFlags: 0
