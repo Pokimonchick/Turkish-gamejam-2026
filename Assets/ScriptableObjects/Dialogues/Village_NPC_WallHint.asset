@@ -12,69 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a3a40b1ee4441518f69c26c62cb3cde, type: 3}
   m_Name: Elder_FirstVillage
   m_EditorClassIdentifier: Assembly-CSharp::DialogueData
-  dialogueId: Elder_FirstVillage
+  dialogueId: Village_NPC_Elder_Wall
   lines:
-  - speakerProfile: {fileID: 0}
-    speakerName: "Elder"
-    text: "Aisulu. Come closer. You saw where Umay carried the fire, did you not?"
-    portrait: {fileID: 21300000, guid: 4b5ded42dff2f0e49ae77db6484d10f3, type: 3}
-  - speakerProfile: {fileID: 0}
-    speakerName: "Aisulu"
-    text: "Beyond the distant trees. I saw the last sparks fade there."
-    portrait: {fileID: 21300000, guid: 39e15864a50fa1c4098c5a8759a13577, type: 3}
-  - speakerProfile: {fileID: 0}
-    speakerName: "Elder"
-    text: "Then the path has shown itself to you."
-    portrait: {fileID: 21300000, guid: 4b5ded42dff2f0e49ae77db6484d10f3, type: 3}
-  - speakerProfile: {fileID: 0}
-    speakerName: "Aisulu"
-    text: "You want me to follow her?"
-    portrait: {fileID: 21300000, guid: 39e15864a50fa1c4098c5a8759a13577, type: 3}
-  - speakerProfile: {fileID: 0}
-    speakerName: "Elder"
-    text: "I will not command you. A road to a goddess must never begin with another person’s will."
-    portrait: {fileID: 21300000, guid: 4b5ded42dff2f0e49ae77db6484d10f3, type: 3}
-  - speakerProfile: {fileID: 0}
-    speakerName: "Aisulu"
-    text: "Why me? There are warriors in the village."
-    portrait: {fileID: 21300000, guid: 39e15864a50fa1c4098c5a8759a13577, type: 3}
-  - speakerProfile: {fileID: 0}
-    speakerName: "Elder"
-    text: "A warrior may bring strength, but strength alone will not return what our hearts have lost."
-    portrait: {fileID: 21300000, guid: 4b5ded42dff2f0e49ae77db6484d10f3, type: 3}
-  - speakerProfile: {fileID: 0}
-    speakerName: "Elder"
-    text: "Umay did not take the fire from our hands only. She took it from the place where gratitude should have lived."
-    portrait: {fileID: 21300000, guid: 4b5ded42dff2f0e49ae77db6484d10f3, type: 3}
-  - speakerProfile: {fileID: 0}
-    speakerName: "Aisulu"
-    text: "And you think I can speak to her?"
-    portrait: {fileID: 21300000, guid: 39e15864a50fa1c4098c5a8759a13577, type: 3}
-  - speakerProfile: {fileID: 0}
-    speakerName: "Elder"
-    text: "I have seen you share your bread when you had little. I have seen you help those who could not repay you."
-    portrait: {fileID: 21300000, guid: 4b5ded42dff2f0e49ae77db6484d10f3, type: 3}
-  - speakerProfile: {fileID: 0}
-    speakerName: "Elder"
-    text: "If anyone can stand before Umay without pride, it may be you."
-    portrait: {fileID: 21300000, guid: 4b5ded42dff2f0e49ae77db6484d10f3, type: 3}
-  - speakerProfile: {fileID: 0}
-    speakerName: "Aisulu"
-    text: "What must I do?"
-    portrait: {fileID: 21300000, guid: 39e15864a50fa1c4098c5a8759a13577, type: 3}
-  - speakerProfile: {fileID: 0}
-    speakerName: "Elder"
-    text: "Follow the path beyond the trees. Listen before you ask. Look for any spark she may have left behind."
-    portrait: {fileID: 21300000, guid: 4b5ded42dff2f0e49ae77db6484d10f3, type: 3}
-  - speakerProfile: {fileID: 0}
-    speakerName: "Elder"
-    text: "Even a small spark can guide a person through a great darkness."
-    portrait: {fileID: 21300000, guid: 4b5ded42dff2f0e49ae77db6484d10f3, type: 3}
-  - speakerProfile: {fileID: 0}
-    speakerName: "Aisulu"
-    text: "I will go."
-    portrait: {fileID: 21300000, guid: 39e15864a50fa1c4098c5a8759a13577, type: 3}
-  - speakerProfile: {fileID: 0}
-    speakerName: "Elder"
-    text: "Then go with a clear heart, Aisulu. Do not demand the fire back. Become worthy of carrying it."
+  - speakerProfile: {fileID: 11400000, guid: dce1613e54865ac40a2484729a4966fc, type: 2}
+    speakerName: "\u0421\u0442\u0430\u0440\u0435\u0439\u0448\u0438\u043D\u0430"
+    text: "\u041E\u0433\u043E\u043D\u044C \u0438\u0441\u0447\u0435\u0437. \u0410\u0439\u0441\u0443\u043B\u0443,
+      \u043D\u0430\u0439\u0434\u0438 \u043F\u0443\u0442\u044C \u0437\u0430 \u0441\u0442\u0435\u043D\u043E\u0439."
     portrait: {fileID: 21300000, guid: 4b5ded42dff2f0e49ae77db6484d10f3, type: 3}

@@ -8,26 +8,31 @@ using UnityEngine.SceneManagement;
 public static class OrigamiFoldBookLevel04Builder
 {
     private const string LevelScenePath = "Assets/Scenes/Book_Level_04_Greybox.unity";
-    private const int MapWidth = 10;
-    private const int MapHeight = 7;
+    private const int MapWidth = 12;
+    private const int MapHeight = 9;
     private const float CellSize = 1f;
-    private const int MiddleColumnFoldX3 = 3;
-    private const int MiddleColumnFoldX4 = 4;
-    private const int RightRowFoldY = 2;
-    private const int RightColumnFoldX = 7;
+    private const int MiddleColumnFoldX3 = 4;
+    private const int MiddleColumnFoldX4 = 5;
+    private const int RightRowFoldY = 3;
+    private const int RightColumnFoldX = 8;
     private const string PlayerSpriteGuid = "77d3b28359b42e440905b56447f58511";
-    private static readonly Vector3 PlayerVisualLocalPosition = new Vector3(-0.53f, -1f, 0f);
-    private static readonly Vector3 PlayerVisualLocalScale = new Vector3(0.22f, 0.22f, 1f);
+    private static readonly Vector3 CellContentLocalOffset = Vector3.zero;
+    private static readonly Vector3 DiagnosticLabelLocalOffset =
+        CellContentLocalOffset + new Vector3(0f, 0f, -0.02f);
+    private const float PlayerVisualScale = 0.14f;
+    private const float PlayerVisualFootYOffset = 0.02f;
 
     private static readonly string[] LayoutTopToBottom =
     {
-        "....GGGG..",
-        ".GGG...G..",
-        ".G.G.GGG..",
-        ".GG...G...",
-        "..GGG...G.",
-        "....G.G.G.",
-        "SGGGG...G."
+        "............",
+        ".....GGGG...",
+        "..GGG...G...",
+        "..G.G.GGG...",
+        "..GGG..G....",
+        "...GGG...G..",
+        ".....G.G.G..",
+        ".GGGGG...S..",
+        "............"
     };
 
     private class CellData
@@ -74,25 +79,25 @@ public static class OrigamiFoldBookLevel04Builder
         CreateWalkableAreas(cells, walkableLayer);
 
         OrigamiFoldStripSqueezeAction middleColumnActionX3 = CreateColumnFoldAction(
-            "MiddleColumnFold_x3",
+            "MiddleColumnFold_x4",
             cells,
             actionsRoot.transform,
             MiddleColumnFoldX3,
             coordinator);
         OrigamiFoldStripSqueezeAction middleColumnActionX4 = CreateColumnFoldAction(
-            "MiddleColumnFold_x4",
+            "MiddleColumnFold_x5",
             cells,
             actionsRoot.transform,
             MiddleColumnFoldX4,
             coordinator);
         OrigamiFoldStripSqueezeAction rightRowAction = CreateRowFoldAction(
-            "RightRowFold_y2",
+            "RightRowFold_y3",
             cells,
             actionsRoot.transform,
             RightRowFoldY,
             coordinator);
         OrigamiFoldStripSqueezeAction rightColumnAction = CreateColumnFoldAction(
-            "RightColumnFold_x7",
+            "RightColumnFold_x8",
             cells,
             actionsRoot.transform,
             RightColumnFoldX,
@@ -103,8 +108,8 @@ public static class OrigamiFoldBookLevel04Builder
             linksRoot.transform,
             middleColumnActionX3,
             middleColumnActionX4,
-            cells[3, 3],
-            cells[4, 3]);
+            cells[4, 3],
+            cells[5, 3]);
         OrigamiFoldTriadGroup rightTriadGroup = CreateRightTriadFoldControls(
             pointsRoot.transform,
             linksRoot.transform,
@@ -112,13 +117,13 @@ public static class OrigamiFoldBookLevel04Builder
             rightColumnAction,
             rightRowAction,
             coordinator,
-            cells[7, 2]);
+            cells[8, 3]);
 
         OrigamiFoldLink[] links = linksRoot.GetComponentsInChildren<OrigamiFoldLink>(true);
         CreateDragController(foldSystemRoot.transform, mainCamera, links);
 
-        GameObject player = CreatePlayer(playerRoot.transform, cells[8, 0], walkableMask);
-        GameObject respawnPoint = CreateRespawnPoint(playerRoot.transform, cells[8, 0]);
+        GameObject player = CreatePlayer(playerRoot.transform, cells[9, 1], walkableMask);
+        GameObject respawnPoint = CreateRespawnPoint(playerRoot.transform, cells[9, 1]);
         OrigamiFoldMapResetter resetter = CreateMapResetter(
             goalRoot.transform,
             coordinator,
@@ -144,11 +149,14 @@ public static class OrigamiFoldBookLevel04Builder
             resetter,
             patrols);
         AssignHazards(enemiesRoot.transform, puzzleState);
-        CreateExitPlaceholder(goalRoot.transform, cells[7, 6]);
+        CreateExitPlaceholder(goalRoot.transform, cells[8, 8]);
         AddSceneToBuildSettings(LevelScenePath);
         Selection.activeGameObject = levelRoot;
         EditorGUIUtility.PingObject(levelRoot);
 
+        EditorSceneManager.SaveScene(scene, LevelScenePath);
+        OrigamiFoldTileGridArtApplier.ApplyTileGridArtToActiveLevel();
+        OrigamiFoldTileGridArtApplier.FitActiveLevelCameraToFullTileMap();
         EditorSceneManager.SaveScene(scene, LevelScenePath);
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
@@ -204,6 +212,7 @@ public static class OrigamiFoldBookLevel04Builder
                     new Vector3(0.92f, 0.92f, 1f),
                     GetCellColor(tile),
                     0);
+                CreateCoordinateLabel(cellObject.transform, x, y);
 
                 cells[x, y] = new CellData
                 {
@@ -231,6 +240,7 @@ public static class OrigamiFoldBookLevel04Builder
 
                 GameObject walkableObject = CreateEmpty("WalkableArea", cells[x, y].gameObject.transform);
                 walkableObject.layer = walkableLayer;
+                walkableObject.transform.localPosition = CellContentLocalOffset;
 
                 BoxCollider2D collider = walkableObject.AddComponent<BoxCollider2D>();
                 collider.isTrigger = true;
@@ -623,7 +633,7 @@ public static class OrigamiFoldBookLevel04Builder
     private static GameObject CreatePlayer(Transform parent, CellData startCell, int walkableMask)
     {
         GameObject player = CreateEmpty("Player", parent);
-        player.transform.position = startCell.gameObject.transform.position;
+        player.transform.position = startCell.gameObject.transform.TransformPoint(CellContentLocalOffset);
         TrySetTag(player, "Player");
 
         Rigidbody2D body = player.AddComponent<Rigidbody2D>();
@@ -632,20 +642,21 @@ public static class OrigamiFoldBookLevel04Builder
         body.freezeRotation = true;
 
         CircleCollider2D collider = player.AddComponent<CircleCollider2D>();
-        collider.radius = 0.18f;
+        collider.radius = 0.12f;
+        collider.offset = Vector2.zero;
 
         CreatePlayerVisual(player.transform);
 
         OrigamiFoldPlayerMover mover = player.AddComponent<OrigamiFoldPlayerMover>();
         mover.moveSpeed = 3.5f;
-        mover.bodyRadius = 0.18f;
+        mover.bodyRadius = 0.12f;
         mover.sampleProbeRadius = 0.025f;
         mover.walkableMask = walkableMask;
         mover.requireAllSamplesInsideWalkable = true;
 
         OrigamiFoldPassenger passenger = player.AddComponent<OrigamiFoldPassenger>();
         passenger.walkableMask = walkableMask;
-        passenger.probeRadius = 0.18f;
+        passenger.probeRadius = 0.12f;
         passenger.currentStack = startCell.stack;
         passenger.disableWhileCarried = new Behaviour[] { mover };
         passenger.resolveToWalkableAfterCarry = true;
@@ -674,8 +685,8 @@ public static class OrigamiFoldBookLevel04Builder
         }
 
         GameObject visual = CreateEmpty("Visual", parent);
-        visual.transform.localPosition = PlayerVisualLocalPosition;
-        visual.transform.localScale = PlayerVisualLocalScale;
+        visual.transform.localScale = new Vector3(PlayerVisualScale, PlayerVisualScale, 1f);
+        visual.transform.localPosition = GetFootAnchoredPlayerVisualPosition(playerSprite, PlayerVisualScale);
 
         SpriteRenderer renderer = visual.AddComponent<SpriteRenderer>();
         renderer.sprite = playerSprite;
@@ -685,6 +696,14 @@ public static class OrigamiFoldBookLevel04Builder
         PaperDollWalkAnimator animator = visual.AddComponent<PaperDollWalkAnimator>();
         ConfigurePaperDollAnimator(animator, visual.transform, renderer);
         return visual;
+    }
+
+    private static Vector3 GetFootAnchoredPlayerVisualPosition(Sprite sprite, float visualScale)
+    {
+        Bounds bounds = sprite.bounds;
+        float xOffset = -bounds.center.x * visualScale;
+        float yOffset = PlayerVisualFootYOffset - bounds.min.y * visualScale;
+        return new Vector3(xOffset, yOffset, 0f);
     }
 
     private static Sprite FindPlayerSprite()
@@ -742,7 +761,7 @@ public static class OrigamiFoldBookLevel04Builder
     private static GameObject CreateRespawnPoint(Transform parent, CellData startCell)
     {
         GameObject respawnPoint = CreateEmpty("RespawnPoint", parent);
-        respawnPoint.transform.position = startCell.gameObject.transform.position;
+        respawnPoint.transform.position = startCell.gameObject.transform.TransformPoint(CellContentLocalOffset);
 
         CreateQuad(
             "Visual",
@@ -816,28 +835,28 @@ public static class OrigamiFoldBookLevel04Builder
             CreatePatrolEnemy(
                 "TopSkyEnemy",
                 parent,
-                cells[5, 6],
-                new Vector3(0.5f, 0f, 0f),
-                GridToWorldPosition(4.18f, 6f),
-                GridToWorldPosition(7.32f, 6f),
+                cells[7, 7],
+                Vector3.zero,
+                GridToWorldPosition(5.18f, 7f),
+                GridToWorldPosition(8.32f, 7f),
                 1.15f,
                 walkableMask),
             CreatePatrolEnemy(
                 "MiddleSkyEnemy",
                 parent,
-                cells[6, 4],
+                cells[7, 5],
                 new Vector3(0f, 0f, 0f),
-                GridToWorldPosition(5.18f, 4f),
-                GridToWorldPosition(7.32f, 4f),
+                GridToWorldPosition(6.18f, 5f),
+                GridToWorldPosition(8.32f, 5f),
                 1.1f,
                 walkableMask),
             CreatePatrolEnemy(
                 "LowerSkyEnemy",
                 parent,
-                cells[2, 2],
-                new Vector3(0.5f, 0f, 0f),
-                GridToWorldPosition(2.18f, 2f),
-                GridToWorldPosition(4.32f, 2f),
+                cells[4, 3],
+                Vector3.zero,
+                GridToWorldPosition(3.18f, 3f),
+                GridToWorldPosition(5.32f, 3f),
                 1.15f,
                 walkableMask)
         };
@@ -866,7 +885,7 @@ public static class OrigamiFoldBookLevel04Builder
 
         CircleCollider2D collider = enemy.AddComponent<CircleCollider2D>();
         collider.isTrigger = true;
-        collider.radius = 0.14f;
+        collider.radius = 0.105f;
 
         OrigamiFoldHazard hazard = enemy.AddComponent<OrigamiFoldHazard>();
         hazard.respawnOnTouch = true;
@@ -885,7 +904,7 @@ public static class OrigamiFoldBookLevel04Builder
         patrol.pingPong = true;
         patrol.useLocalSpace = true;
         patrol.playOnStart = true;
-        patrol.constrainToWalkableAreas = true;
+        patrol.constrainToWalkableAreas = false;
         patrol.walkableMask = walkableMask;
         patrol.walkableProbeRadius = 0.08f;
 
@@ -1006,7 +1025,9 @@ public static class OrigamiFoldBookLevel04Builder
     private static void CreateExitPlaceholder(Transform parent, CellData parentCell)
     {
         GameObject exit = CreateEmpty("ExitPlaceholder", parent);
-        exit.transform.position = parentCell.gameObject.transform.position + new Vector3(0.22f, 0.22f, 0f);
+        exit.transform.position =
+            parentCell.gameObject.transform.TransformPoint(CellContentLocalOffset)
+            + new Vector3(0.22f, 0.22f, 0f);
 
         CreateQuad(
             "Visual",
@@ -1172,10 +1193,10 @@ public static class OrigamiFoldBookLevel04Builder
                 35);
         }
 
-        CreateColumnGuide(parent, "MiddleColumnFoldGuide_x3", MiddleColumnFoldX3);
-        CreateColumnGuide(parent, "MiddleColumnFoldGuide_x4", MiddleColumnFoldX4);
-        CreateRowGuide(parent, "RightRowFoldGuide_y2", RightRowFoldY);
-        CreateColumnGuide(parent, "RightColumnFoldGuide_x7", RightColumnFoldX);
+        CreateColumnGuide(parent, "MiddleColumnFoldGuide_x4", MiddleColumnFoldX3);
+        CreateColumnGuide(parent, "MiddleColumnFoldGuide_x5", MiddleColumnFoldX4);
+        CreateRowGuide(parent, "RightRowFoldGuide_y3", RightRowFoldY);
+        CreateColumnGuide(parent, "RightColumnFoldGuide_x8", RightColumnFoldX);
     }
 
     private static void CreateColumnGuide(Transform parent, string name, int columnX)
@@ -1239,6 +1260,18 @@ public static class OrigamiFoldBookLevel04Builder
             new Color(0.95f, 0.96f, 1f, 1f),
             0.145f,
             100);
+    }
+
+    private static GameObject CreateCoordinateLabel(Transform parent, int x, int y)
+    {
+        return CreateText(
+            "CoordinateLabel",
+            parent,
+            DiagnosticLabelLocalOffset,
+            $"{x},{y}",
+            new Color(0.02f, 0.02f, 0.03f, 0.78f),
+            0.105f,
+            96);
     }
 
     private static GameObject CreateText(

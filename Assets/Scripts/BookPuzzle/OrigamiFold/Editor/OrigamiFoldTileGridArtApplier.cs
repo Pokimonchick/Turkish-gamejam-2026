@@ -41,13 +41,15 @@ public static class OrigamiFoldTileGridArtApplier
             int width,
             int height,
             string primaryTileFolder,
-            string fallbackTileFolder)
+            string fallbackTileFolder,
+            Vector3 artVisualLocalOffset)
         {
             SceneFileName = sceneFileName;
             Width = width;
             Height = height;
             PrimaryTileFolder = primaryTileFolder;
             FallbackTileFolder = fallbackTileFolder;
+            ArtVisualLocalOffset = artVisualLocalOffset;
         }
 
         public string SceneFileName { get; }
@@ -55,6 +57,7 @@ public static class OrigamiFoldTileGridArtApplier
         public int Height { get; }
         public string PrimaryTileFolder { get; }
         public string FallbackTileFolder { get; }
+        public Vector3 ArtVisualLocalOffset { get; }
         public int ExpectedTileCount => Width * Height;
     }
 
@@ -125,7 +128,7 @@ public static class OrigamiFoldTileGridArtApplier
                 continue;
             }
 
-            if (ApplySpriteToCell(cell, sprite))
+            if (ApplySpriteToCell(cell, sprite, spec.ArtVisualLocalOffset))
             {
                 createdArtVisualCount++;
             }
@@ -215,7 +218,8 @@ public static class OrigamiFoldTileGridArtApplier
                 12,
                 9,
                 VillageTileFolder,
-                VillageTileFallbackFolder);
+                VillageTileFallbackFolder,
+                Vector3.zero);
             return TryUseFirstExistingFolder(
                 out tileFolder,
                 VillageTileFolder,
@@ -229,7 +233,8 @@ public static class OrigamiFoldTileGridArtApplier
                 12,
                 9,
                 BookLevel02TileFolder,
-                BookLevel02TileFallbackFolder);
+                BookLevel02TileFallbackFolder,
+                Vector3.zero);
             return TryUseFirstExistingFolder(
                 out tileFolder,
                 BookLevel02TileFolder,
@@ -243,7 +248,8 @@ public static class OrigamiFoldTileGridArtApplier
                 12,
                 9,
                 BookLevel03TileFolder,
-                BookLevel03TileFallbackFolder);
+                BookLevel03TileFallbackFolder,
+                Vector3.zero);
             return TryUseFirstExistingFolder(
                 out tileFolder,
                 BookLevel03TileFolder,
@@ -254,10 +260,11 @@ public static class OrigamiFoldTileGridArtApplier
         {
             spec = new TileGridSpec(
                 BookLevel04SceneFileName,
-                10,
-                7,
+                12,
+                9,
                 BookLevel04TileFolder,
-                BookLevel04TileFallbackFolder);
+                BookLevel04TileFallbackFolder,
+                Vector3.zero);
             return TryUseFirstExistingFolder(
                 out tileFolder,
                 BookLevel04TileFolder,
@@ -405,7 +412,10 @@ public static class OrigamiFoldTileGridArtApplier
         return true;
     }
 
-    private static bool ApplySpriteToCell(GameObject cell, Sprite sprite)
+    private static bool ApplySpriteToCell(
+        GameObject cell,
+        Sprite sprite,
+        Vector3 artVisualLocalOffset)
     {
         Transform artTransform = cell.transform.Find("ArtVisual");
         GameObject artObject;
@@ -422,7 +432,7 @@ public static class OrigamiFoldTileGridArtApplier
             artObject = artTransform.gameObject;
         }
 
-        artObject.transform.localPosition = Vector3.zero;
+        artObject.transform.localPosition = artVisualLocalOffset;
         artObject.transform.localRotation = Quaternion.identity;
         artObject.transform.localScale = CalculateNormalizedSpriteScale(sprite);
 
