@@ -32,9 +32,9 @@ public static class OrigamiFoldBookLevel03Builder
         "............",
         "......F.....",
         "...GGGGG....",
-        "FFRRG.GGGF..",
-        "G...G.FGG...",
-        "SGGGGGGGGG..",
+        "FFRRG.GGGGGG",
+        "G...G.FGGGGG",
+        "SGGGGGGGGGGG",
         "FFGGGFGGGGGG",
         ".....BF.....",
         "......F....."
@@ -121,7 +121,7 @@ public static class OrigamiFoldBookLevel03Builder
         GameObject respawnPoint = CreateRespawnPoint(playerRoot.transform, cells[0, 3]);
         OrigamiFoldPuzzleState puzzleState =
             CreatePuzzleState(debugRoot.transform, player.transform, respawnPoint.transform);
-        GameObject exit = CreateExitPlaceholder(debugRoot.transform, cells[9, 3]);
+        GameObject exit = CreateExitStrip(debugRoot.transform, cells, 11, 2, 5);
         OrigamiFoldTrapTarget wolfTrap =
             CreateWolfTrapEnemy(cells[11, 2], puzzleState);
         ConfigureWolfGate(leftRowAction, wolfTrap, exit);
@@ -203,11 +203,10 @@ public static class OrigamiFoldBookLevel03Builder
         DestroySceneObjectsNamed("ExitPlaceholder");
 
         Transform wolfCell = FindMapCellTransform(11, 2);
-        Transform exitCell = FindMapCellTransform(9, 3);
         OrigamiFoldStripSqueezeAction leftRowAction =
             FindSceneObjectComponent<OrigamiFoldStripSqueezeAction>("LeftRowFold_y2");
         OrigamiFoldTrapTarget wolfTrap = null;
-        GameObject exit = null;
+        GameObject exit = CreateExitStrip(debugRoot, 11, 2, 5);
 
         if (wolfCell != null)
         {
@@ -216,15 +215,6 @@ public static class OrigamiFoldBookLevel03Builder
         else
         {
             Debug.LogWarning("Could not create wolf gate: MapCell_11_2 is missing.");
-        }
-
-        if (exitCell != null)
-        {
-            exit = CreateExitPlaceholder(debugRoot, exitCell);
-        }
-        else
-        {
-            Debug.LogWarning("Could not create wolf-gated exit: MapCell_9_3 is missing.");
         }
 
         ConfigureWolfGate(leftRowAction, wolfTrap, exit);
@@ -1379,6 +1369,83 @@ public static class OrigamiFoldBookLevel03Builder
             65);
 
         return respawnPoint;
+    }
+
+    private static GameObject CreateExitStrip(
+        Transform parent,
+        CellData[,] cells,
+        int x,
+        int minY,
+        int maxY)
+    {
+        if (cells == null
+            || x < 0
+            || x >= MapWidth
+            || minY < 0
+            || maxY >= MapHeight
+            || minY > maxY
+            || cells[x, minY] == null
+            || cells[x, maxY] == null)
+        {
+            Debug.LogWarning($"Could not create exit strip at x={x}, y={minY}..{maxY}: cells are missing.");
+            return null;
+        }
+
+        return CreateExitStrip(
+            parent,
+            cells[x, minY].gameObject.transform,
+            cells[x, maxY].gameObject.transform,
+            minY,
+            maxY);
+    }
+
+    private static GameObject CreateExitStrip(
+        Transform parent,
+        int x,
+        int minY,
+        int maxY)
+    {
+        Transform bottomCell = FindMapCellTransform(x, minY);
+        Transform topCell = FindMapCellTransform(x, maxY);
+
+        if (bottomCell == null || topCell == null)
+        {
+            Debug.LogWarning($"Could not create exit strip at x={x}, y={minY}..{maxY}: MapCell is missing.");
+            return null;
+        }
+
+        return CreateExitStrip(parent, bottomCell, topCell, minY, maxY);
+    }
+
+    private static GameObject CreateExitStrip(
+        Transform parent,
+        Transform bottomCell,
+        Transform topCell,
+        int minY,
+        int maxY)
+    {
+        GameObject exit = CreateEmpty("ExitPlaceholder", parent);
+        exit.transform.position = (bottomCell.position + topCell.position) * 0.5f;
+
+        float height = Mathf.Max(1f, maxY - minY + 1f);
+        CreateQuad(
+            "Visual",
+            exit.transform,
+            Vector3.zero,
+            new Vector3(0.26f, height * 0.86f, 1f),
+            new Color(0.2f, 1f, 0.35f, 0.72f),
+            74);
+
+        BoxCollider2D collider = exit.AddComponent<BoxCollider2D>();
+        collider.isTrigger = true;
+        collider.size = new Vector2(0.9f, height);
+        collider.offset = Vector2.zero;
+
+        OrigamiFoldSceneExit sceneExit = exit.AddComponent<OrigamiFoldSceneExit>();
+        sceneExit.nextSceneName = NextSceneName;
+        sceneExit.loadSceneOnEnter = true;
+        sceneExit.visualRoot = exit;
+        return exit;
     }
 
     private static GameObject CreateExitPlaceholder(Transform parent, CellData parentCell)
