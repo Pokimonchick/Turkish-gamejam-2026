@@ -30,11 +30,11 @@ public static class OrigamiFoldBookLevel02Builder
     {
         "............",
         ".....F.GBG..",
-        "....GFGGNG..",
-        ".FGGGFGGFFF.",
-        "..GGG..FB.P.",
-        ".GGGG..FBGG.",
-        "..GG.GGFGGF.",
+        "..GGGFGGNG..",
+        ".GGGGFGGFFF.",
+        "GGGGG..FB.P.",
+        "GG.....FBGG.",
+        ".....GGFGGF.",
         "....SGG.....",
         "............"
     };
@@ -134,6 +134,215 @@ public static class OrigamiFoldBookLevel02Builder
             + "Fold links: CenterLeft<->CenterRight, TriadA<->TriadB, TriadB<->TriadC, "
             + "TriadAB<->TriadC_AfterColumn, TriadA_AfterRow<->TriadBC. "
             + "No TriadA<->TriadC diagonal link was created.");
+    }
+
+    [MenuItem("Tools/PANINI/Origami Fold/Apply Book Level 02 Walkability Layout")]
+    public static void ApplyBookLevel02WalkabilityLayoutToScene()
+    {
+        if (EditorApplication.isPlayingOrWillChangePlaymode)
+        {
+            Debug.LogWarning("Cannot update Book Level 02 walkability while Unity is in Play Mode.");
+            return;
+        }
+
+        if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
+        {
+            return;
+        }
+
+        Scene scene = EditorSceneManager.OpenScene(LevelScenePath, OpenSceneMode.Single);
+        int walkableLayer = ResolveWalkableLayer();
+        int walkableCount = 0;
+        int blockedCount = 0;
+        int missingCells = 0;
+
+        for (int y = 0; y < MapHeight; y++)
+        {
+            for (int x = 0; x < MapWidth; x++)
+            {
+                GameObject cell = GameObject.Find($"MapCell_{x}_{y}");
+
+                if (cell == null)
+                {
+                    missingCells++;
+                    continue;
+                }
+
+                char tile = GetLayoutTile(x, y);
+                bool isWalkable = IsWalkableTile(tile);
+                SyncGreyboxVisual(cell.transform, tile);
+                SyncWalkableArea(cell, isWalkable, walkableLayer);
+                SyncWalkableDebugHighlight(cell.transform, isWalkable);
+
+                if (isWalkable)
+                {
+                    walkableCount++;
+                }
+                else
+                {
+                    blockedCount++;
+                }
+            }
+        }
+
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene, LevelScenePath);
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+
+        Debug.Log(
+            $"Updated Book Level 02 walkability layout. "
+            + $"Walkable cells: {walkableCount}, blocked cells: {blockedCount}, missing cells: {missingCells}.");
+    }
+
+    private static char GetLayoutTile(int x, int y)
+    {
+        return LayoutTopToBottom[MapHeight - 1 - y][x];
+    }
+
+    private static void SyncGreyboxVisual(Transform cell, char tile)
+    {
+        Transform visual = FindDirectChild(cell, "Visual");
+
+        if (visual == null)
+        {
+            return;
+        }
+
+        Renderer renderer = visual.GetComponent<Renderer>();
+
+        if (renderer == null)
+        {
+            return;
+        }
+
+        renderer.sharedMaterial = CreateMaterial(GetCellColor(tile));
+    }
+
+    private static void SyncWalkableArea(GameObject cell, bool isWalkable, int walkableLayer)
+    {
+        DestroyExtraDirectChildrenNamed(cell.transform, "WalkableArea", isWalkable ? 1 : 0);
+        Transform walkable = FindDirectChild(cell.transform, "WalkableArea");
+
+        if (!isWalkable)
+        {
+            if (walkable != null)
+            {
+                Object.DestroyImmediate(walkable.gameObject);
+            }
+
+            return;
+        }
+
+        if (walkable == null)
+        {
+            walkable = CreateEmpty("WalkableArea", cell.transform).transform;
+        }
+
+        walkable.gameObject.SetActive(true);
+        walkable.gameObject.layer = walkableLayer;
+        walkable.localPosition = Vector3.zero;
+        walkable.localRotation = Quaternion.identity;
+        walkable.localScale = Vector3.one;
+
+        BoxCollider2D collider = walkable.GetComponent<BoxCollider2D>();
+
+        if (collider == null)
+        {
+            collider = walkable.gameObject.AddComponent<BoxCollider2D>();
+        }
+
+        collider.isTrigger = true;
+        collider.size = new Vector2(1f, 1f);
+        collider.offset = Vector2.zero;
+
+        OrigamiFoldWalkableArea area = walkable.GetComponent<OrigamiFoldWalkableArea>();
+
+        if (area == null)
+        {
+            area = walkable.gameObject.AddComponent<OrigamiFoldWalkableArea>();
+        }
+
+        area.ownerStack = cell.GetComponent<OrigamiFoldTransformStack>();
+        area.isWalkable = true;
+    }
+
+    private static void SyncWalkableDebugHighlight(Transform cell, bool isWalkable)
+    {
+        DestroyExtraDirectChildrenNamed(cell, "WalkableDebugHighlight", isWalkable ? 1 : 0);
+        Transform highlight = FindDirectChild(cell, "WalkableDebugHighlight");
+
+        if (!isWalkable)
+        {
+            if (highlight != null)
+            {
+                Object.DestroyImmediate(highlight.gameObject);
+            }
+
+            return;
+        }
+
+        if (highlight == null)
+        {
+            CreateQuad(
+                "WalkableDebugHighlight",
+                cell,
+                new Vector3(0f, 0f, -0.045f),
+                new Vector3(0.86f, 0.86f, 1f),
+                new Color(0.1f, 1f, 0.42f, 0.28f),
+                62);
+            return;
+        }
+
+        highlight.gameObject.SetActive(true);
+        highlight.localPosition = new Vector3(0f, 0f, -0.045f);
+        highlight.localRotation = Quaternion.identity;
+        highlight.localScale = new Vector3(0.86f, 0.86f, 1f);
+
+        Renderer renderer = highlight.GetComponent<Renderer>();
+
+        if (renderer != null)
+        {
+            renderer.sharedMaterial = CreateMaterial(new Color(0.1f, 1f, 0.42f, 0.28f));
+            renderer.sortingOrder = 62;
+        }
+    }
+
+    private static Transform FindDirectChild(Transform parent, string childName)
+    {
+        for (int i = 0; i < parent.childCount; i++)
+        {
+            Transform child = parent.GetChild(i);
+
+            if (child.name == childName)
+            {
+                return child;
+            }
+        }
+
+        return null;
+    }
+
+    private static void DestroyExtraDirectChildrenNamed(Transform parent, string childName, int keepCount)
+    {
+        int seen = 0;
+
+        for (int i = parent.childCount - 1; i >= 0; i--)
+        {
+            Transform child = parent.GetChild(i);
+
+            if (child.name != childName)
+            {
+                continue;
+            }
+
+            seen++;
+
+            if (seen > keepCount)
+            {
+                Object.DestroyImmediate(child.gameObject);
+            }
+        }
     }
 
     private static Camera CreateMainCamera()
