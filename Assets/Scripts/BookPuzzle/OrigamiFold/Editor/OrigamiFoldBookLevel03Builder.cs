@@ -17,6 +17,7 @@ public static class OrigamiFoldBookLevel03Builder
     private const int TriadRowFoldY = 5;
     private const string PlayerSpriteGuid = "77d3b28359b42e440905b56447f58511";
     private const string DefaultFootstepProfilePath = "Assets/Resources/Audio/DefaultFootstepAudioProfile.asset";
+    private const string WolfSpritePath = "Assets/Art/wolf.PNG";
     private const string NextSceneName = "Book_Level_04_Greybox";
     private const float FoldNodeVisualSize = 0.55f;
     private const float FoldNodeGlowSize = 0.9f;
@@ -30,11 +31,11 @@ public static class OrigamiFoldBookLevel03Builder
     {
         "............",
         "......F.....",
-        "..GGGGFG....",
-        "FFRRFGRGGF..",
-        "G..G..FGG...",
-        "SGGG.GFGGG..",
-        "FFGGFFFFFF..",
+        "...GGGGG....",
+        "FFRRG.GGGF..",
+        "G...G.FGG...",
+        "SGGGGGGGGG..",
+        "FFGGGFGGGGGG",
         ".....BF.....",
         "......F....."
     };
@@ -71,6 +72,7 @@ public static class OrigamiFoldBookLevel03Builder
         GameObject linksRoot = CreateEmpty("ORIGAMI_FOLD_LINKS", levelRoot.transform);
         GameObject actionsRoot = CreateEmpty("ORIGAMI_ACTIONS", levelRoot.transform);
         GameObject playerRoot = CreateEmpty("BOOK_LEVEL_PLAYER", levelRoot.transform);
+        GameObject enemiesRoot = CreateEmpty("BOOK_LEVEL_ENEMIES", levelRoot.transform);
         GameObject debugRoot = CreateEmpty("BOOK_LEVEL_DEBUG", levelRoot.transform);
 
         OrigamiFoldActionCoordinator coordinator = CreateCoordinator(foldSystemRoot.transform);
@@ -115,9 +117,14 @@ public static class OrigamiFoldBookLevel03Builder
 
         OrigamiFoldLink[] links = linksRoot.GetComponentsInChildren<OrigamiFoldLink>(true);
         CreateDragController(foldSystemRoot.transform, mainCamera, links);
-        CreatePlayer(playerRoot.transform, cells[0, 3], walkableMask);
-        CreateRespawnPoint(playerRoot.transform, cells[0, 3]);
-        CreateExitPlaceholder(debugRoot.transform, cells[9, 3]);
+        GameObject player = CreatePlayer(playerRoot.transform, cells[0, 3], walkableMask);
+        GameObject respawnPoint = CreateRespawnPoint(playerRoot.transform, cells[0, 3]);
+        OrigamiFoldPuzzleState puzzleState =
+            CreatePuzzleState(debugRoot.transform, player.transform, respawnPoint.transform);
+        GameObject exit = CreateExitPlaceholder(debugRoot.transform, cells[9, 3]);
+        OrigamiFoldTrapTarget wolfTrap =
+            CreateWolfTrapEnemy(cells[11, 2], puzzleState);
+        ConfigureWolfGate(leftRowAction, wolfTrap, exit);
         AddSceneToBuildSettings(LevelScenePath);
         Selection.activeGameObject = levelRoot;
         EditorGUIUtility.PingObject(levelRoot);
@@ -132,6 +139,588 @@ public static class OrigamiFoldBookLevel03Builder
             + "TriadCorner<->TriadRight, TriadCornerRight<->TriadTopAfterColumn, "
             + "TriadTopCorner<->TriadRightAfterRow. "
             + "No TriadTop<->TriadRight diagonal link was created.");
+    }
+
+    [MenuItem("Tools/PANINI/Origami Fold/Apply Book Level 03 Wolf Gate")]
+    [MenuItem("Tools/PANINI/Origami Fold/Apply Book Level 03 Walkability Layout")]
+    public static void ApplyBookLevel03WalkabilityLayoutToScene()
+    {
+        if (EditorApplication.isPlayingOrWillChangePlaymode)
+        {
+            Debug.LogWarning("Cannot update Book Level 03 walkability while Unity is in Play Mode.");
+            return;
+        }
+
+        if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
+        {
+            return;
+        }
+
+        Scene scene = EditorSceneManager.OpenScene(LevelScenePath, OpenSceneMode.Single);
+        int walkableLayer = ResolveWalkableLayer();
+        int walkableCount = 0;
+        int blockedCount = 0;
+        int missingCells = 0;
+
+        for (int y = 0; y < MapHeight; y++)
+        {
+            for (int x = 0; x < MapWidth; x++)
+            {
+                GameObject cell = GameObject.Find($"MapCell_{x}_{y}");
+
+                if (cell == null)
+                {
+                    missingCells++;
+                    continue;
+                }
+
+                char tile = GetLayoutTile(x, y);
+                bool isWalkable = IsWalkableTile(tile);
+                SyncGreyboxVisual(cell.transform, tile);
+                SyncWalkableArea(cell, isWalkable, walkableLayer);
+                SyncWalkableDebugHighlight(cell.transform, isWalkable);
+
+                if (isWalkable)
+                {
+                    walkableCount++;
+                }
+                else
+                {
+                    blockedCount++;
+                }
+            }
+        }
+
+        Transform levelRoot = FindOrCreateRoot("LEVEL_ROOT");
+        Transform enemiesRoot = FindOrCreateChild(levelRoot, "BOOK_LEVEL_ENEMIES");
+        Transform debugRoot = FindOrCreateChild(levelRoot, "BOOK_LEVEL_DEBUG");
+        Transform player = FindPlayerTransform();
+        Transform respawnPoint = FindSceneObjectTransform("RespawnPoint");
+        OrigamiFoldPuzzleState puzzleState =
+            CreatePuzzleState(debugRoot, player, respawnPoint);
+
+        DestroySceneObjectsNamed("WolfTrapEnemy");
+        DestroySceneObjectsNamed("ExitPlaceholder");
+
+        Transform wolfCell = FindMapCellTransform(11, 2);
+        Transform exitCell = FindMapCellTransform(9, 3);
+        OrigamiFoldStripSqueezeAction leftRowAction =
+            FindSceneObjectComponent<OrigamiFoldStripSqueezeAction>("LeftRowFold_y2");
+        OrigamiFoldTrapTarget wolfTrap = null;
+        GameObject exit = null;
+
+        if (wolfCell != null)
+        {
+            wolfTrap = CreateWolfTrapEnemy(wolfCell, puzzleState);
+        }
+        else
+        {
+            Debug.LogWarning("Could not create wolf gate: MapCell_11_2 is missing.");
+        }
+
+        if (exitCell != null)
+        {
+            exit = CreateExitPlaceholder(debugRoot, exitCell);
+        }
+        else
+        {
+            Debug.LogWarning("Could not create wolf-gated exit: MapCell_9_3 is missing.");
+        }
+
+        ConfigureWolfGate(leftRowAction, wolfTrap, exit);
+
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene, LevelScenePath);
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+
+        Debug.Log(
+            $"Updated Book Level 03 walkability layout. "
+            + $"Walkable cells: {walkableCount}, blocked cells: {blockedCount}, missing cells: {missingCells}.");
+    }
+
+    private static char GetLayoutTile(int x, int y)
+    {
+        return LayoutTopToBottom[MapHeight - 1 - y][x];
+    }
+
+    private static void SyncGreyboxVisual(Transform cell, char tile)
+    {
+        Transform visual = FindDirectChild(cell, "Visual");
+
+        if (visual == null)
+        {
+            return;
+        }
+
+        Renderer renderer = visual.GetComponent<Renderer>();
+
+        if (renderer == null)
+        {
+            return;
+        }
+
+        renderer.sharedMaterial = CreateMaterial(GetCellColor(tile));
+    }
+
+    private static void SyncWalkableArea(GameObject cell, bool isWalkable, int walkableLayer)
+    {
+        DestroyExtraDirectChildrenNamed(cell.transform, "WalkableArea", isWalkable ? 1 : 0);
+        Transform walkable = FindDirectChild(cell.transform, "WalkableArea");
+
+        if (!isWalkable)
+        {
+            if (walkable != null)
+            {
+                Object.DestroyImmediate(walkable.gameObject);
+            }
+
+            return;
+        }
+
+        if (walkable == null)
+        {
+            walkable = CreateEmpty("WalkableArea", cell.transform).transform;
+        }
+
+        walkable.gameObject.SetActive(true);
+        walkable.gameObject.layer = walkableLayer;
+        walkable.localPosition = Vector3.zero;
+        walkable.localRotation = Quaternion.identity;
+        walkable.localScale = Vector3.one;
+
+        BoxCollider2D collider = walkable.GetComponent<BoxCollider2D>();
+
+        if (collider == null)
+        {
+            collider = walkable.gameObject.AddComponent<BoxCollider2D>();
+        }
+
+        collider.isTrigger = true;
+        collider.size = new Vector2(1f, 1f);
+        collider.offset = Vector2.zero;
+
+        OrigamiFoldWalkableArea area = walkable.GetComponent<OrigamiFoldWalkableArea>();
+
+        if (area == null)
+        {
+            area = walkable.gameObject.AddComponent<OrigamiFoldWalkableArea>();
+        }
+
+        area.ownerStack = cell.GetComponent<OrigamiFoldTransformStack>();
+        area.isWalkable = true;
+    }
+
+    private static void SyncWalkableDebugHighlight(Transform cell, bool isWalkable)
+    {
+        DestroyExtraDirectChildrenNamed(cell, "WalkableDebugHighlight", isWalkable ? 1 : 0);
+        Transform highlight = FindDirectChild(cell, "WalkableDebugHighlight");
+
+        if (!isWalkable)
+        {
+            if (highlight != null)
+            {
+                Object.DestroyImmediate(highlight.gameObject);
+            }
+
+            return;
+        }
+
+        if (highlight == null)
+        {
+            CreateQuad(
+                "WalkableDebugHighlight",
+                cell,
+                new Vector3(0f, 0f, -0.045f),
+                new Vector3(0.86f, 0.86f, 1f),
+                new Color(0.1f, 1f, 0.42f, 0.28f),
+                62);
+            return;
+        }
+
+        highlight.gameObject.SetActive(true);
+        highlight.localPosition = new Vector3(0f, 0f, -0.045f);
+        highlight.localRotation = Quaternion.identity;
+        highlight.localScale = new Vector3(0.86f, 0.86f, 1f);
+
+        Renderer renderer = highlight.GetComponent<Renderer>();
+
+        if (renderer != null)
+        {
+            renderer.sharedMaterial = CreateMaterial(new Color(0.1f, 1f, 0.42f, 0.28f));
+            renderer.sortingOrder = 62;
+        }
+    }
+
+    private static Transform FindDirectChild(Transform parent, string childName)
+    {
+        for (int i = 0; i < parent.childCount; i++)
+        {
+            Transform child = parent.GetChild(i);
+
+            if (child.name == childName)
+            {
+                return child;
+            }
+        }
+
+        return null;
+    }
+
+    private static void DestroyExtraDirectChildrenNamed(Transform parent, string childName, int keepCount)
+    {
+        int seen = 0;
+
+        for (int i = parent.childCount - 1; i >= 0; i--)
+        {
+            Transform child = parent.GetChild(i);
+
+            if (child.name != childName)
+            {
+                continue;
+            }
+
+            seen++;
+
+            if (seen > keepCount)
+            {
+                Object.DestroyImmediate(child.gameObject);
+            }
+        }
+    }
+
+    private static OrigamiFoldPuzzleState CreatePuzzleState(
+        Transform parent,
+        Transform player,
+        Transform respawnPoint)
+    {
+        Transform existing = FindDirectChild(parent, "PuzzleState");
+        GameObject stateObject = existing == null
+            ? CreateEmpty("PuzzleState", parent)
+            : existing.gameObject;
+
+        OrigamiFoldPuzzleState puzzleState =
+            stateObject.GetComponent<OrigamiFoldPuzzleState>();
+
+        if (puzzleState == null)
+        {
+            puzzleState = stateObject.AddComponent<OrigamiFoldPuzzleState>();
+        }
+
+        puzzleState.player = player;
+        puzzleState.respawnPoint = respawnPoint;
+        puzzleState.resetFoldsOnRespawn = false;
+        puzzleState.resetProgressOnRespawn = false;
+        puzzleState.resetPatrolsOnRespawn = false;
+        puzzleState.autoFindResetObjects = false;
+        return puzzleState;
+    }
+
+    private static OrigamiFoldTrapTarget CreateWolfTrapEnemy(
+        CellData parentCell,
+        OrigamiFoldPuzzleState puzzleState)
+    {
+        return CreateWolfTrapEnemy(parentCell.gameObject.transform, puzzleState);
+    }
+
+    private static OrigamiFoldTrapTarget CreateWolfTrapEnemy(
+        Transform parentCell,
+        OrigamiFoldPuzzleState puzzleState)
+    {
+        GameObject wolf = CreateEmpty("WolfTrapEnemy", parentCell);
+        wolf.transform.localPosition = new Vector3(0f, 0.02f, 0f);
+
+        GameObject activeRoot = CreateEmpty("ActiveRoot", wolf.transform);
+        activeRoot.transform.localPosition = Vector3.zero;
+
+        GameObject visualObject = CreateEmpty("Visual", activeRoot.transform);
+        SpriteRenderer wolfRenderer = visualObject.AddComponent<SpriteRenderer>();
+        wolfRenderer.sprite = FindWolfSprite();
+        wolfRenderer.color = Color.white;
+        wolfRenderer.sortingOrder = 78;
+
+        if (wolfRenderer.sprite != null)
+        {
+            float targetHeight = 0.78f;
+            float scale = wolfRenderer.sprite.bounds.size.y > 0f
+                ? targetHeight / wolfRenderer.sprite.bounds.size.y
+                : 1f;
+            visualObject.transform.localScale = new Vector3(scale, scale, 1f);
+            visualObject.transform.localPosition =
+                new Vector3(
+                    -wolfRenderer.sprite.bounds.center.x * scale,
+                    -wolfRenderer.sprite.bounds.min.y * scale - 0.5f,
+                    0f);
+        }
+        else
+        {
+            wolfRenderer.enabled = false;
+            CreateQuad(
+                "FallbackWolfVisual",
+                activeRoot.transform,
+                Vector3.zero,
+                new Vector3(0.42f, 0.42f, 1f),
+                new Color(0.8f, 0.12f, 0.12f, 1f),
+                78);
+        }
+
+        BoxCollider2D hazardCollider = activeRoot.AddComponent<BoxCollider2D>();
+        hazardCollider.isTrigger = true;
+        hazardCollider.size = new Vector2(0.82f, 0.82f);
+        hazardCollider.offset = Vector2.zero;
+
+        OrigamiFoldHazard hazard = activeRoot.AddComponent<OrigamiFoldHazard>();
+        hazard.puzzleState = puzzleState;
+        hazard.respawnOnTouch = puzzleState != null;
+        hazard.visualRoot = activeRoot;
+        hazard.debugName = "Wolf";
+
+        GameObject trappedRoot = CreateEmpty("TrappedRoot", wolf.transform);
+        trappedRoot.transform.localPosition = Vector3.zero;
+        CreateQuad(
+            "TrappedVisual",
+            trappedRoot.transform,
+            Vector3.zero,
+            new Vector3(0.34f, 0.18f, 1f),
+            new Color(0.25f, 0.95f, 1f, 0.9f),
+            79);
+        trappedRoot.SetActive(false);
+
+        OrigamiFoldTrapTarget trapTarget = wolf.AddComponent<OrigamiFoldTrapTarget>();
+        trapTarget.activeRoot = activeRoot;
+        trapTarget.trappedRoot = trappedRoot;
+        trapTarget.hazardColliders = new Collider2D[] { hazardCollider };
+        trapTarget.resetPatrolOnUntrap = false;
+        trapTarget.pausePatrolWhenTrapped = false;
+        trapTarget.isTrapped = false;
+        return trapTarget;
+    }
+
+    private static Sprite FindWolfSprite()
+    {
+        EnsureTextureIsSprite(WolfSpritePath);
+        Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>(WolfSpritePath);
+
+        if (sprite != null)
+        {
+            return sprite;
+        }
+
+        Object[] assets = AssetDatabase.LoadAllAssetsAtPath(WolfSpritePath);
+
+        for (int i = 0; i < assets.Length; i++)
+        {
+            if (assets[i] is Sprite nestedSprite)
+            {
+                return nestedSprite;
+            }
+        }
+
+        Debug.LogWarning($"Wolf sprite was not found at {WolfSpritePath}.");
+        return null;
+    }
+
+    private static void EnsureTextureIsSprite(string path)
+    {
+        TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
+
+        if (importer == null)
+        {
+            return;
+        }
+
+        bool changed = false;
+
+        if (importer.textureType != TextureImporterType.Sprite)
+        {
+            importer.textureType = TextureImporterType.Sprite;
+            changed = true;
+        }
+
+        if (importer.spriteImportMode != SpriteImportMode.Single)
+        {
+            importer.spriteImportMode = SpriteImportMode.Single;
+            changed = true;
+        }
+
+        if (!importer.alphaIsTransparency)
+        {
+            importer.alphaIsTransparency = true;
+            changed = true;
+        }
+
+        if (importer.mipmapEnabled)
+        {
+            importer.mipmapEnabled = false;
+            changed = true;
+        }
+
+        if (changed)
+        {
+            importer.SaveAndReimport();
+        }
+    }
+
+    private static void ConfigureWolfGate(
+        OrigamiFoldStripSqueezeAction rowAction,
+        OrigamiFoldTrapTarget wolfTrap,
+        GameObject exit)
+    {
+        if (rowAction == null)
+        {
+            Debug.LogWarning("Could not configure wolf gate: LeftRowFold_y2 action is missing.");
+            return;
+        }
+
+        rowAction.trapTargetsBeforeActive = true;
+
+        if (wolfTrap != null)
+        {
+            rowAction.trapTargetsWhenActive =
+                AppendUniqueTrapTarget(rowAction.trapTargetsWhenActive, wolfTrap);
+        }
+
+        if (exit != null)
+        {
+            rowAction.enableAfterActive =
+                AppendUniqueGameObject(rowAction.enableAfterActive, exit);
+            rowAction.disableAfterInactive =
+                AppendUniqueGameObject(rowAction.disableAfterInactive, exit);
+            exit.SetActive(rowAction.isActive);
+        }
+    }
+
+    private static GameObject[] AppendUniqueGameObject(GameObject[] source, GameObject item)
+    {
+        List<GameObject> result = new List<GameObject>();
+
+        if (source != null)
+        {
+            for (int i = 0; i < source.Length; i++)
+            {
+                if (source[i] != null && !result.Contains(source[i]))
+                {
+                    result.Add(source[i]);
+                }
+            }
+        }
+
+        if (item != null && !result.Contains(item))
+        {
+            result.Add(item);
+        }
+
+        return result.ToArray();
+    }
+
+    private static OrigamiFoldTrapTarget[] AppendUniqueTrapTarget(
+        OrigamiFoldTrapTarget[] source,
+        OrigamiFoldTrapTarget item)
+    {
+        List<OrigamiFoldTrapTarget> result = new List<OrigamiFoldTrapTarget>();
+
+        if (source != null)
+        {
+            for (int i = 0; i < source.Length; i++)
+            {
+                if (source[i] != null && !result.Contains(source[i]))
+                {
+                    result.Add(source[i]);
+                }
+            }
+        }
+
+        if (item != null && !result.Contains(item))
+        {
+            result.Add(item);
+        }
+
+        return result.ToArray();
+    }
+
+    private static Transform FindOrCreateRoot(string rootName)
+    {
+        GameObject root = GameObject.Find(rootName);
+
+        if (root != null)
+        {
+            return root.transform;
+        }
+
+        return CreateEmpty(rootName, null).transform;
+    }
+
+    private static Transform FindOrCreateChild(Transform parent, string childName)
+    {
+        Transform child = parent.Find(childName);
+
+        if (child != null)
+        {
+            return child;
+        }
+
+        return CreateEmpty(childName, parent).transform;
+    }
+
+    private static Transform FindPlayerTransform()
+    {
+        GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
+
+        if (playerObject != null)
+        {
+            return playerObject.transform;
+        }
+
+        OrigamiFoldPlayerMover mover =
+            Object.FindFirstObjectByType<OrigamiFoldPlayerMover>(FindObjectsInactive.Include);
+        return mover == null ? null : mover.transform;
+    }
+
+    private static Transform FindSceneObjectTransform(string objectName)
+    {
+        GameObject sceneObject = GameObject.Find(objectName);
+        return sceneObject == null ? null : sceneObject.transform;
+    }
+
+    private static Transform FindMapCellTransform(int x, int y)
+    {
+        GameObject cell = GameObject.Find($"MapCell_{x}_{y}");
+        return cell == null ? null : cell.transform;
+    }
+
+    private static T FindSceneObjectComponent<T>(string objectName) where T : Component
+    {
+        GameObject sceneObject = GameObject.Find(objectName);
+        return sceneObject == null ? null : sceneObject.GetComponent<T>();
+    }
+
+    private static void DestroySceneObjectsNamed(string objectName)
+    {
+        GameObject[] allObjects = Object.FindObjectsByType<GameObject>(
+            FindObjectsInactive.Include,
+            FindObjectsSortMode.None);
+        List<GameObject> objectsToDestroy = new List<GameObject>();
+
+        for (int i = 0; i < allObjects.Length; i++)
+        {
+            if (allObjects[i] == null)
+            {
+                continue;
+            }
+
+            if (allObjects[i].name == objectName)
+            {
+                objectsToDestroy.Add(allObjects[i]);
+            }
+        }
+
+        for (int i = 0; i < objectsToDestroy.Count; i++)
+        {
+            if (objectsToDestroy[i] != null)
+            {
+                Object.DestroyImmediate(objectsToDestroy[i]);
+            }
+        }
     }
 
     private static Camera CreateMainCamera()
@@ -792,10 +1381,15 @@ public static class OrigamiFoldBookLevel03Builder
         return respawnPoint;
     }
 
-    private static void CreateExitPlaceholder(Transform parent, CellData parentCell)
+    private static GameObject CreateExitPlaceholder(Transform parent, CellData parentCell)
+    {
+        return CreateExitPlaceholder(parent, parentCell.gameObject.transform);
+    }
+
+    private static GameObject CreateExitPlaceholder(Transform parent, Transform parentCell)
     {
         GameObject exit = CreateEmpty("ExitPlaceholder", parent);
-        exit.transform.position = parentCell.gameObject.transform.position + new Vector3(0.24f, -0.22f, 0f);
+        exit.transform.position = parentCell.position + new Vector3(0.24f, -0.22f, 0f);
         CreateQuad(
             "Visual",
             exit.transform,
@@ -812,6 +1406,7 @@ public static class OrigamiFoldBookLevel03Builder
         sceneExit.nextSceneName = NextSceneName;
         sceneExit.loadSceneOnEnter = true;
         sceneExit.visualRoot = exit;
+        return exit;
     }
 
     private static OrigamiFoldPoint CreateFoldPoint(
