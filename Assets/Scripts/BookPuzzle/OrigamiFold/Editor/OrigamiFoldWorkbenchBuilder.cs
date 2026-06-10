@@ -31,109 +31,91 @@ public static class OrigamiFoldWorkbenchBuilder
         Step5_6
     }
 
-    [MenuItem("Tools/PANINI/Origami Fold/Rebuild Workbench Step 1")]
     public static void RebuildWorkbenchStep1()
     {
         RebuildWorkbench(WorkbenchStep.Step1);
     }
 
-    [MenuItem("Tools/PANINI/Origami Fold/Rebuild Workbench Step 2")]
     public static void RebuildWorkbenchStep2()
     {
         RebuildWorkbench(WorkbenchStep.Step2);
     }
 
-    [MenuItem("Tools/PANINI/Origami Fold/Rebuild Workbench Step 3")]
     public static void RebuildWorkbenchStep3()
     {
         RebuildWorkbench(WorkbenchStep.Step3);
     }
 
-    [MenuItem("Tools/PANINI/Origami Fold/Rebuild Workbench Step 3.1 Grid Aligned")]
     public static void RebuildWorkbenchStep3_1()
     {
         RebuildWorkbench(WorkbenchStep.Step3_1);
     }
 
-    [MenuItem("Tools/PANINI/Origami Fold/Rebuild Workbench Step 3.2 Horizontal Controls")]
     public static void RebuildWorkbenchStep3_2()
     {
         RebuildWorkbench(WorkbenchStep.Step3_2);
     }
 
-    [MenuItem("Tools/PANINI/Origami Fold/Rebuild Workbench Step 3.3 Vertical Controls")]
     public static void RebuildWorkbenchStep3_3()
     {
         RebuildWorkbench(WorkbenchStep.Step3_3);
     }
 
-    [MenuItem("Tools/PANINI/Origami Fold/Rebuild Workbench Step 3.4 Symmetric Squeeze")]
     public static void RebuildWorkbenchStep3_4()
     {
         RebuildWorkbench(WorkbenchStep.Step3_4);
     }
 
-    [MenuItem("Tools/PANINI/Origami Fold/Rebuild Workbench Step 3.5 Unified Map")]
     public static void RebuildWorkbenchStep3_5()
     {
         RebuildWorkbench(WorkbenchStep.Step3_5);
     }
 
-    [MenuItem("Tools/PANINI/Origami Fold/Rebuild Workbench Step 3.6 Whole Strip Fold")]
     public static void RebuildWorkbenchStep3_6()
     {
         RebuildWorkbench(WorkbenchStep.Step3_6);
     }
 
-    [MenuItem("Tools/PANINI/Origami Fold/Rebuild Workbench Step 4 Player Walkable")]
     public static void RebuildWorkbenchStep4()
     {
         RebuildWorkbench(WorkbenchStep.Step4);
     }
 
-    [MenuItem("Tools/PANINI/Origami Fold/Rebuild Workbench Step 5 Puzzle Loop")]
     public static void RebuildWorkbenchStep5()
     {
         RebuildWorkbench(WorkbenchStep.Step5);
     }
 
-    [MenuItem("Tools/PANINI/Origami Fold/Rebuild Workbench Step 5.1 Tight Player Bounds")]
     public static void RebuildWorkbenchStep5_1()
     {
         RebuildWorkbench(WorkbenchStep.Step5_1);
     }
 
-    [MenuItem("Tools/PANINI/Origami Fold/Rebuild Workbench Step 5.2 Hazards")]
     public static void RebuildWorkbenchStep5_2()
     {
         RebuildWorkbench(WorkbenchStep.Step5_2);
     }
 
-    [MenuItem("Tools/PANINI/Origami Fold/Rebuild Workbench Step 5.3 Respawn Resets Folds")]
     public static void RebuildWorkbenchStep5_3()
     {
         RebuildWorkbench(WorkbenchStep.Step5_3);
     }
 
-    [MenuItem("Tools/PANINI/Origami Fold/Rebuild Workbench Step 5.3.1 Reset Progress On Respawn")]
     public static void RebuildWorkbenchStep5_3_1()
     {
         RebuildWorkbench(WorkbenchStep.Step5_3_1);
     }
 
-    [MenuItem("Tools/PANINI/Origami Fold/Rebuild Workbench Step 5.4 Patrol Enemy")]
     public static void RebuildWorkbenchStep5_4()
     {
         RebuildWorkbench(WorkbenchStep.Step5_4);
     }
 
-    [MenuItem("Tools/PANINI/Origami Fold/Rebuild Workbench Step 5.5 Trappable Patrol")]
     public static void RebuildWorkbenchStep5_5()
     {
         RebuildWorkbench(WorkbenchStep.Step5_5);
     }
 
-    [MenuItem("Tools/PANINI/Origami Fold/Rebuild Workbench Step 5.6 Triad Fold Group")]
     public static void RebuildWorkbenchStep5_6()
     {
         RebuildWorkbench(WorkbenchStep.Step5_6);

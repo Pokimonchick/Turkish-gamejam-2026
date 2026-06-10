@@ -18,6 +18,7 @@ public static class OrigamiFoldDebugOverlayToggler
     private const string GridLeftName = "Grid_Left";
     private const string GridRightName = "Grid_Right";
     private const string CoordinateLabelName = "CoordinateLabel";
+    private const float CoordinateLabelCharacterSize = 0.09f;
 
     private static readonly LevelDebugTarget[] LevelTargets =
     {
@@ -269,7 +270,15 @@ public static class OrigamiFoldDebugOverlayToggler
             return 0;
         }
 
-        isEnabled = forceEnabled ?? !HasDebugOverlay(cells);
+        bool hasOverlay = HasDebugOverlay(cells);
+
+        if (!forceEnabled.HasValue && hasOverlay && HasOversizedCoordinateLabels(cells))
+        {
+            isEnabled = true;
+            return CreateDebugOverlay(cells);
+        }
+
+        isEnabled = forceEnabled ?? !hasOverlay;
         return isEnabled ? CreateDebugOverlay(cells) : CleanupDebugOverlay(cells);
     }
 
@@ -321,7 +330,7 @@ public static class OrigamiFoldDebugOverlayToggler
                 new Vector3(0f, 0f, -0.05f),
                 $"{cell.X},{cell.Y}",
                 new Color(0.02f, 0.02f, 0.03f, 0.72f),
-                0.135f,
+                CoordinateLabelCharacterSize,
                 86);
 
             changedObjects += 5;
@@ -376,6 +385,28 @@ public static class OrigamiFoldDebugOverlayToggler
             || FindDirectChild(cell.Transform, GridRightName) != null
             || FindDirectChild(cell.Transform, CoordinateLabelName) != null
             || FindDirectChild(cell.Transform, $"Label_{cell.X}_{cell.Y}") != null;
+    }
+
+    private static bool HasOversizedCoordinateLabels(List<MapCellInfo> cells)
+    {
+        for (int i = 0; i < cells.Count; i++)
+        {
+            Transform labelTransform = FindDirectChild(cells[i].Transform, CoordinateLabelName);
+
+            if (labelTransform == null)
+            {
+                continue;
+            }
+
+            TextMesh textMesh = labelTransform.GetComponent<TextMesh>();
+
+            if (textMesh != null && textMesh.characterSize > CoordinateLabelCharacterSize + 0.001f)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static List<MapCellInfo> FindMapCells()

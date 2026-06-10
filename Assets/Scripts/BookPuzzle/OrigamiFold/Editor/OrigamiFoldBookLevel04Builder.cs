@@ -58,7 +58,6 @@ public static class OrigamiFoldBookLevel04Builder
         public char tile;
     }
 
-    [MenuItem("Tools/PANINI/Origami Fold/Create Book Level 04 Greybox")]
     public static void CreateBookLevel04Greybox()
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
@@ -189,7 +188,6 @@ public static class OrigamiFoldBookLevel04Builder
     }
 
     [MenuItem("Tools/PANINI/Art/Apply Book Level 04 Crow Enemy Visuals")]
-    [MenuItem("Tools/PANINI/Origami Fold/Apply Book Level 04 Crow Enemy Visuals")]
     public static void ApplyBookLevel04CrowEnemyVisuals()
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
@@ -242,7 +240,6 @@ public static class OrigamiFoldBookLevel04Builder
             $"Book Level 04 crow visuals applied. Scene={scene.path}, updatedEnemies={updatedCount}, sprite={CrowSpritePath}");
     }
 
-    [MenuItem("Tools/PANINI/Origami Fold/Apply Book Level 04 Raven Intro Dialogue")]
     public static void ApplyBookLevel04RavenIntroDialogue()
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)

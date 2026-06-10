@@ -56,7 +56,6 @@ public static class OrigamiFoldBookLevel02Builder
         public char tile;
     }
 
-    [MenuItem("Tools/PANINI/Origami Fold/Create Book Level 02 Greybox")]
     public static void CreateBookLevel02Greybox()
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
@@ -151,8 +150,6 @@ public static class OrigamiFoldBookLevel02Builder
             + "No TriadA<->TriadC diagonal link was created.");
     }
 
-    [MenuItem("Tools/PANINI/Origami Fold/Apply Book Level 02 Gameplay Update")]
-    [MenuItem("Tools/PANINI/Origami Fold/Apply Book Level 02 Walkability Layout")]
     public static void ApplyBookLevel02WalkabilityLayoutToScene()
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
@@ -247,7 +244,6 @@ public static class OrigamiFoldBookLevel02Builder
             + "Timur NPC target: 10,3. Finish target: 5,1.");
     }
 
-    [MenuItem("Tools/PANINI/Origami Fold/Clean Book Level 02 Presentation Debug")]
     public static void CleanBookLevel02PresentationDebug()
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
@@ -1089,7 +1085,7 @@ public static class OrigamiFoldBookLevel02Builder
             new Vector3(0f, 0f, -0.05f),
             $"{x},{y}",
             new Color(0.02f, 0.02f, 0.03f, 0.72f),
-            0.135f,
+            0.09f,
             86);
     }
 

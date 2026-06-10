@@ -66,7 +66,6 @@ public static class OrigamiFoldVillageLevelBuilder
         public bool isWalkable;
     }
 
-    [MenuItem("Tools/PANINI/Origami Fold/Create Village Level 01 Greybox")]
     public static void CreateVillageLevel01Greybox()
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
@@ -100,7 +99,6 @@ public static class OrigamiFoldVillageLevelBuilder
         Debug.Log($"Created village greybox scenes: {VillageScenePath}, {StubScenePath}");
     }
 
-    [MenuItem("Tools/PANINI/Origami Fold/Apply Village Level 01 Mechanics Intro Dialogue")]
     public static void ApplyVillageLevel01MechanicsIntroDialogue()
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)

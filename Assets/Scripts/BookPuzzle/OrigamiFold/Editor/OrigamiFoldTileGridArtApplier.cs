@@ -67,7 +67,6 @@ public static class OrigamiFoldTileGridArtApplier
         ApplyTileGridArtToActiveLevelInternal();
     }
 
-    [MenuItem("Tools/PANINI/Origami Fold/Apply Tile Grid Art To Active Level")]
     public static void ApplyTileGridArtToActiveLevelFromOrigamiFoldMenu()
     {
         ApplyTileGridArtToActiveLevelInternal();
@@ -79,7 +78,6 @@ public static class OrigamiFoldTileGridArtApplier
         FitActiveLevelCameraToFullTileMapInternal();
     }
 
-    [MenuItem("Tools/PANINI/Origami Fold/Fit Active Level Camera To Full Tile Map")]
     public static void FitActiveLevelCameraToFullTileMapFromOrigamiFoldMenu()
     {
         FitActiveLevelCameraToFullTileMapInternal();

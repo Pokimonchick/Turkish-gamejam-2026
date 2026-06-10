@@ -54,7 +54,6 @@ public static class OrigamiFoldBookLevel03Builder
         public char tile;
     }
 
-    [MenuItem("Tools/PANINI/Origami Fold/Create Book Level 03 Greybox")]
     public static void CreateBookLevel03Greybox()
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
@@ -151,8 +150,6 @@ public static class OrigamiFoldBookLevel03Builder
             + "No TriadTop<->TriadRight diagonal link was created.");
     }
 
-    [MenuItem("Tools/PANINI/Origami Fold/Apply Book Level 03 Wolf Gate")]
-    [MenuItem("Tools/PANINI/Origami Fold/Apply Book Level 03 Walkability Layout")]
     public static void ApplyBookLevel03WalkabilityLayoutToScene()
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
@@ -246,7 +243,6 @@ public static class OrigamiFoldBookLevel03Builder
             + $"Walkable cells: {walkableCount}, blocked cells: {blockedCount}, missing cells: {missingCells}.");
     }
 
-    [MenuItem("Tools/PANINI/Origami Fold/Clean Book Level 03 Presentation Debug")]
     public static void CleanBookLevel03PresentationDebug()
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
@@ -270,7 +266,6 @@ public static class OrigamiFoldBookLevel03Builder
         Debug.Log("Book Level 03 presentation debug cleaned: grid, coordinate labels, and walkable highlights removed.");
     }
 
-    [MenuItem("Tools/PANINI/Origami Fold/Apply Book Level 03 Wolf Intro Dialogue")]
     public static void ApplyBookLevel03WolfIntroDialogue()
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
@@ -1116,7 +1111,7 @@ public static class OrigamiFoldBookLevel03Builder
             new Vector3(0f, 0f, -0.05f),
             $"{x},{y}",
             new Color(0.02f, 0.02f, 0.03f, 0.72f),
-            0.135f,
+            0.09f,
             86);
     }
 

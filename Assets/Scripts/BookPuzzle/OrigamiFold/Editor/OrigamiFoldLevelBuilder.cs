@@ -35,7 +35,6 @@ public static class OrigamiFoldLevelBuilder
         public Vector2Int gridPosition;
     }
 
-    [MenuItem("Tools/PANINI/Origami Fold/Create Book Level 01 Greybox")]
     public static void CreateBookLevel01Greybox()
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
