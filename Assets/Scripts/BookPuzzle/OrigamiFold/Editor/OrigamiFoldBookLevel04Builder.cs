@@ -77,7 +77,8 @@ public static class OrigamiFoldBookLevel04Builder
         GameObject levelRoot = CreateEmpty("LEVEL_ROOT", null);
         OrigamiFoldLevelAudioBuilder.CreateGameplayAudio(
             levelRoot.transform,
-            OrigamiFoldLevelAudioBuilder.WindAmbiencePath);
+            OrigamiFoldLevelAudioBuilder.WindAmbiencePath,
+            0.28f);
         GameObject foldSystemRoot = CreateEmpty("ORIGAMI_FOLD_SYSTEM", levelRoot.transform);
         GameObject mapRoot = CreateEmpty("BOOK_LEVEL_MAP", levelRoot.transform);
         GameObject cellsRoot = CreateEmpty("Cells", mapRoot.transform);
@@ -282,6 +283,7 @@ public static class OrigamiFoldBookLevel04Builder
         camera.clearFlags = CameraClearFlags.SolidColor;
         cameraObject.transform.position = new Vector3(0f, 0.08f, -10f);
         cameraObject.tag = "MainCamera";
+        cameraObject.AddComponent<AudioListener>();
         return camera;
     }
 

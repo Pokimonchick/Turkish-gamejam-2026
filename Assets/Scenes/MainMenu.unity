@@ -3260,9 +3260,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   masterVolume: 1
   musicVolume: 1
-  sfxVolume: 1
+  sfxVolume: 0.726
   persistBetweenScenes: 1
   sfxOneShotSource: {fileID: 0}
+  persistentMusicSource: {fileID: 0}
 --- !u!1 &410000
 GameObject:
   m_ObjectHideFlags: 0
@@ -3307,7 +3308,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: f5c51a531df93cd4b9575890e0cb3746, type: 3}
+  m_Resource: {fileID: 8300000, guid: 1209eb4392d34374fa8280dabe7e787d, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1

@@ -8,7 +8,10 @@ public static class OrigamiFoldLevelAudioBuilder
     public const string ForestAmbiencePath = "Assets/Audio/les_den_243.mp3";
     public const string WindAmbiencePath = "Assets/Audio/soundreality-wind-blowing-457954.mp3";
 
-    public static void CreateGameplayAudio(Transform parent, string ambienceClipPath)
+    public static void CreateGameplayAudio(
+        Transform parent,
+        string ambienceClipPath,
+        float ambienceVolume = 1f)
     {
         GameObject audioRoot = CreateChild("LEVEL_AUDIO", parent);
 
@@ -27,7 +30,11 @@ public static class OrigamiFoldLevelAudioBuilder
             AudioClip ambienceClip = AssetDatabase.LoadAssetAtPath<AudioClip>(ambienceClipPath);
             if (ambienceClip != null)
             {
-                CreateLoopingMusicSource("Level Ambience", audioRoot.transform, ambienceClip);
+                CreateLoopingMusicSource(
+                    "Level Ambience",
+                    audioRoot.transform,
+                    ambienceClip,
+                    ambienceVolume);
             }
             else
             {
@@ -48,7 +55,11 @@ public static class OrigamiFoldLevelAudioBuilder
         player.Configure(source, clip, true, true, true);
     }
 
-    private static void CreateLoopingMusicSource(string name, Transform parent, AudioClip clip)
+    private static void CreateLoopingMusicSource(
+        string name,
+        Transform parent,
+        AudioClip clip,
+        float volume)
     {
         GameObject audioObject = CreateChild(name, parent);
         AudioSource source = audioObject.AddComponent<AudioSource>();
@@ -57,7 +68,7 @@ public static class OrigamiFoldLevelAudioBuilder
         source.loop = true;
 
         CategorizedAudioSource categorized = audioObject.AddComponent<CategorizedAudioSource>();
-        categorized.Configure(AudioCategory.Music, 1f);
+        categorized.Configure(AudioCategory.Music, volume);
     }
 
     private static GameObject CreateChild(string name, Transform parent)
