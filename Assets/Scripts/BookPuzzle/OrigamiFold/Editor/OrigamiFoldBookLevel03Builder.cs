@@ -14,9 +14,10 @@ public static class OrigamiFoldBookLevel03Builder
     private const int MapHeight = 9;
     private const float CellSize = 1f;
     private const int LeftRowFoldY = 2;
-    private const int TriadColumnFoldX = 6;
+    private const int TriadColumnFoldX = 7;
     private const int TriadRowFoldY = 5;
     private const string PlayerSpriteGuid = "77d3b28359b42e440905b56447f58511";
+    private const string AisuluPortraitGuid = "39e15864a50fa1c4098c5a8759a13577";
     private const string DefaultFootstepProfilePath = "Assets/Resources/Audio/DefaultFootstepAudioProfile.asset";
     private const string WolfSpritePath = "Assets/Art/wolf.PNG";
     private const string NextSceneName = "Book_Level_04_Greybox";
@@ -95,7 +96,7 @@ public static class OrigamiFoldBookLevel03Builder
             LeftRowFoldY,
             coordinator);
         OrigamiFoldStripSqueezeAction triadColumnAction = CreateColumnFoldAction(
-            "TriadColumnFold_x6",
+            "TriadColumnFold_x7",
             cells,
             actionsRoot.transform,
             TriadColumnFoldX,
@@ -455,11 +456,14 @@ public static class OrigamiFoldBookLevel03Builder
 
         DialogueSpeakerProfile aisuluProfile =
             AssetDatabase.LoadAssetAtPath<DialogueSpeakerProfile>(AisuluSpeakerProfilePath);
+        AssignSpeakerPortraitIfMissing(aisuluProfile, FindSpriteByGuid(AisuluPortraitGuid));
+
+        Sprite wolfPortrait = FindWolfSprite();
         DialogueSpeakerProfile wolfProfile = EnsureSpeakerProfile(
             WolfSpeakerProfilePath,
             "wolf",
             "Wolf",
-            null);
+            wolfPortrait);
 
         DialogueData dialogue =
             AssetDatabase.LoadAssetAtPath<DialogueData>(WolfIntroDialoguePath);
@@ -510,8 +514,19 @@ public static class OrigamiFoldBookLevel03Builder
             speakerProfile = speakerProfile,
             speakerName = fallbackSpeakerName,
             text = text,
-            portrait = null
+            portrait = speakerProfile == null ? null : speakerProfile.portrait
         };
+    }
+
+    private static void AssignSpeakerPortraitIfMissing(DialogueSpeakerProfile profile, Sprite portrait)
+    {
+        if (profile == null || profile.portrait != null || portrait == null)
+        {
+            return;
+        }
+
+        profile.portrait = portrait;
+        EditorUtility.SetDirty(profile);
     }
 
     private static DialogueSpeakerProfile EnsureSpeakerProfile(
@@ -534,6 +549,18 @@ public static class OrigamiFoldBookLevel03Builder
         profile.portrait = portrait;
         EditorUtility.SetDirty(profile);
         return profile;
+    }
+
+    private static Sprite FindSpriteByGuid(string guid)
+    {
+        string path = AssetDatabase.GUIDToAssetPath(guid);
+
+        if (string.IsNullOrEmpty(path))
+        {
+            return null;
+        }
+
+        return AssetDatabase.LoadAssetAtPath<Sprite>(path);
     }
 
     private static DialogueManager CreateDialogueSystem(Transform parent)
@@ -1921,7 +1948,7 @@ public static class OrigamiFoldBookLevel03Builder
         }
 
         CreateRowGuide(parent, "LeftRowFoldGuide_y2", LeftRowFoldY);
-        CreateColumnGuide(parent, "TriadColumnFoldGuide_x6", TriadColumnFoldX);
+        CreateColumnGuide(parent, "TriadColumnFoldGuide_x7", TriadColumnFoldX);
         CreateRowGuide(parent, "TriadRowFoldGuide_y5", TriadRowFoldY);
     }
 

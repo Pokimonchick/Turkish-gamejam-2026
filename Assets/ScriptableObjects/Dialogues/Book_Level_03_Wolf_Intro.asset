@@ -18,24 +18,24 @@ MonoBehaviour:
     speakerName: Wolf
     text: Daughter of the steppe, your steps are light, but a heavy trail follows
       your people.
-    portrait: {fileID: 0}
+    portrait: {fileID: 21300000, guid: 9a1139074231df44cb384f333e6482e1, type: 3}
   - speakerProfile: {fileID: 11400000, guid: 6992f1ad55b7805439d6200abb695e15, type: 2}
     speakerName: Aisulu
     text: I did not come to cut down trees, and I did not come to hunt. I am searching
       for the road to Umay and trying to understand where our guilt began.
-    portrait: {fileID: 0}
+    portrait: {fileID: 21300000, guid: 39e15864a50fa1c4098c5a8759a13577, type: 3}
   - speakerProfile: {fileID: 11400000, guid: 48ccf4465e991aa438795fe697d34f7a, type: 2}
     speakerName: Wolf
     text: 'Guilt rarely begins with a loud cry. More often, it begins with a small
       thought: "This can be taken, because it does not speak."'
-    portrait: {fileID: 0}
+    portrait: {fileID: 21300000, guid: 9a1139074231df44cb384f333e6482e1, type: 3}
   - speakerProfile: {fileID: 11400000, guid: 6992f1ad55b7805439d6200abb695e15, type: 2}
     speakerName: Aisulu
     text: If the forest can remember, then fire can remember too. And if fire remembers,
       then Umay took it not out of cruelty, but out of pain.
-    portrait: {fileID: 0}
+    portrait: {fileID: 21300000, guid: 39e15864a50fa1c4098c5a8759a13577, type: 3}
   - speakerProfile: {fileID: 11400000, guid: 48ccf4465e991aa438795fe697d34f7a, type: 2}
     speakerName: Wolf
     text: While I stand here, daughter of the steppe, you shall go no further. Not
       everyone who seeks Umay is worthy of approaching her fire.
-    portrait: {fileID: 0}
+    portrait: {fileID: 21300000, guid: 9a1139074231df44cb384f333e6482e1, type: 3}
