@@ -793,6 +793,10 @@ public static class OrigamiFoldBookLevel02Builder
         GameObject npc = CreateEmpty("Timur_NPC", parent);
         npc.transform.position = parentCell.position + new Vector3(0f, 0.04f, 0f);
 
+        OrigamiFoldTransformAttachment attachment = npc.AddComponent<OrigamiFoldTransformAttachment>();
+        attachment.target = parentCell;
+        attachment.targetLocalPosition = new Vector3(0f, 0.04f, 0f);
+
         SpriteRenderer visual = CreateTimurVisual(npc.transform);
         CircleCollider2D trigger = npc.AddComponent<CircleCollider2D>();
         trigger.isTrigger = true;

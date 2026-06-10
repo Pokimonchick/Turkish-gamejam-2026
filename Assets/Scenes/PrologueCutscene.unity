@@ -163,7 +163,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: 54750f3f64ed426c8ef8675967b7af8d, type: 3}
+  m_Resource: {fileID: 8300000, guid: 0958d031f4ea9aa4ca08c830e8feb96f, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
@@ -658,6 +658,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 539134187, guid: bd64d97a1b6d4c198f2c9b54b5d258a6, type: 3}
+      propertyPath: m_isOrthographic
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 539134187, guid: bd64d97a1b6d4c198f2c9b54b5d258a6, type: 3}
+      propertyPath: m_ActiveFontFeatures.Array.size
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1062210100, guid: bd64d97a1b6d4c198f2c9b54b5d258a6, type: 3}
       propertyPath: m_LocalScale.x
       value: 0
@@ -669,6 +677,54 @@ PrefabInstance:
     - target: {fileID: 1062210100, guid: bd64d97a1b6d4c198f2c9b54b5d258a6, type: 3}
       propertyPath: m_LocalScale.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1062210103, guid: bd64d97a1b6d4c198f2c9b54b5d258a6, type: 3}
+      propertyPath: m_AdditionalShaderChannelsFlag
+      value: 25
+      objectReference: {fileID: 0}
+    - target: {fileID: 1552585258, guid: bd64d97a1b6d4c198f2c9b54b5d258a6, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1619447502, guid: bd64d97a1b6d4c198f2c9b54b5d258a6, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -79
+      objectReference: {fileID: 0}
+    - target: {fileID: 1619447502, guid: bd64d97a1b6d4c198f2c9b54b5d258a6, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 24
+      objectReference: {fileID: 0}
+    - target: {fileID: 1619447503, guid: bd64d97a1b6d4c198f2c9b54b5d258a6, type: 3}
+      propertyPath: m_text
+      value: E / Enter  - next; Space - Skip
+      objectReference: {fileID: 0}
+    - target: {fileID: 1619447503, guid: bd64d97a1b6d4c198f2c9b54b5d258a6, type: 3}
+      propertyPath: m_isOrthographic
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1619447503, guid: bd64d97a1b6d4c198f2c9b54b5d258a6, type: 3}
+      propertyPath: m_fontColor32.rgba
+      value: 3675198505
+      objectReference: {fileID: 0}
+    - target: {fileID: 1619447503, guid: bd64d97a1b6d4c198f2c9b54b5d258a6, type: 3}
+      propertyPath: m_TextStyleHashCode
+      value: -1183493901
+      objectReference: {fileID: 0}
+    - target: {fileID: 1619447503, guid: bd64d97a1b6d4c198f2c9b54b5d258a6, type: 3}
+      propertyPath: m_ActiveFontFeatures.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1896284361, guid: bd64d97a1b6d4c198f2c9b54b5d258a6, type: 3}
+      propertyPath: m_isOrthographic
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1896284361, guid: bd64d97a1b6d4c198f2c9b54b5d258a6, type: 3}
+      propertyPath: m_ActiveFontFeatures.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1989010330533451802, guid: bd64d97a1b6d4c198f2c9b54b5d258a6, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
