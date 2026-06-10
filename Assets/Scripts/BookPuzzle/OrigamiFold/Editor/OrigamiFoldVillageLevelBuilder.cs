@@ -1375,6 +1375,7 @@ public static class OrigamiFoldVillageLevelBuilder
         action.animationDuration = 0.3f;
         action.coordinator = coordinator;
         action.useCoordinator = true;
+        OrigamiFoldLevelAudioBuilder.ConfigurePageFoldSound(action);
         action.targets = CreateWallTargets(cells, exitStacks);
         action.enableAfterActive = new[] { mergedPoint.gameObject };
         action.disableAfterActive = new[] { leftPoint.gameObject, rightPoint.gameObject };

@@ -13254,7 +13254,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldStripSqueezeAction
   isActive: 0
   animationDuration: 0.32
-  foldSound: {fileID: 0}
+  foldSound: {fileID: 8300000, guid: bb39e4c8e6a5f86429602b386646fb65, type: 3}
   foldSoundVolume: 1
   coordinator: {fileID: 1906022066}
   useCoordinator: 1
@@ -18616,7 +18616,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldStripSqueezeAction
   isActive: 0
   animationDuration: 0.32
-  foldSound: {fileID: 0}
+  foldSound: {fileID: 8300000, guid: bb39e4c8e6a5f86429602b386646fb65, type: 3}
   foldSoundVolume: 1
   coordinator: {fileID: 1906022066}
   useCoordinator: 1
@@ -25987,7 +25987,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OrigamiFoldStripSqueezeAction
   isActive: 0
   animationDuration: 0.32
-  foldSound: {fileID: 0}
+  foldSound: {fileID: 8300000, guid: bb39e4c8e6a5f86429602b386646fb65, type: 3}
   foldSoundVolume: 1
   coordinator: {fileID: 1906022066}
   useCoordinator: 1

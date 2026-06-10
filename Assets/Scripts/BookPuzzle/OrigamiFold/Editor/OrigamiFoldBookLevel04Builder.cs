@@ -370,6 +370,7 @@ public static class OrigamiFoldBookLevel04Builder
         action.animationDuration = 0.32f;
         action.coordinator = coordinator;
         action.useCoordinator = true;
+        OrigamiFoldLevelAudioBuilder.ConfigurePageFoldSound(action);
         action.targets = CreateColumnTargets(cells, columnX);
         return action;
     }
@@ -387,6 +388,7 @@ public static class OrigamiFoldBookLevel04Builder
         action.animationDuration = 0.32f;
         action.coordinator = coordinator;
         action.useCoordinator = true;
+        OrigamiFoldLevelAudioBuilder.ConfigurePageFoldSound(action);
         action.targets = CreateRowTargets(cells, rowY);
         return action;
     }

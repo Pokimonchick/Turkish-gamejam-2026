@@ -7,6 +7,7 @@ public static class OrigamiFoldLevelAudioBuilder
         "Assets/Audio/sonic289-game-music_-soundtrack_exploration-_-peaceful-area-372769.mp3";
     public const string ForestAmbiencePath = "Assets/Audio/les_den_243.mp3";
     public const string WindAmbiencePath = "Assets/Audio/soundreality-wind-blowing-457954.mp3";
+    public const string PageFoldSoundPath = "Assets/Audio/short-sharp-page-flipping-sound.mp3";
 
     public static void CreateGameplayAudio(
         Transform parent,
@@ -41,6 +42,26 @@ public static class OrigamiFoldLevelAudioBuilder
                 Debug.LogWarning($"Level ambience was not found: {ambienceClipPath}");
             }
         }
+    }
+
+    public static void ConfigurePageFoldSound(
+        OrigamiFoldStripSqueezeAction action,
+        float volume = 1f)
+    {
+        if (action == null)
+        {
+            return;
+        }
+
+        AudioClip clip = AssetDatabase.LoadAssetAtPath<AudioClip>(PageFoldSoundPath);
+        if (clip == null)
+        {
+            Debug.LogWarning($"Page fold sound was not found: {PageFoldSoundPath}");
+            return;
+        }
+
+        action.foldSound = clip;
+        action.foldSoundVolume = Mathf.Clamp01(volume);
     }
 
     private static void CreatePersistentMusicStarter(Transform parent, AudioClip clip)
