@@ -12,61 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a3a40b1ee4441518f69c26c62cb3cde, type: 3}
   m_Name: Mother_FirstVillage
   m_EditorClassIdentifier: Assembly-CSharp::DialogueData
-  dialogueId: Mother_FirstVillage
+  dialogueId: Village_NPC_Mother
   lines:
   - speakerProfile: {fileID: 11400000, guid: 913265bb29e3bd4479eb148e3621055f, type: 2}
-    speakerName: "Mother"
-    text: "Aisulu... you are safe. I was afraid the wind had taken you too."
-    portrait: {fileID: -4998263284151760410, guid: 598d955d8bb62604980b06c7d0a02ca6, type: 3}
-  - speakerProfile: {fileID: 11400000, guid: 6992f1ad55b7805439d6200abb695e15, type: 2}
-    speakerName: "Aisulu"
-    text: "I saw it, Mother. The fire rose into the sky... and Umay flew away with it."
-    portrait: {fileID: 21300000, guid: 39e15864a50fa1c4098c5a8759a13577, type: 3}
-  - speakerProfile: {fileID: 11400000, guid: 913265bb29e3bd4479eb148e3621055f, type: 2}
-    speakerName: "Mother"
-    text: "Then the stories were true. The sacred fire can leave us."
-    portrait: {fileID: -4998263284151760410, guid: 598d955d8bb62604980b06c7d0a02ca6, type: 3}
-  - speakerProfile: {fileID: 11400000, guid: 6992f1ad55b7805439d6200abb695e15, type: 2}
-    speakerName: "Aisulu"
-    text: "The hearth is cold. Everyone is frightened."
-    portrait: {fileID: 21300000, guid: 39e15864a50fa1c4098c5a8759a13577, type: 3}
-  - speakerProfile: {fileID: 11400000, guid: 913265bb29e3bd4479eb148e3621055f, type: 2}
-    speakerName: "Mother"
-    text: "Without fire, fear enters every yurt. Children cry, the elders shiver, and even the night feels closer than before."
-    portrait: {fileID: -4998263284151760410, guid: 598d955d8bb62604980b06c7d0a02ca6, type: 3}
-  - speakerProfile: {fileID: 11400000, guid: 6992f1ad55b7805439d6200abb695e15, type: 2}
-    speakerName: "Aisulu"
-    text: "What should we do?"
-    portrait: {fileID: 21300000, guid: 39e15864a50fa1c4098c5a8759a13577, type: 3}
-  - speakerProfile: {fileID: 11400000, guid: 913265bb29e3bd4479eb148e3621055f, type: 2}
-    speakerName: "Mother"
-    text: "Speak to the Elder. The village will look to him now."
-    portrait: {fileID: -4998263284151760410, guid: 598d955d8bb62604980b06c7d0a02ca6, type: 3}
-  - speakerProfile: {fileID: 11400000, guid: 6992f1ad55b7805439d6200abb695e15, type: 2}
-    speakerName: "Aisulu"
-    text: "And what if he asks me to go?"
-    portrait: {fileID: 21300000, guid: 39e15864a50fa1c4098c5a8759a13577, type: 3}
-  - speakerProfile: {fileID: 11400000, guid: 913265bb29e3bd4479eb148e3621055f, type: 2}
-    speakerName: "Mother"
-    text: "Then listen to your heart before you answer. No one should walk such a road only because others are afraid."
-    portrait: {fileID: -4998263284151760410, guid: 598d955d8bb62604980b06c7d0a02ca6, type: 3}
-  - speakerProfile: {fileID: 11400000, guid: 6992f1ad55b7805439d6200abb695e15, type: 2}
-    speakerName: "Aisulu"
-    text: "I am afraid too."
-    portrait: {fileID: 21300000, guid: 39e15864a50fa1c4098c5a8759a13577, type: 3}
-  - speakerProfile: {fileID: 11400000, guid: 913265bb29e3bd4479eb148e3621055f, type: 2}
-    speakerName: "Mother"
-    text: "I know. But fear does not make your heart weak."
-    portrait: {fileID: -4998263284151760410, guid: 598d955d8bb62604980b06c7d0a02ca6, type: 3}
-  - speakerProfile: {fileID: 11400000, guid: 913265bb29e3bd4479eb148e3621055f, type: 2}
-    speakerName: "Mother"
-    text: "If you go, do not chase Umay with anger. Try to understand her. Sometimes what is taken from us is also trying to teach us."
-    portrait: {fileID: -4998263284151760410, guid: 598d955d8bb62604980b06c7d0a02ca6, type: 3}
-  - speakerProfile: {fileID: 11400000, guid: 6992f1ad55b7805439d6200abb695e15, type: 2}
-    speakerName: "Aisulu"
-    text: "I will remember."
-    portrait: {fileID: 21300000, guid: 39e15864a50fa1c4098c5a8759a13577, type: 3}
-  - speakerProfile: {fileID: 11400000, guid: 913265bb29e3bd4479eb148e3621055f, type: 2}
-    speakerName: "Mother"
-    text: "Come back to me, Aisulu. With fire if you can... but with yourself above all."
-    portrait: {fileID: -4998263284151760410, guid: 598d955d8bb62604980b06c7d0a02ca6, type: 3}
+    speakerName: "\u041C\u0430\u043C\u0430"
+    text: "\u0411\u0443\u0434\u044C \u043E\u0441\u0442\u043E\u0440\u043E\u0436\u043D\u0430,
+      \u0410\u0439\u0441\u0443\u043B\u0443. \u0417\u0430 \u0441\u0442\u0435\u043D\u043E\u0439
+      \u043D\u0430\u0447\u0438\u043D\u0430\u0435\u0442\u0441\u044F \u043F\u0443\u0442\u044C
+      \u0441\u043A\u0430\u0437\u0430\u043D\u0438\u044F."
+    portrait: {fileID: 0}

@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DialogueSpeakerProfile
   speakerId: umay
   displayName: "\u0423\u043C\u0430\u0439"
-  portrait: {fileID: 21300000, guid: 4dc49e8102723a745b4fe928e2fcf9a9, type: 3}
+  portrait: {fileID: 0}

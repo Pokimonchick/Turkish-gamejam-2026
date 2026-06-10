@@ -20,51 +20,63 @@ MonoBehaviour:
     portrait: {fileID: 0}
   - speakerProfile: {fileID: 0}
     speakerName: Narrator
-    text: Long ago, in the wide steppe where the grass moved like a green sea, there stood a nomadic settlement.
+    text: Long ago, in the wide steppe where the grass moved like a green sea, there
+      stood a nomadic settlement.
     portrait: {fileID: 0}
   - speakerProfile: {fileID: 0}
     speakerName: Narrator
-    text: White yurts sheltered families from the wind, and at the heart of the settlement burned a sacred communal fire.
+    text: White yurts sheltered families from the wind, and at the heart of the settlement
+      burned a sacred communal fire.
     portrait: {fileID: 0}
   - speakerProfile: {fileID: 0}
     speakerName: Narrator
-    text: To the nomads, fire was not merely flame. It gave warmth, welcomed guests, guarded the night, and gathered people together.
+    text: To the nomads, fire was not merely flame. It gave warmth, welcomed guests,
+      guarded the night, and gathered people together.
     portrait: {fileID: 0}
   - speakerProfile: {fileID: 0}
     speakerName: Narrator
-    text: Beside the fire, quarrels were settled. Before it, the names of ancestors were remembered. Around it, children heard the old stories.
+    text: Beside the fire, quarrels were settled. Before it, the names of ancestors
+      were remembered. Around it, children heard the old stories.
     portrait: {fileID: 0}
   - speakerProfile: {fileID: 0}
     speakerName: Narrator
-    text: The elders taught that sacred fire must never be disturbed by empty words, anger, or disrespect.
+    text: The elders taught that sacred fire must never be disturbed by empty words,
+      anger, or disrespect.
     portrait: {fileID: 0}
   - speakerProfile: {fileID: 0}
     speakerName: Narrator
-    text: But years passed, and people grew used to its warmth. What had once been a heavenly gift became something ordinary.
+    text: But years passed, and people grew used to its warmth. What had once been
+      a heavenly gift became something ordinary.
     portrait: {fileID: 0}
   - speakerProfile: {fileID: 0}
     speakerName: Narrator
-    text: They stopped thanking the fire. They stopped listening to the silence around it.
+    text: They stopped thanking the fire. They stopped listening to the silence around
+      it.
     portrait: {fileID: 0}
   - speakerProfile: {fileID: 0}
     speakerName: Narrator
-    text: And little by little, the flame that had protected them began to witness cruelty.
+    text: And little by little, the flame that had protected them began to witness
+      cruelty.
     portrait: {fileID: 0}
   - speakerProfile: {fileID: 0}
     speakerName: Narrator
-    text: Fire was no longer used only for home, bread, and warmth. It was used to frighten others.
+    text: Fire was no longer used only for home, bread, and warmth. It was used to
+      frighten others.
     portrait: {fileID: 0}
   - speakerProfile: {fileID: 0}
     speakerName: Narrator
-    text: It burned the dry steppe. It threatened neighboring tribes. It became a sign of anger instead of care.
+    text: It burned the dry steppe. It threatened neighboring tribes. It became a
+      sign of anger instead of care.
     portrait: {fileID: 0}
   - speakerProfile: {fileID: 0}
     speakerName: Narrator
-    text: Then, one night, a wind rose over the steppe unlike any wind the oldest nomads had ever heard.
+    text: Then, one night, a wind rose over the steppe unlike any wind the oldest
+      nomads had ever heard.
     portrait: {fileID: 0}
   - speakerProfile: {fileID: 0}
     speakerName: Narrator
-    text: The sacred flame leapt from the hearth toward the sky, bright and wild, like a red bird spreading its wings.
+    text: The sacred flame leapt from the hearth toward the sky, bright and wild,
+      like a red bird spreading its wings.
     portrait: {fileID: 0}
   - speakerProfile: {fileID: 0}
     speakerName: Narrator
@@ -72,7 +84,8 @@ MonoBehaviour:
     portrait: {fileID: 0}
   - speakerProfile: {fileID: 0}
     speakerName: Narrator
-    text: In the form of a radiant bird, she flew over the settlement and lifted every spark, every ember, every trace of warmth into the darkness.
+    text: In the form of a radiant bird, she flew over the settlement and lifted
+      every spark, every ember, every trace of warmth into the darkness.
     portrait: {fileID: 0}
   - speakerProfile: {fileID: 0}
     speakerName: Narrator
@@ -96,9 +109,11 @@ MonoBehaviour:
     portrait: {fileID: 0}
   - speakerProfile: {fileID: 0}
     speakerName: Narrator
-    text: Beyond the distant trees, where the old paths disappeared into shadow, the last light of the sacred fire was still fading.
+    text: Beyond the distant trees, where the old paths disappeared into shadow,
+      the last light of the sacred fire was still fading.
     portrait: {fileID: 0}
   - speakerProfile: {fileID: 0}
     speakerName: Narrator
-    text: And so began the tale of the girl who would follow the flame and try to bring warmth back to her people.
+    text: And so began the tale of the girl who would follow the flame and try to
+      bring warmth back to her people.
     portrait: {fileID: 0}

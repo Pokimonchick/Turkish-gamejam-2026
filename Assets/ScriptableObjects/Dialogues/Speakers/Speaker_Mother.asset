@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Speaker_Mother
   m_EditorClassIdentifier: Assembly-CSharp::DialogueSpeakerProfile
   speakerId: mother
-  displayName: Mother
-  portrait: {fileID: -4998263284151760410, guid: 598d955d8bb62604980b06c7d0a02ca6, type: 3}
+  displayName: "\u041C\u0430\u043C\u0430"
+  portrait: {fileID: 0}
