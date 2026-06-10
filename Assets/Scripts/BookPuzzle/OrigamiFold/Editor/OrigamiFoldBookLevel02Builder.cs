@@ -21,7 +21,7 @@ public static class OrigamiFoldBookLevel02Builder
     private const string PlayerSpriteGuid = "77d3b28359b42e440905b56447f58511";
     private const string DefaultFootstepProfilePath = "Assets/Resources/Audio/DefaultFootstepAudioProfile.asset";
     private const string DialogueSystemPrefabPath = "Assets/Prefabs/Dialog/DialogueSystem.prefab";
-    private const string InteractionPromptMessage = "E \u2014 \u0432\u0437\u0430\u0438\u043c\u043e\u0434\u0435\u0439\u0441\u0442\u0432\u0438\u0435";
+    private const string InteractionPromptMessage = "E - interaction";
     private const string PreferredFontAssetPath = "Assets/Fonts/artist_nouveau SDF.asset";
     private const string TimurDialoguePath = "Assets/ScriptableObjects/Dialogues/Book_Level_02_Timur.asset";
     private const string TimurSpriteSearchName = "\u0422\u0438\u043c\u0443\u0440";

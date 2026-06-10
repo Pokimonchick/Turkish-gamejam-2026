@@ -26573,7 +26573,7 @@ MonoBehaviour:
   interactKey: 101
   interactionHint: {fileID: 767279169}
   useGlobalInteractionPrompt: 1
-  interactionPromptText: "E \u2014 \u0432\u0437\u0430\u0438\u043C\u043E\u0434\u0435\u0439\u0441\u0442\u0432\u0438\u0435"
+  interactionPromptText: E - interaction
 --- !u!1 &1513649508
 GameObject:
   m_ObjectHideFlags: 0

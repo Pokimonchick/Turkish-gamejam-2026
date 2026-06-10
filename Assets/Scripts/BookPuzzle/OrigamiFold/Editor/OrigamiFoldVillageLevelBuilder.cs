@@ -33,8 +33,7 @@ public static class OrigamiFoldVillageLevelBuilder
         "Assets/ScriptableObjects/Dialogues/Speakers/Speaker_Mother.asset";
     private const string ElderSpeakerProfilePath =
         "Assets/ScriptableObjects/Dialogues/Speakers/Speaker_Elder_Village01.asset";
-    private const string InteractionPromptMessage =
-        "E \u2014 \u0432\u0437\u0430\u0438\u043c\u043e\u0434\u0435\u0439\u0441\u0442\u0432\u0438\u0435";
+    private const string InteractionPromptMessage = "E - interaction";
     private const string DialogueFontCharacters =
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789" +
         "\u0410\u0411\u0412\u0413\u0414\u0415\u0401\u0416\u0417\u0418\u0419\u041a\u041b\u041c\u041d\u041e\u041f\u0420\u0421\u0422\u0423\u0424\u0425\u0426\u0427\u0428\u0429\u042a\u042b\u042c\u042d\u042e\u042f" +

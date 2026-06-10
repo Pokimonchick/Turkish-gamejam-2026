@@ -12,7 +12,7 @@ public class NPCInteractable : MonoBehaviour
     [SerializeField] private KeyCode interactKey = KeyCode.E;
     [SerializeField] private GameObject interactionHint;
     public bool useGlobalInteractionPrompt = true;
-    public string interactionPromptText = "E \u2014 \u0432\u0437\u0430\u0438\u043c\u043e\u0434\u0435\u0439\u0441\u0442\u0432\u0438\u0435";
+    public string interactionPromptText = "E - interaction";
 
     public event System.Action DialogueStartedByThisNpc;
 
