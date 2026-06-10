@@ -134,7 +134,7 @@ public static class OrigamiFoldBookLevel03Builder
         GameObject exit = CreateExitStrip(debugRoot.transform, cells, 11, 2, 5);
         OrigamiFoldTrapTarget wolfTrap =
             CreateWolfTrapEnemy(cells[11, 2], puzzleState);
-        ConfigureWolfGate(leftRowAction, wolfTrap, exit);
+        ConfigureWolfGate(triadRowAction, wolfTrap, exit);
         CreateDialogueSystem(levelRoot.transform);
         CreateEventSystemIfMissing();
         CreateWolfIntroAutoStart(levelRoot.transform, wolfIntroDialogue);
@@ -217,8 +217,8 @@ public static class OrigamiFoldBookLevel03Builder
         DestroySceneObjectsNamed("ExitPlaceholder");
 
         Transform wolfCell = FindMapCellTransform(11, 2);
-        OrigamiFoldStripSqueezeAction leftRowAction =
-            FindSceneObjectComponent<OrigamiFoldStripSqueezeAction>("LeftRowFold_y2");
+        OrigamiFoldStripSqueezeAction triadRowAction =
+            FindSceneObjectComponent<OrigamiFoldStripSqueezeAction>("TriadRowFold_y5");
         OrigamiFoldTrapTarget wolfTrap = null;
         GameObject exit = CreateExitStrip(debugRoot, 11, 2, 5);
 
@@ -231,7 +231,7 @@ public static class OrigamiFoldBookLevel03Builder
             Debug.LogWarning("Could not create wolf gate: MapCell_11_2 is missing.");
         }
 
-        ConfigureWolfGate(leftRowAction, wolfTrap, exit);
+        ConfigureWolfGate(triadRowAction, wolfTrap, exit);
         CreateDialogueSystem(levelRoot);
         CreateEventSystemIfMissing();
         DestroySceneObjectsNamed("WolfIntroAutoStart");
@@ -852,31 +852,31 @@ public static class OrigamiFoldBookLevel03Builder
     }
 
     private static void ConfigureWolfGate(
-        OrigamiFoldStripSqueezeAction rowAction,
+        OrigamiFoldStripSqueezeAction verticalTriadAction,
         OrigamiFoldTrapTarget wolfTrap,
         GameObject exit)
     {
-        if (rowAction == null)
+        if (verticalTriadAction == null)
         {
-            Debug.LogWarning("Could not configure wolf gate: LeftRowFold_y2 action is missing.");
+            Debug.LogWarning("Could not configure wolf gate: TriadRowFold_y5 action is missing.");
             return;
         }
 
-        rowAction.trapTargetsBeforeActive = true;
+        verticalTriadAction.trapTargetsBeforeActive = true;
 
         if (wolfTrap != null)
         {
-            rowAction.trapTargetsWhenActive =
-                AppendUniqueTrapTarget(rowAction.trapTargetsWhenActive, wolfTrap);
+            verticalTriadAction.trapTargetsWhenActive =
+                AppendUniqueTrapTarget(verticalTriadAction.trapTargetsWhenActive, wolfTrap);
         }
 
         if (exit != null)
         {
-            rowAction.enableAfterActive =
-                AppendUniqueGameObject(rowAction.enableAfterActive, exit);
-            rowAction.disableAfterInactive =
-                AppendUniqueGameObject(rowAction.disableAfterInactive, exit);
-            exit.SetActive(rowAction.isActive);
+            verticalTriadAction.enableAfterActive =
+                AppendUniqueGameObject(verticalTriadAction.enableAfterActive, exit);
+            verticalTriadAction.disableAfterInactive =
+                AppendUniqueGameObject(verticalTriadAction.disableAfterInactive, exit);
+            exit.SetActive(verticalTriadAction.isActive);
         }
     }
 
