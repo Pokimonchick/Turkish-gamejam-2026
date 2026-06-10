@@ -13,6 +13,17 @@ public sealed class CategorizedAudioSource : MonoBehaviour
 
     public AudioCategory Category => category;
 
+    public void Configure(AudioCategory sourceCategory, float volume)
+    {
+        category = sourceCategory;
+        sourceVolume = Mathf.Clamp01(volume);
+
+        if (isActiveAndEnabled && GameAudioManager.HasInstance)
+        {
+            GameAudioManager.Instance.Register(this);
+        }
+    }
+
     private void Awake()
     {
         CacheAudioSource();

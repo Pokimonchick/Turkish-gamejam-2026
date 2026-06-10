@@ -26,6 +26,7 @@ public sealed class GameAudioManager : MonoBehaviour
     [Tooltip("Keeps this audio manager alive when another scene is loaded.")]
     [SerializeField] private bool persistBetweenScenes = true;
     [SerializeField] private AudioSource sfxOneShotSource;
+    [SerializeField] private AudioSource persistentMusicSource;
 
     private readonly System.Collections.Generic.HashSet<CategorizedAudioSource> sources =
         new System.Collections.Generic.HashSet<CategorizedAudioSource>();
@@ -106,6 +107,46 @@ public sealed class GameAudioManager : MonoBehaviour
 
         EnsureOneShotSource();
         sfxOneShotSource.PlayOneShot(clip, Mathf.Clamp01(volumeScale));
+    }
+
+    public void PlayMusic(AudioClip clip, bool loop)
+    {
+        if (clip == null)
+        {
+            StopMusic();
+            return;
+        }
+
+        EnsurePersistentMusicSource();
+
+        if (persistentMusicSource.clip != clip)
+        {
+            persistentMusicSource.Stop();
+            persistentMusicSource.clip = clip;
+        }
+
+        persistentMusicSource.loop = loop;
+
+        if (persistentMusicSource.clip.loadState == AudioDataLoadState.Unloaded)
+        {
+            persistentMusicSource.clip.LoadAudioData();
+        }
+
+        if (!persistentMusicSource.isPlaying)
+        {
+            persistentMusicSource.Play();
+        }
+    }
+
+    public void StopMusic()
+    {
+        if (persistentMusicSource == null)
+        {
+            return;
+        }
+
+        persistentMusicSource.Stop();
+        persistentMusicSource.clip = null;
     }
 
     public void SetMasterVolume(float volume)
@@ -194,6 +235,24 @@ public sealed class GameAudioManager : MonoBehaviour
         sfxOneShotSource.loop = false;
 
         sfxObject.AddComponent<CategorizedAudioSource>();
+    }
+
+    private void EnsurePersistentMusicSource()
+    {
+        if (persistentMusicSource != null)
+        {
+            return;
+        }
+
+        var musicObject = new GameObject("Persistent Music Source");
+        musicObject.transform.SetParent(transform);
+
+        persistentMusicSource = musicObject.AddComponent<AudioSource>();
+        persistentMusicSource.playOnAwake = false;
+        persistentMusicSource.loop = true;
+
+        CategorizedAudioSource categorized = musicObject.AddComponent<CategorizedAudioSource>();
+        categorized.Configure(AudioCategory.Music, 1f);
     }
 
     private void OnValidate()

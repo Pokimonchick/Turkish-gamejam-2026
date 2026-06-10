@@ -72,6 +72,9 @@ public static class OrigamiFoldBookLevel03Builder
         DialogueData wolfIntroDialogue = EnsureWolfIntroDialogueData();
 
         GameObject levelRoot = CreateEmpty("LEVEL_ROOT", null);
+        OrigamiFoldLevelAudioBuilder.CreateGameplayAudio(
+            levelRoot.transform,
+            OrigamiFoldLevelAudioBuilder.ForestAmbiencePath);
         GameObject foldSystemRoot = CreateEmpty("ORIGAMI_FOLD_SYSTEM", levelRoot.transform);
         GameObject mapRoot = CreateEmpty("BOOK_LEVEL_MAP", levelRoot.transform);
         GameObject cellsRoot = CreateEmpty("Cells", mapRoot.transform);

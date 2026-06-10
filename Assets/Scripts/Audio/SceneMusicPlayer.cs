@@ -9,6 +9,8 @@ public sealed class SceneMusicPlayer : MonoBehaviour
     [SerializeField] private AudioClip musicClip;
     [SerializeField] private bool playOnStart = true;
     [SerializeField] private bool loop = true;
+    [SerializeField] private bool usePersistentMusic;
+    [SerializeField] private bool stopPersistentMusicOnStart;
 
     private void Awake()
     {
@@ -18,10 +20,30 @@ public sealed class SceneMusicPlayer : MonoBehaviour
 
     private void Start()
     {
+        if (stopPersistentMusicOnStart && GameAudioManager.HasInstance)
+        {
+            GameAudioManager.Instance.StopMusic();
+        }
+
         if (playOnStart)
         {
             Play();
         }
+    }
+
+    public void Configure(
+        AudioSource source,
+        AudioClip clip,
+        bool shouldPlayOnStart,
+        bool shouldLoop,
+        bool shouldUsePersistentMusic)
+    {
+        audioSource = source;
+        musicClip = clip;
+        playOnStart = shouldPlayOnStart;
+        loop = shouldLoop;
+        usePersistentMusic = shouldUsePersistentMusic;
+        ApplySettings();
     }
 
     public void Play()
@@ -34,7 +56,11 @@ public sealed class SceneMusicPlayer : MonoBehaviour
             return;
         }
 
-        _ = GameAudioManager.Instance;
+        if (usePersistentMusic)
+        {
+            GameAudioManager.Instance.PlayMusic(audioSource.clip, loop);
+            return;
+        }
 
         if (audioSource.clip.loadState == AudioDataLoadState.Unloaded)
         {

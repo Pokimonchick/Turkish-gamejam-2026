@@ -153,6 +153,9 @@ public static class OrigamiFoldVillageLevelBuilder
         Camera camera = CreateCamera("Main Camera", new Vector3(0f, 0f, -10f), 5f);
 
         GameObject levelRoot = CreateEmpty("LEVEL_ROOT", null);
+        OrigamiFoldLevelAudioBuilder.CreateGameplayAudio(
+            levelRoot.transform,
+            OrigamiFoldLevelAudioBuilder.ForestAmbiencePath);
         GameObject foldSystemRoot = CreateEmpty("ORIGAMI_FOLD_SYSTEM", levelRoot.transform);
         GameObject mapRoot = CreateEmpty("VILLAGE_MAP", levelRoot.transform);
         GameObject cellsRoot = CreateEmpty("Cells", mapRoot.transform);
