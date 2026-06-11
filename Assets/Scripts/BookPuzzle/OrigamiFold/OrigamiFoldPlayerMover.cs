@@ -36,14 +36,14 @@ public class OrigamiFoldPlayerMover : MonoBehaviour
     private float footstepTimer;
     private int lastFootstepIndex = -1;
     private bool wasWalking;
-    private PaperDollWalkAnimator paperAnimator;
+    private SpriteWalkAnimator spriteWalkAnimator;
 
     private void Awake()
     {
         body = GetComponent<Rigidbody2D>();
         body.gravityScale = 0f;
         body.freezeRotation = true;
-        paperAnimator = GetComponentInChildren<PaperDollWalkAnimator>();
+        spriteWalkAnimator = GetComponentInChildren<SpriteWalkAnimator>();
         passenger = GetComponent<OrigamiFoldPassenger>();
 
         ResetFootstepTimer();
@@ -55,7 +55,7 @@ public class OrigamiFoldPlayerMover : MonoBehaviour
         if (OrigamiFoldDialogueGuard.IsDialogueActive())
         {
             moveInput = Vector2.zero;
-            SetPaperAnimatorWalking(false);
+            SetSpriteWalkAnimatorWalking(false);
             return;
         }
 
@@ -66,9 +66,9 @@ public class OrigamiFoldPlayerMover : MonoBehaviour
             moveInput.Normalize();
         }
 
-        if (paperAnimator != null)
+        if (spriteWalkAnimator != null)
         {
-            paperAnimator.SetFacing(moveInput.x);
+            spriteWalkAnimator.SetFacing(moveInput.x);
         }
     }
 
@@ -78,14 +78,14 @@ public class OrigamiFoldPlayerMover : MonoBehaviour
         {
             moveInput = Vector2.zero;
             HandleFootsteps(false);
-            SetPaperAnimatorWalking(false);
+            SetSpriteWalkAnimatorWalking(false);
             return;
         }
 
         if (moveInput == Vector2.zero)
         {
             HandleFootsteps(false);
-            SetPaperAnimatorWalking(false);
+            SetSpriteWalkAnimatorWalking(false);
             return;
         }
 
@@ -111,7 +111,7 @@ public class OrigamiFoldPlayerMover : MonoBehaviour
             body.MovePosition(targetPosition);
             moved = true;
             HandleFootsteps(moved);
-            SetPaperAnimatorWalking(moved);
+            SetSpriteWalkAnimatorWalking(moved);
             return;
         }
 
@@ -141,7 +141,7 @@ public class OrigamiFoldPlayerMover : MonoBehaviour
         }
 
         HandleFootsteps(moved);
-        SetPaperAnimatorWalking(moved);
+        SetSpriteWalkAnimatorWalking(moved);
     }
 
     public bool CanOccupy(Vector2 targetPosition)
@@ -418,14 +418,14 @@ public class OrigamiFoldPlayerMover : MonoBehaviour
         footstepTimer = Random.Range(minInterval, maxInterval);
     }
 
-    private void SetPaperAnimatorWalking(bool walking)
+    private void SetSpriteWalkAnimatorWalking(bool walking)
     {
-        if (paperAnimator == null)
+        if (spriteWalkAnimator == null)
         {
             return;
         }
 
-        paperAnimator.SetWalking(walking);
+        spriteWalkAnimator.SetWalking(walking);
     }
 
     private void OnValidate()

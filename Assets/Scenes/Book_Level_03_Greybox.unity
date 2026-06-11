@@ -20231,20 +20231,21 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1161ad7fa67c4c4382a502256c909638, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PaperDollWalkAnimator
+  m_EditorClassIdentifier: Assembly-CSharp::SpriteWalkAnimator
   visualRoot: {fileID: 1162725274}
   spriteRenderer: {fileID: 1162725276}
-  idleRockTiltAmplitude: 1.5
-  idleRockSpeed: 3.46
-  walkRockTiltAmplitude: 7
-  walkRockSpeed: 7
-  walkBobHeight: 0.05
-  walkSideOffset: 0.03
-  steppedMotion: 1
-  stepiness: 1
-  stepsPerCycle: 4
-  snapSteppedPoses: 1
-  returnSmoothness: 0
+  idleSprite: {fileID: -1716235805892606973, guid: 77d3b28359b42e440905b56447f58511, type: 3}
+  walkFrames:
+  - {fileID: -3807961883772049412, guid: 04fd1996931d60241ad15131e78e0b80, type: 3}
+  - {fileID: 1032039262693989627, guid: 72694a880eea2434291ff29ed8478fb9, type: 3}
+  - {fileID: -3634091196731740955, guid: 1df6a51ba71b29a48bd669aa07afe84e, type: 3}
+  - {fileID: 6038554633909149522, guid: 9c0ec27e6f33b05499da99b91f19d725, type: 3}
+  - {fileID: -1352479395674833887, guid: 9a5662be1ee05054da93d8e77b336d21, type: 3}
+  - {fileID: 4490201457092491475, guid: 33bc02ae5f9459f4db1c4a0457f7aadd, type: 3}
+  walkFramesPerSecond: 8
+  spriteFacesRight: 1
+  matchFramesToIdleHeight: 1
+  anchorFramesToIdleBounds: 1
   flipByDirection: 1
 --- !u!212 &1162725276
 SpriteRenderer:

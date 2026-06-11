@@ -36,6 +36,15 @@ public static class OrigamiFoldBookLevel04Builder
     private static readonly Vector3 CellContentLocalOffset = Vector3.zero;
     private const float PlayerVisualScale = 0.14f;
     private const float PlayerVisualFootYOffset = 0.02f;
+    private static readonly string[] PlayerWalkFrameGuids =
+    {
+        "04fd1996931d60241ad15131e78e0b80",
+        "72694a880eea2434291ff29ed8478fb9",
+        "1df6a51ba71b29a48bd669aa07afe84e",
+        "9c0ec27e6f33b05499da99b91f19d725",
+        "9a5662be1ee05054da93d8e77b336d21",
+        "33bc02ae5f9459f4db1c4a0457f7aadd"
+    };
 
     private static readonly string[] LayoutTopToBottom =
     {
@@ -799,8 +808,8 @@ public static class OrigamiFoldBookLevel04Builder
         renderer.color = Color.white;
         renderer.sortingOrder = 70;
 
-        PaperDollWalkAnimator animator = visual.AddComponent<PaperDollWalkAnimator>();
-        ConfigurePaperDollAnimator(animator, visual.transform, renderer);
+        SpriteWalkAnimator animator = visual.AddComponent<SpriteWalkAnimator>();
+        ConfigureSpriteWalkAnimator(animator, visual.transform, renderer);
         return visual;
     }
 
@@ -839,6 +848,44 @@ public static class OrigamiFoldBookLevel04Builder
         }
 
         return null;
+    }
+
+    private static Sprite[] FindPlayerWalkFrames()
+    {
+        List<Sprite> frames = new List<Sprite>();
+
+        for (int i = 0; i < PlayerWalkFrameGuids.Length; i++)
+        {
+            string path = AssetDatabase.GUIDToAssetPath(PlayerWalkFrameGuids[i]);
+
+            if (string.IsNullOrEmpty(path))
+            {
+                continue;
+            }
+
+            Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>(path);
+
+            if (sprite == null)
+            {
+                Object[] assets = AssetDatabase.LoadAllAssetsAtPath(path);
+
+                foreach (Object asset in assets)
+                {
+                    if (asset is Sprite nestedSprite)
+                    {
+                        sprite = nestedSprite;
+                        break;
+                    }
+                }
+            }
+
+            if (sprite != null)
+            {
+                frames.Add(sprite);
+            }
+        }
+
+        return frames.ToArray();
     }
 
     private static Sprite FindCrowSprite()
@@ -912,25 +959,28 @@ public static class OrigamiFoldBookLevel04Builder
         }
     }
 
-    private static void ConfigurePaperDollAnimator(
-        PaperDollWalkAnimator animator,
+    private static void ConfigureSpriteWalkAnimator(
+        SpriteWalkAnimator animator,
         Transform visualRoot,
         SpriteRenderer renderer)
     {
         SerializedObject serialized = new SerializedObject(animator);
         serialized.FindProperty("visualRoot").objectReferenceValue = visualRoot;
         serialized.FindProperty("spriteRenderer").objectReferenceValue = renderer;
-        serialized.FindProperty("idleRockTiltAmplitude").floatValue = 1.5f;
-        serialized.FindProperty("idleRockSpeed").floatValue = 3.46f;
-        serialized.FindProperty("walkRockTiltAmplitude").floatValue = 7f;
-        serialized.FindProperty("walkRockSpeed").floatValue = 7f;
-        serialized.FindProperty("walkBobHeight").floatValue = 0.05f;
-        serialized.FindProperty("walkSideOffset").floatValue = 0.03f;
-        serialized.FindProperty("steppedMotion").boolValue = true;
-        serialized.FindProperty("stepiness").floatValue = 1f;
-        serialized.FindProperty("stepsPerCycle").intValue = 4;
-        serialized.FindProperty("snapSteppedPoses").boolValue = true;
-        serialized.FindProperty("returnSmoothness").floatValue = 0f;
+        serialized.FindProperty("idleSprite").objectReferenceValue = renderer.sprite;
+        Sprite[] walkFrames = FindPlayerWalkFrames();
+        SerializedProperty walkFramesProperty = serialized.FindProperty("walkFrames");
+        walkFramesProperty.arraySize = walkFrames.Length;
+
+        for (int i = 0; i < walkFrames.Length; i++)
+        {
+            walkFramesProperty.GetArrayElementAtIndex(i).objectReferenceValue = walkFrames[i];
+        }
+
+        serialized.FindProperty("walkFramesPerSecond").floatValue = 8f;
+        serialized.FindProperty("spriteFacesRight").boolValue = true;
+        serialized.FindProperty("matchFramesToIdleHeight").boolValue = true;
+        serialized.FindProperty("anchorFramesToIdleBounds").boolValue = true;
         serialized.FindProperty("flipByDirection").boolValue = true;
         serialized.ApplyModifiedPropertiesWithoutUndo();
     }
