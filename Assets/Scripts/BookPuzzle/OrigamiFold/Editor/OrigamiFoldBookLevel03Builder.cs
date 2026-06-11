@@ -893,7 +893,9 @@ public static class OrigamiFoldBookLevel03Builder
         }
     }
 
-    private static void ConfigureWolfTrapGroup(OrigamiFoldTriadGroup triadGroup, OrigamiFoldTrapTarget wolfTrap)
+    private static void ConfigureWolfTrapGroup(
+        OrigamiFoldTriadGroup triadGroup,
+        OrigamiFoldTrapTarget wolfTrap)
     {
         if (triadGroup == null)
         {

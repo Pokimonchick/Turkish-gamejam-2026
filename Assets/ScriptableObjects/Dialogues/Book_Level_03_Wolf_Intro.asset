@@ -20,7 +20,7 @@ MonoBehaviour:
       your people.
     portrait: {fileID: 21300000, guid: 9a1139074231df44cb384f333e6482e1, type: 3}
   - speakerProfile: {fileID: 11400000, guid: 6992f1ad55b7805439d6200abb695e15, type: 2}
-    speakerName: Aisulu
+    speakerName: Aisulu11
     text: I did not come to cut down trees, and I did not come to hunt. I am searching
       for the road to Umay and trying to understand where our guilt began.
     portrait: {fileID: 21300000, guid: 39e15864a50fa1c4098c5a8759a13577, type: 3}
