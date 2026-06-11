@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Speaker_Umay
   m_EditorClassIdentifier: Assembly-CSharp::DialogueSpeakerProfile
   speakerId: umay
-  displayName: "\u0423\u043C\u0430\u0439"
+  displayName: Umay
   portrait: {fileID: 0}

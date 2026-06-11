@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Speaker_Elder_Village01
   m_EditorClassIdentifier: Assembly-CSharp::DialogueSpeakerProfile
   speakerId: elder_village_01
-  displayName: "\u0421\u0442\u0430\u0440\u0435\u0439\u0448\u0438\u043D\u0430"
+  displayName: Elder
   portrait: {fileID: 21300000, guid: ff17297a414b1f74289e2adc9e3e590b, type: 3}

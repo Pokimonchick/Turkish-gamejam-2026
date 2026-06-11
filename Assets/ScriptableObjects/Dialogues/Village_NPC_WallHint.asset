@@ -15,7 +15,6 @@ MonoBehaviour:
   dialogueId: Village_NPC_Elder_Wall
   lines:
   - speakerProfile: {fileID: 11400000, guid: dce1613e54865ac40a2484729a4966fc, type: 2}
-    speakerName: "\u0421\u0442\u0430\u0440\u0435\u0439\u0448\u0438\u043D\u0430"
-    text: "\u041E\u0433\u043E\u043D\u044C \u0438\u0441\u0447\u0435\u0437. \u0410\u0439\u0441\u0443\u043B\u0443,
-      \u043D\u0430\u0439\u0434\u0438 \u043F\u0443\u0442\u044C \u0437\u0430 \u0441\u0442\u0435\u043D\u043E\u0439."
+    speakerName: Elder
+    text: The fire was gone. Aisulu, find a way behind the wall.
     portrait: {fileID: 21300000, guid: ff17297a414b1f74289e2adc9e3e590b, type: 3}

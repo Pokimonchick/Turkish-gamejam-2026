@@ -15,8 +15,8 @@ MonoBehaviour:
   dialogueId: prologue_the_stolen_fire
   lines:
   - speakerProfile: {fileID: 0}
-    speakerName: Title
-    text: Prologue. The Stolen Fire
+    speakerName: Prologue
+    text: The Stolen Fire
     portrait: {fileID: 0}
   - speakerProfile: {fileID: 0}
     speakerName: Narrator
