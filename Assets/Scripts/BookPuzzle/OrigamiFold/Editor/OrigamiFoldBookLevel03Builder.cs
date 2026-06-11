@@ -116,7 +116,7 @@ public static class OrigamiFoldBookLevel03Builder
             linksRoot.transform,
             leftRowAction,
             cells[1, LeftRowFoldY]);
-        CreateTriadFoldControls(
+        OrigamiFoldTriadGroup triadGroup = CreateTriadFoldControls(
             pointsRoot.transform,
             linksRoot.transform,
             actionsRoot.transform,
@@ -134,7 +134,7 @@ public static class OrigamiFoldBookLevel03Builder
         GameObject exit = CreateExitStrip(debugRoot.transform, cells, 11, 2, 5);
         OrigamiFoldTrapTarget wolfTrap =
             CreateWolfTrapEnemy(cells[11, 2], puzzleState);
-        ConfigureWolfGate(triadRowAction, wolfTrap, exit);
+        ConfigureWolfGate(triadColumnAction, triadRowAction, triadGroup, wolfTrap, exit);
         CreateDialogueSystem(levelRoot.transform);
         CreateEventSystemIfMissing();
         CreateWolfIntroAutoStart(levelRoot.transform, wolfIntroDialogue);
@@ -217,8 +217,12 @@ public static class OrigamiFoldBookLevel03Builder
         DestroySceneObjectsNamed("ExitPlaceholder");
 
         Transform wolfCell = FindMapCellTransform(11, 2);
+        OrigamiFoldStripSqueezeAction triadColumnAction =
+            FindSceneObjectComponent<OrigamiFoldStripSqueezeAction>("TriadColumnFold_x7");
         OrigamiFoldStripSqueezeAction triadRowAction =
             FindSceneObjectComponent<OrigamiFoldStripSqueezeAction>("TriadRowFold_y5");
+        OrigamiFoldTriadGroup triadGroup =
+            FindSceneObjectComponent<OrigamiFoldTriadGroup>("TriadGroup");
         OrigamiFoldTrapTarget wolfTrap = null;
         GameObject exit = CreateExitStrip(debugRoot, 11, 2, 5);
 
@@ -231,7 +235,7 @@ public static class OrigamiFoldBookLevel03Builder
             Debug.LogWarning("Could not create wolf gate: MapCell_11_2 is missing.");
         }
 
-        ConfigureWolfGate(triadRowAction, wolfTrap, exit);
+        ConfigureWolfGate(triadColumnAction, triadRowAction, triadGroup, wolfTrap, exit);
         CreateDialogueSystem(levelRoot);
         CreateEventSystemIfMissing();
         DestroySceneObjectsNamed("WolfIntroAutoStart");
@@ -852,32 +856,59 @@ public static class OrigamiFoldBookLevel03Builder
     }
 
     private static void ConfigureWolfGate(
+        OrigamiFoldStripSqueezeAction horizontalTriadAction,
         OrigamiFoldStripSqueezeAction verticalTriadAction,
+        OrigamiFoldTriadGroup triadGroup,
         OrigamiFoldTrapTarget wolfTrap,
         GameObject exit)
     {
-        if (verticalTriadAction == null)
+        ConfigureWolfGateAction(horizontalTriadAction, exit, "TriadColumnFold_x7");
+        ConfigureWolfGateAction(verticalTriadAction, exit, "TriadRowFold_y5");
+        ConfigureWolfTrapGroup(triadGroup, wolfTrap);
+
+        if (exit != null)
         {
-            Debug.LogWarning("Could not configure wolf gate: TriadRowFold_y5 action is missing.");
-            return;
+            bool isActive =
+                (horizontalTriadAction != null && horizontalTriadAction.isActive) ||
+                (verticalTriadAction != null && verticalTriadAction.isActive);
+            exit.SetActive(isActive);
         }
+    }
 
-        verticalTriadAction.trapTargetsBeforeActive = true;
-
-        if (wolfTrap != null)
+    private static void ConfigureWolfGateAction(
+        OrigamiFoldStripSqueezeAction action,
+        GameObject exit,
+        string actionName)
+    {
+        if (action == null)
         {
-            verticalTriadAction.trapTargetsWhenActive =
-                AppendUniqueTrapTarget(verticalTriadAction.trapTargetsWhenActive, wolfTrap);
+            Debug.LogWarning($"Could not configure wolf gate: {actionName} action is missing.");
+            return;
         }
 
         if (exit != null)
         {
-            verticalTriadAction.enableAfterActive =
-                AppendUniqueGameObject(verticalTriadAction.enableAfterActive, exit);
-            verticalTriadAction.disableAfterInactive =
-                AppendUniqueGameObject(verticalTriadAction.disableAfterInactive, exit);
-            exit.SetActive(verticalTriadAction.isActive);
+            action.enableAfterActive = AppendUniqueGameObject(action.enableAfterActive, exit);
+            action.disableAfterInactive = AppendUniqueGameObject(action.disableAfterInactive, exit);
         }
+    }
+
+    private static void ConfigureWolfTrapGroup(OrigamiFoldTriadGroup triadGroup, OrigamiFoldTrapTarget wolfTrap)
+    {
+        if (triadGroup == null)
+        {
+            Debug.LogWarning("Could not configure wolf trap: TriadGroup is missing.");
+            return;
+        }
+
+        if (wolfTrap == null)
+        {
+            return;
+        }
+
+        triadGroup.trapTargetsBeforeFold = true;
+        triadGroup.trapTargetsWhenFolded =
+            AppendUniqueTrapTarget(triadGroup.trapTargetsWhenFolded, wolfTrap);
     }
 
     private static GameObject[] AppendUniqueGameObject(GameObject[] source, GameObject item)
@@ -1341,7 +1372,7 @@ public static class OrigamiFoldBookLevel03Builder
         CreateStripLink("Left_Link_BTT", linksParent, bottom, top, action);
     }
 
-    private static void CreateTriadFoldControls(
+    private static OrigamiFoldTriadGroup CreateTriadFoldControls(
         Transform pointsParent,
         Transform linksParent,
         Transform actionsParent,
@@ -1484,6 +1515,8 @@ public static class OrigamiFoldBookLevel03Builder
             pointTopCorner,
             group,
             OrigamiFoldTriadCommand.FoldHorizontal);
+
+        return group;
     }
 
     private static void AddTriadClick(

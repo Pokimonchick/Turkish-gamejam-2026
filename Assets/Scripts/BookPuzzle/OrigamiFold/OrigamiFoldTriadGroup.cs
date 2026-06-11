@@ -26,6 +26,8 @@ public class OrigamiFoldTriadGroup : MonoBehaviour
     public OrigamiFoldActionCoordinator coordinator;
     public bool isBusy;
     public bool allowSecondFold = true;
+    public OrigamiFoldTrapTarget[] trapTargetsWhenFolded;
+    public bool trapTargetsBeforeFold = true;
 
     public GameObject[] visibleWhenUnfolded;
     public GameObject[] visibleWhenHorizontalFolded;
@@ -105,6 +107,13 @@ public class OrigamiFoldTriadGroup : MonoBehaviour
 
         yield return WaitForCoordinator();
 
+        if (trapTargetsBeforeFold
+            && (command == OrigamiFoldTriadCommand.FoldHorizontal
+                || command == OrigamiFoldTriadCommand.FoldVertical))
+        {
+            SetTrapTargets(true);
+        }
+
         switch (command)
         {
             case OrigamiFoldTriadCommand.FoldHorizontal:
@@ -151,7 +160,26 @@ public class OrigamiFoldTriadGroup : MonoBehaviour
         }
 
         ApplyVisibility();
+        SetTrapTargets(state != OrigamiFoldTriadState.Unfolded);
         isBusy = false;
+    }
+
+    private void SetTrapTargets(bool trapped)
+    {
+        if (trapTargetsWhenFolded == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < trapTargetsWhenFolded.Length; i++)
+        {
+            OrigamiFoldTrapTarget trapTarget = trapTargetsWhenFolded[i];
+
+            if (trapTarget != null)
+            {
+                trapTarget.SetTrapped(this, trapped);
+            }
+        }
     }
 
     private IEnumerator SetActionActive(
