@@ -1225,7 +1225,7 @@ public static class OrigamiFoldBookLevel03Builder
         action.coordinator = coordinator;
         action.useCoordinator = true;
         OrigamiFoldLevelAudioBuilder.ConfigurePageFoldSound(action);
-        action.targets = CreateRowTargets(cells, rowY);
+        action.targets = CreateRowTargets(cells, rowY, name == "LeftRowFold_y2" ? 11 : -1, rowY);
         return action;
     }
 
@@ -1269,7 +1269,11 @@ public static class OrigamiFoldBookLevel03Builder
         return targets.ToArray();
     }
 
-    private static OrigamiStripContributionTarget[] CreateRowTargets(CellData[,] cells, int rowY)
+    private static OrigamiStripContributionTarget[] CreateRowTargets(
+        CellData[,] cells,
+        int rowY,
+        int excludedX = -1,
+        int excludedY = -1)
     {
         List<OrigamiStripContributionTarget> targets = new List<OrigamiStripContributionTarget>();
 
@@ -1277,6 +1281,11 @@ public static class OrigamiFoldBookLevel03Builder
         {
             for (int x = 0; x < MapWidth; x++)
             {
+                if (x == excludedX && y == excludedY)
+                {
+                    continue;
+                }
+
                 Vector3 offset = Vector3.zero;
                 Vector3 scaleMultiplier = Vector3.one;
 
