@@ -606,13 +606,24 @@ MonoBehaviour:
   m_GameObject: {fileID: 500000}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e1efcc37a64a4a24b9ca2c5eda6f1cc1, type: 3}
+  m_Script: {fileID: 11500000, guid: 7fd5c3d36589a144fa61b45a2d084f4c, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PrologueCutsceneController
+  m_EditorClassIdentifier: Assembly-CSharp::FinalCutsceneController
   dialogueData: {fileID: 11400000, guid: fb3cf3f5b916455583ca728bb5e76dbb, type: 2}
   nextSceneName: MainMenu
   startDelaySeconds: 0.25
   playOnStart: 1
+  targetCanvas: {fileID: 200002}
+  comicPanelSprites:
+  - {fileID: 43641788752240646, guid: 39944d030f412264099805d6271ccd26, type: 3}
+  - {fileID: -8908500559443860630, guid: a8031932e747e8140a34947cbeea8b57, type: 3}
+  - {fileID: -5570409314725237303, guid: ec460037f7c67b847b6619d98342ecc4, type: 3}
+  panelFadeSeconds: 0.85
+  panelIntervalSeconds: 0.35
+  postFinalPanelInputLockSeconds: 1
+  backgroundColor: {r: 0, g: 0, b: 0, a: 1}
+  panelFrameColor: {r: 0.95, g: 0.88, b: 0.72, a: 1}
+  panelMatteColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!4 &500002
 Transform:
   m_ObjectHideFlags: 0
