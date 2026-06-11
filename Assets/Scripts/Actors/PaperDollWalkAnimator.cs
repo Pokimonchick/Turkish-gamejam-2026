@@ -8,6 +8,12 @@ public sealed class PaperDollWalkAnimator : MonoBehaviour
     [SerializeField] private Transform visualRoot;
     [SerializeField] private SpriteRenderer spriteRenderer;
 
+    [Header("Sprite Frames")]
+    [SerializeField] private Sprite idleSprite;
+    [SerializeField] private Sprite[] walkFrames;
+    [SerializeField, Min(0.01f)] private float walkFramesPerSecond = 8f;
+    [SerializeField] private bool spriteFacesRight = true;
+
     [Header("Idle Rocking")]
     [FormerlySerializedAs("idleTiltAngle")]
     [SerializeField, Min(0f)] private float idleRockTiltAmplitude = 1.2f;
@@ -38,17 +44,21 @@ public sealed class PaperDollWalkAnimator : MonoBehaviour
     private Quaternion initialLocalRotation;
     private Vector3 initialLocalScale;
     private bool hasInitialTransform;
+    private int currentFrameIndex = -1;
 
     private void Awake()
     {
         CacheReferences();
+        CaptureIdleSprite();
         CaptureInitialTransform();
     }
 
     private void OnEnable()
     {
         CacheReferences();
+        CaptureIdleSprite();
         CaptureInitialTransform();
+        ApplyCurrentSprite();
     }
 
     private void Update()
@@ -59,6 +69,7 @@ public sealed class PaperDollWalkAnimator : MonoBehaviour
         }
 
         time += Time.deltaTime;
+        ApplyCurrentSprite();
 
         if (isWalking)
         {
@@ -72,7 +83,15 @@ public sealed class PaperDollWalkAnimator : MonoBehaviour
 
     public void SetWalking(bool walking)
     {
+        if (isWalking == walking)
+        {
+            return;
+        }
+
         isWalking = walking;
+        time = 0f;
+        currentFrameIndex = -1;
+        ApplyCurrentSprite();
     }
 
     public void SetFacing(float directionX)
@@ -82,7 +101,7 @@ public sealed class PaperDollWalkAnimator : MonoBehaviour
             return;
         }
 
-        spriteRenderer.flipX = directionX < 0f;
+        spriteRenderer.flipX = spriteFacesRight ? directionX < 0f : directionX > 0f;
     }
 
     public void ResetVisual()
@@ -201,8 +220,98 @@ public sealed class PaperDollWalkAnimator : MonoBehaviour
         hasInitialTransform = true;
     }
 
+    private void CaptureIdleSprite()
+    {
+        if (idleSprite == null && spriteRenderer != null)
+        {
+            idleSprite = spriteRenderer.sprite;
+        }
+    }
+
+    private void ApplyCurrentSprite()
+    {
+        if (spriteRenderer == null)
+        {
+            return;
+        }
+
+        Sprite targetSprite = GetCurrentSprite();
+
+        if (targetSprite != null && spriteRenderer.sprite != targetSprite)
+        {
+            spriteRenderer.sprite = targetSprite;
+        }
+    }
+
+    private Sprite GetCurrentSprite()
+    {
+        if (!isWalking || walkFrames == null || walkFrames.Length == 0)
+        {
+            currentFrameIndex = -1;
+            return idleSprite;
+        }
+
+        int frameCount = GetUsableWalkFrameCount();
+
+        if (frameCount == 0)
+        {
+            currentFrameIndex = -1;
+            return idleSprite;
+        }
+
+        int frameIndex = Mathf.FloorToInt(time * walkFramesPerSecond) % frameCount;
+
+        if (frameIndex == currentFrameIndex)
+        {
+            return null;
+        }
+
+        currentFrameIndex = frameIndex;
+        return GetUsableWalkFrame(frameIndex);
+    }
+
+    private int GetUsableWalkFrameCount()
+    {
+        int count = 0;
+
+        for (int i = 0; i < walkFrames.Length; i++)
+        {
+            if (walkFrames[i] != null)
+            {
+                count++;
+            }
+        }
+
+        return count;
+    }
+
+    private Sprite GetUsableWalkFrame(int usableIndex)
+    {
+        int currentUsableIndex = 0;
+
+        for (int i = 0; i < walkFrames.Length; i++)
+        {
+            Sprite frame = walkFrames[i];
+
+            if (frame == null)
+            {
+                continue;
+            }
+
+            if (currentUsableIndex == usableIndex)
+            {
+                return frame;
+            }
+
+            currentUsableIndex++;
+        }
+
+        return null;
+    }
+
     private void OnValidate()
     {
+        walkFramesPerSecond = Mathf.Max(0.01f, walkFramesPerSecond);
         idleRockTiltAmplitude = Mathf.Max(0f, idleRockTiltAmplitude);
         idleRockSpeed = Mathf.Max(0f, idleRockSpeed);
         walkRockTiltAmplitude = Mathf.Max(0f, walkRockTiltAmplitude);
